@@ -464,11 +464,11 @@ export default function Questionnaire() {
         body: JSON.stringify(payload),
       })
       const data = await res.json()
+      // Siempre guardar en sessionStorage para que Report lo lea
+      sessionStorage.setItem('ecometrix_result', JSON.stringify(data))
       if (data.id) {
         navigate(`/reporte/${data.id}`)
       } else {
-        // Fallback: ir a reporte con datos en sessionStorage
-        sessionStorage.setItem('ecometrix_result', JSON.stringify(data))
         navigate('/reporte/preview')
       }
     } catch (err) {
