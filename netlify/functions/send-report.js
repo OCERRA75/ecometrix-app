@@ -172,7 +172,7 @@ export const handler = async (event) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'EcoMetriX <diagnostico@ecometrix-co.netlify.app>',
+        from: 'EcoMetriX <onboarding@resend.dev>',
         to: [empresa.email],
         subject: `Tu diagnóstico de huella de carbono — ${empresa.nombre}`,
         html,
