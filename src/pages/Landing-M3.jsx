@@ -54,7 +54,7 @@ function Navbar({ scrolled }) {
             <a key={item} href="#" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{item}</a>
           ))}
         </div>
-        <a href="#diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
+        <a href="/diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
           Diagnóstico gratis <IconArrow />
         </a>
         <button onClick={() => setOpen(!open)} className={`md:hidden ${scrolled ? 'text-text-primary' : 'text-white'}`}>
@@ -68,7 +68,7 @@ function Navbar({ scrolled }) {
           {['Cómo funciona', 'Estándares', 'Sectores'].map(item => (
             <a key={item} href="#" className="text-sm font-medium text-text-secondary">{item}</a>
           ))}
-          <a href="#diagnostico" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-300 text-white text-sm font-medium">Diagnóstico gratis</a>
+          <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-300 text-white text-sm font-medium">Diagnóstico gratis</a>
         </div>
       )}
     </nav>
@@ -101,7 +101,7 @@ function Hero() {
             EcoMetriX diagnostica las emisiones de tu empresa usando inteligencia artificial y los estándares más rigurosos del mundo. Obtén un reporte profesional listo para clientes, inversores y reguladores.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mb-14">
-            <a href="#diagnostico" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-brand-400 text-base font-semibold hover:bg-brand-50 transition-all active:scale-95 shadow-lg">
+            <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-brand-400 text-base font-semibold hover:bg-brand-50 transition-all active:scale-95 shadow-lg">
               Iniciar diagnóstico gratis <IconArrow />
             </a>
             <a href="#como-funciona" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white text-base font-medium hover:bg-white/20 transition-all">
