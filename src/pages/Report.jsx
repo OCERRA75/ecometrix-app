@@ -192,30 +192,34 @@ export default function Report() {
   useEffect(() => {
     const load = async () => {
       try {
-        // Primero intenta sessionStorage (fallback del cuestionario)
         const stored = sessionStorage.getItem('ecometrix_result')
         if (stored) {
           const parsed = JSON.parse(stored)
           setData(parsed)
           setLoading(false)
+          // Enviar email automáticamente (solo una vez)
+          const emailSent = sessionStorage.getItem('ecometrix_email_sent')
+          if (!emailSent) {
+            sessionStorage.setItem('ecometrix_email_sent', '1')
+            fetch('/.netlify/functions/send-report', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                empresa: parsed.empresa,
+                calculo: parsed.calculo,
+                analisis: parsed.analisis,
+                reporteId: parsed.id,
+              }),
+            }).catch(err => console.warn('Email send failed:', err))
+          }
           return
         }
-
-        // Si tiene ID real, busca en la API
-        if (id && id !== 'preview') {
-          // TODO M11: buscar en Supabase por ID
-          // Por ahora redirige al diagnóstico si no hay datos
-          navigate('/diagnostico')
-          return
-        }
-
         navigate('/diagnostico')
       } catch (err) {
         setError('Error cargando el reporte')
         setLoading(false)
       }
     }
-    // Simula tiempo de carga para UX
     setTimeout(load, 2200)
   }, [id])
 
