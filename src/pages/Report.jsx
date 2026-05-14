@@ -85,21 +85,19 @@ function MetricCard({ label, value, unit, sub, accent = false }) {
 }
 
 // ─── ALCANCE CHART ────────────────────────────────────────────────────────────
-function AlcanceChart({ alcance1, alcance2 }) {
-  const total = alcance1 + alcance2 || 1
-  const data = [
-    { name: 'Alcance 2', value: alcance2, pct: Math.round(alcance2 / total * 100), color: '#534AB7' },
-    { name: 'Alcance 1', value: alcance1, pct: Math.round(alcance1 / total * 100), color: '#1D9E75' },
+function AlcanceChart({ alcance1, alcance2, alcance3 }) {
+  const total = (alcance1 + alcance2 + (alcance3 || 0)) || 1
+  const alcances = [
+    { label: 'Alcance 1', desc: 'Emisiones directas',  value: alcance1, pct: Math.round(alcance1 / total * 100), color: 'bg-brand-300' },
+    { label: 'Alcance 2', desc: 'Energía indirecta',   value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
+    ...(alcance3 > 0 ? [{ label: 'Alcance 3', desc: 'Cadena de valor', value: alcance3, pct: Math.round(alcance3 / total * 100), color: 'bg-blue-500' }] : []),
   ]
   return (
     <div className="card">
       <h3 className="font-semibold text-text-primary mb-1">Distribución por Alcance</h3>
       <p className="text-xs text-text-muted mb-4">GHG Protocol Corporate Standard</p>
       <div className="space-y-3">
-        {[
-          { label: 'Alcance 1', desc: 'Emisiones directas', value: alcance1, pct: Math.round(alcance1 / total * 100), color: 'bg-brand-300' },
-          { label: 'Alcance 2', desc: 'Energía indirecta',  value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
-        ].map(({ label, desc, value, pct, color }) => (
+        {alcances.map(({ label, desc, value, pct, color }) => (
           <div key={label}>
             <div className="flex justify-between text-sm mb-1">
               <div>
@@ -282,7 +280,7 @@ export default function Report() {
         </div>
 
         {/* Métricas principales */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <MetricCard
             label="Huella total"
             value={calculo.totalTonAnio.toLocaleString()}
@@ -302,6 +300,14 @@ export default function Report() {
             unit="kg CO₂e/mes"
             sub="Electricidad indirecta"
           />
+          {calculo.alcance3 > 0 && (
+            <MetricCard
+              label="Alcance 3 — Cadena"
+              value={calculo.alcance3.toLocaleString()}
+              unit="kg CO₂e/mes"
+              sub="Cadena de valor"
+            />
+          )}
           <MetricCard
             label="Valor económico"
             value={`$${(calculo.valorETS_COP / 1000000).toFixed(1)}M`}
@@ -326,7 +332,7 @@ export default function Report() {
 
         {/* Gráficas + detalles */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <AlcanceChart alcance1={calculo.alcance1} alcance2={calculo.alcance2} />
+          <AlcanceChart alcance1={calculo.alcance1} alcance2={calculo.alcance2} alcance3={calculo.alcance3 || 0} />
           <DetallesFuentes detalles={calculo.detalles} total={calculo.totalKgMes} />
         </div>
 
