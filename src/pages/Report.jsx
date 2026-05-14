@@ -254,6 +254,9 @@ export default function Report() {
             >
               <IconDownload /> Descargar PDF
             </button>
+            <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">
+              Dashboard 360°
+            </Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">
               Nuevo diagnóstico
             </Link>
