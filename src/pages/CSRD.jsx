@@ -1,0 +1,492 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+
+// ─── ICONS ────────────────────────────────────────────────────────────────────
+const IconLeaf = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+const IconEU = () => <span className="text-lg">🇪🇺</span>
+const IconCheck = ({ color = 'text-brand-400' }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={`w-3.5 h-3.5 ${color}`}>
+    <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+const IconX = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 text-red-500">
+    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+const IconMinus = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 text-amber-500">
+    <path d="M5 12h14" strokeLinecap="round"/>
+  </svg>
+)
+
+// ─── CSRD DATA ────────────────────────────────────────────────────────────────
+const ESRS_REQUIREMENTS = [
+  {
+    standard: 'ESRS E1',
+    titulo: 'Cambio climático',
+    obligatorio: true,
+    requerimientos: [
+      { id: 'e1_1', texto: 'Divulgación de emisiones GHG — Alcances 1, 2 y 3', categoria: 'Métricas', peso: 3 },
+      { id: 'e1_2', texto: 'Objetivos de reducción de emisiones con plazos definidos', categoria: 'Objetivos', peso: 3 },
+      { id: 'e1_3', texto: 'Plan de transición hacia economía baja en carbono', categoria: 'Estrategia', peso: 2 },
+      { id: 'e1_4', texto: 'Análisis de riesgos climáticos físicos y de transición', categoria: 'Riesgos', peso: 2 },
+      { id: 'e1_5', texto: 'Políticas relacionadas con cambio climático documentadas', categoria: 'Gobernanza', peso: 2 },
+      { id: 'e1_6', texto: 'Intensidad de emisiones por unidad de producción o empleado', categoria: 'Métricas', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS E2',
+    titulo: 'Contaminación',
+    obligatorio: false,
+    requerimientos: [
+      { id: 'e2_1', texto: 'Gestión de emisiones al aire, agua y suelo', categoria: 'Operaciones', peso: 2 },
+      { id: 'e2_2', texto: 'Uso y liberación de sustancias preocupantes', categoria: 'Métricas', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS E3',
+    titulo: 'Recursos hídricos y marinos',
+    obligatorio: false,
+    requerimientos: [
+      { id: 'e3_1', texto: 'Consumo total de agua y en zonas de estrés hídrico', categoria: 'Métricas', peso: 1 },
+      { id: 'e3_2', texto: 'Política de gestión sostenible del agua', categoria: 'Gobernanza', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS E4',
+    titulo: 'Biodiversidad y ecosistemas',
+    obligatorio: false,
+    requerimientos: [
+      { id: 'e4_1', texto: 'Impacto en biodiversidad de operaciones propias', categoria: 'Operaciones', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS E5',
+    titulo: 'Uso de recursos y economía circular',
+    obligatorio: false,
+    requerimientos: [
+      { id: 'e5_1', texto: 'Gestión de residuos y tasa de reciclaje', categoria: 'Métricas', peso: 2 },
+      { id: 'e5_2', texto: 'Estrategia de economía circular documentada', categoria: 'Estrategia', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS S1',
+    titulo: 'Fuerza laboral propia',
+    obligatorio: true,
+    requerimientos: [
+      { id: 's1_1', texto: 'Políticas de condiciones laborales y salud ocupacional', categoria: 'Gobernanza', peso: 2 },
+      { id: 's1_2', texto: 'Métricas de diversidad, equidad e inclusión', categoria: 'Métricas', peso: 1 },
+      { id: 's1_3', texto: 'Remuneración justa y brecha salarial de género', categoria: 'Métricas', peso: 1 },
+    ]
+  },
+  {
+    standard: 'ESRS G1',
+    titulo: 'Conducta empresarial',
+    obligatorio: true,
+    requerimientos: [
+      { id: 'g1_1', texto: 'Política anticorrupción y antisoborno documentada', categoria: 'Gobernanza', peso: 2 },
+      { id: 'g1_2', texto: 'Canal de denuncias (whistleblowing) operativo', categoria: 'Gobernanza', peso: 1 },
+      { id: 'g1_3', texto: 'Código de conducta para proveedores', categoria: 'Cadena de valor', peso: 1 },
+    ]
+  },
+]
+
+const ROADMAP_FASES = [
+  {
+    fase: 'Fase 0',
+    titulo: 'Diagnóstico base',
+    plazo: 'Inmediato',
+    color: 'brand',
+    acciones: [
+      'Completar diagnóstico de huella de carbono (Alcances 1, 2 y 3) ✓',
+      'Identificar brechas vs requerimientos ESRS E1',
+      'Nombrar responsable de sostenibilidad en la empresa',
+    ]
+  },
+  {
+    fase: 'Fase 1',
+    titulo: 'Fundamentos',
+    plazo: '1–3 meses',
+    color: 'purple',
+    acciones: [
+      'Documentar política de cambio climático y objetivos de reducción',
+      'Implementar sistema de registro mensual de emisiones',
+      'Establecer baseline de métricas ESRS E1 requeridas',
+      'Política anticorrupción y código de conducta proveedores',
+    ]
+  },
+  {
+    fase: 'Fase 2',
+    titulo: 'Reporte inicial',
+    plazo: '3–6 meses',
+    color: 'amber',
+    acciones: [
+      'Primer reporte de sostenibilidad alineado a ESRS E1',
+      'Análisis de riesgos climáticos (físicos y de transición)',
+      'Plan de transición baja en carbono con hitos anuales',
+      'Métricas laborales y diversidad (ESRS S1)',
+    ]
+  },
+  {
+    fase: 'Fase 3',
+    titulo: 'Cumplimiento completo',
+    plazo: '6–12 meses',
+    color: 'green',
+    acciones: [
+      'Verificación externa del reporte (auditor ISO 14064-3)',
+      'Publicación del reporte en formato XBRL (estándar UE)',
+      'Integrar ESRS E2–E5 según materialidad',
+      'Preparar para auditoría CSRD si aplica obligatoriedad',
+    ]
+  },
+]
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function evaluarCumplimiento(calculo, respuestas, empresa) {
+  const estados = {}
+
+  // E1 — Cambio climático
+  estados['e1_1'] = (calculo?.alcance1 > 0 || calculo?.alcance2 > 0) ? 'cumple' : 'no_cumple'
+  estados['e1_2'] = respuestas?.['a2_metas_sostenibilidad']?.includes('política') ? 'parcial' : 'no_cumple'
+  estados['e1_3'] = 'no_cumple' // requiere plan documentado
+  estados['e1_4'] = 'no_cumple' // requiere análisis formal
+  estados['e1_5'] = respuestas?.['a2_metas_sostenibilidad']?.includes('política') ? 'parcial' : 'no_cumple'
+  estados['e1_6'] = respuestas?.['a2_numero_empleados'] ? 'parcial' : 'no_cumple'
+
+  // E2
+  estados['e2_1'] = 'no_cumple'
+  estados['e2_2'] = 'no_cumple'
+
+  // E3
+  estados['e3_1'] = 'no_cumple'
+  estados['e3_2'] = 'no_cumple'
+
+  // E4
+  estados['e4_1'] = 'no_cumple'
+
+  // E5
+  estados['e5_1'] = respuestas?.['a3_residuos_cantidad']?.includes('Reciclaje') ? 'parcial' : 'no_cumple'
+  estados['e5_2'] = 'no_cumple'
+
+  // S1
+  estados['s1_1'] = 'no_cumple'
+  estados['s1_2'] = 'no_cumple'
+  estados['s1_3'] = 'no_cumple'
+
+  // G1
+  estados['g1_1'] = 'no_cumple'
+  estados['g1_2'] = 'no_cumple'
+  estados['g1_3'] = respuestas?.['a3_compras_proveedores'] ? 'parcial' : 'no_cumple'
+
+  return estados
+}
+
+function calcularScore(estados, requerimientos) {
+  let total = 0, cumplidos = 0, parciales = 0
+  requerimientos.forEach(standard => {
+    standard.requerimientos.forEach(r => {
+      total += r.peso
+      if (estados[r.id] === 'cumple') cumplidos += r.peso
+      if (estados[r.id] === 'parcial') parciales += r.peso * 0.5
+    })
+  })
+  return Math.round(((cumplidos + parciales) / total) * 100)
+}
+
+// ─── COMPONENTS ───────────────────────────────────────────────────────────────
+function StatusIcon({ estado }) {
+  if (estado === 'cumple') return <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center"><IconCheck /></div>
+  if (estado === 'parcial') return <div className="w-5 h-5 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center"><IconMinus /></div>
+  return <div className="w-5 h-5 rounded-full bg-red-50 border border-red-200 flex items-center justify-center"><IconX /></div>
+}
+
+function StatusBadge({ estado }) {
+  if (estado === 'cumple') return <span className="badge-green text-xs">Cumple</span>
+  if (estado === 'parcial') return <span className="bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2 py-0.5 text-xs font-medium">Parcial</span>
+  return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">Brecha</span>
+}
+
+function StandardCard({ standard, titulo, obligatorio, requerimientos, estados }) {
+  const [expanded, setExpanded] = useState(standard === 'ESRS E1')
+  const cumplidos = requerimientos.filter(r => estados[r.id] === 'cumple').length
+  const parciales = requerimientos.filter(r => estados[r.id] === 'parcial').length
+  const total = requerimientos.length
+  const pct = Math.round(((cumplidos + parciales * 0.5) / total) * 100)
+
+  return (
+    <div className="card">
+      <div className="flex items-start justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-start gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-bold text-text-primary">{standard}</span>
+              {obligatorio && <span className="bg-red-50 text-red-600 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">Obligatorio</span>}
+            </div>
+            <p className="text-sm text-text-secondary">{titulo}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="text-right">
+            <p className="text-lg font-bold text-text-primary">{pct}%</p>
+            <p className="text-xs text-text-muted">{cumplidos}/{total} req.</p>
+          </div>
+          <span className="text-text-muted text-sm">{expanded ? '▲' : '▼'}</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full h-1.5 bg-surface-tertiary rounded-full overflow-hidden mt-3">
+        <div className="h-full bg-brand-300 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+      </div>
+
+      {expanded && (
+        <div className="mt-4 space-y-2.5 pt-4 border-t border-border">
+          {requerimientos.map(r => (
+            <div key={r.id} className="flex items-start gap-3">
+              <StatusIcon estado={estados[r.id]} />
+              <div className="flex-1">
+                <p className="text-sm text-text-primary">{r.texto}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="badge-gray text-xs">{r.categoria}</span>
+                  <StatusBadge estado={estados[r.id]} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RoadmapItem({ fase, titulo, plazo, color, acciones }) {
+  const colorMap = {
+    brand:  { dot: 'bg-brand-300',  label: 'text-brand-400',  bg: 'bg-brand-50',  border: 'border-brand-200' },
+    purple: { dot: 'bg-purple-500', label: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200' },
+    amber:  { dot: 'bg-amber-500',  label: 'text-amber-700',  bg: 'bg-amber-50',  border: 'border-amber-200' },
+    green:  { dot: 'bg-brand-400',  label: 'text-brand-400',  bg: 'bg-brand-50',  border: 'border-brand-100' },
+  }
+  const c = colorMap[color] || colorMap.brand
+
+  return (
+    <div className="flex gap-4">
+      <div className="flex flex-col items-center">
+        <div className={`w-4 h-4 rounded-full ${c.dot} flex-shrink-0 mt-1`} />
+        <div className="w-px flex-1 bg-border mt-2" />
+      </div>
+      <div className={`flex-1 pb-6 p-4 rounded-xl border ${c.border} ${c.bg} mb-4`}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <span className={`text-xs font-bold uppercase tracking-wide ${c.label}`}>{fase}</span>
+            <h3 className="text-sm font-semibold text-text-primary">{titulo}</h3>
+          </div>
+          <span className="badge-gray text-xs">{plazo}</span>
+        </div>
+        <ul className="space-y-1.5">
+          {acciones.map((a, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <span className={`${c.label} mt-0.5 flex-shrink-0 text-sm`}>→</span>
+              <span className="text-xs text-text-secondary">{a}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+export default function CSRD() {
+  const [data, setData] = useState(null)
+  const [tab, setTab] = useState('gap') // gap | roadmap | export
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('ecometrix_result')
+    if (stored) setData(JSON.parse(stored))
+  }, [])
+
+  const estados = data
+    ? evaluarCumplimiento(data.calculo, data.respuestas, data.empresa)
+    : {}
+
+  const scoreCSRD = data ? calcularScore(estados, ESRS_REQUIREMENTS) : 0
+
+  const totalBrechas = Object.values(estados).filter(e => e === 'no_cumple').length
+  const totalParciales = Object.values(estados).filter(e => e === 'parcial').length
+  const totalCumple = Object.values(estados).filter(e => e === 'cumple').length
+
+  return (
+    <div className="min-h-screen bg-surface-secondary">
+      {/* Header */}
+      <header className="bg-white border-b border-border sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-brand-300 flex items-center justify-center"><IconLeaf /></div>
+            <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">← Dashboard</Link>
+            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Sub-header */}
+      <div className="bg-white border-b border-border">
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-3">
+              <IconEU />
+              <div>
+                <h1 className="text-lg font-bold text-text-primary">Módulo CSRD / ESRS</h1>
+                <p className="text-sm text-text-secondary">
+                  {data ? `${data.empresa.nombre} · ` : ''}
+                  Corporate Sustainability Reporting Directive — UE 2022/2464
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-brand-400">{scoreCSRD}%</p>
+                <p className="text-xs text-text-muted">Preparación CSRD</p>
+              </div>
+              <div className="flex flex-col gap-1 text-xs">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-brand-300" />{totalCumple} cumple</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{totalParciales} parcial</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" />{totalBrechas} brecha</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-1">
+            {[['gap', 'Gap Analysis'], ['roadmap', 'Roadmap'], ['export', 'Exportar']].map(([id, label]) => (
+              <button key={id} onClick={() => setTab(id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === id ? 'bg-brand-50 text-brand-400 border border-brand-200' : 'text-text-secondary hover:bg-surface-tertiary'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <main className="max-w-5xl mx-auto px-6 py-8">
+
+        {/* Aviso si no hay datos */}
+        {!data && (
+          <div className="card mb-6 border-amber-200 bg-amber-50">
+            <p className="text-sm text-amber-700 font-medium mb-2">⚠ No hay diagnóstico activo</p>
+            <p className="text-sm text-amber-600 mb-3">Completa primero el cuestionario de huella de carbono para ver tu análisis CSRD personalizado.</p>
+            <Link to="/diagnostico" className="btn-primary text-sm py-2 px-4">Iniciar diagnóstico</Link>
+          </div>
+        )}
+
+        {/* Contexto CSRD */}
+        {tab === 'gap' && (
+          <>
+            <div className="card mb-6 border-blue-200 bg-blue-50">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl flex-shrink-0">🇪🇺</span>
+                <div>
+                  <p className="text-sm font-semibold text-blue-800 mb-1">¿Qué es la CSRD?</p>
+                  <p className="text-sm text-blue-700 leading-relaxed">
+                    La <strong>Corporate Sustainability Reporting Directive</strong> (UE 2022/2464) obliga a empresas europeas y filiales de multinacionales a reportar sobre sostenibilidad usando los estándares ESRS. Aunque afecta directamente a empresas con operaciones en Europa, las PYMEs que son proveedoras de grandes empresas europeas ya reciben presión para cumplir con ESRS E1 (emisiones GHG).
+                  </p>
+                  <p className="text-sm text-blue-700 mt-2"><strong>Colombia:</strong> No hay obligatoriedad aún, pero clientes europeos cada vez más la exigen como requisito de proveeduría.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Resumen de brechas */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="card text-center border-brand-200">
+                <p className="text-3xl font-bold text-brand-400 mb-1">{totalCumple}</p>
+                <p className="text-xs text-text-secondary">Requerimientos cumplidos</p>
+              </div>
+              <div className="card text-center border-amber-200">
+                <p className="text-3xl font-bold text-amber-600 mb-1">{totalParciales}</p>
+                <p className="text-xs text-text-secondary">Cumplimiento parcial</p>
+              </div>
+              <div className="card text-center border-red-200">
+                <p className="text-3xl font-bold text-red-600 mb-1">{totalBrechas}</p>
+                <p className="text-xs text-text-secondary">Brechas identificadas</p>
+              </div>
+            </div>
+
+            {/* Standards */}
+            <div className="space-y-4">
+              {ESRS_REQUIREMENTS.map(s => (
+                <StandardCard key={s.standard} {...s} estados={estados} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {tab === 'roadmap' && (
+          <div>
+            <div className="card mb-6">
+              <h2 className="font-semibold text-text-primary mb-1">Roadmap hacia cumplimiento CSRD</h2>
+              <p className="text-sm text-text-secondary mb-4">Plan de acción personalizado basado en tu diagnóstico actual. Estimado: 6–12 meses para cumplimiento básico de ESRS E1.</p>
+              <div className="w-full bg-surface-tertiary rounded-full h-2 mb-2">
+                <div className="bg-brand-300 h-2 rounded-full" style={{ width: `${scoreCSRD}%` }} />
+              </div>
+              <div className="flex justify-between text-xs text-text-muted">
+                <span>Posición actual: {scoreCSRD}%</span>
+                <span>Meta: 100% ESRS E1 (obligatorio)</span>
+              </div>
+            </div>
+
+            <div>
+              {ROADMAP_FASES.map(f => <RoadmapItem key={f.fase} {...f} />)}
+            </div>
+          </div>
+        )}
+
+        {tab === 'export' && (
+          <div className="space-y-4">
+            <div className="card">
+              <h2 className="font-semibold text-text-primary mb-1">Exportar datos CSRD</h2>
+              <p className="text-sm text-text-secondary mb-6">Prepara tu información para reportes formales y auditorías externas.</p>
+
+              <div className="space-y-3">
+                {[
+                  { format: 'PDF', label: 'Reporte de brechas ESRS', desc: 'Documento con gap analysis y roadmap para presentar a auditores o clientes', icon: '📄', available: true },
+                  { format: 'XLSX', label: 'Tabla de métricas ESRS E1', desc: 'Plantilla con las métricas requeridas pre-completadas con tus datos de diagnóstico', icon: '📊', available: true },
+                  { format: 'XBRL', label: 'Export formato XBRL', desc: 'Formato estándar de la UE para reportes CSRD — requiere verificación externa', icon: '🗂', available: false },
+                ].map(({ format, label, desc, icon, available }) => (
+                  <div key={format} className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${available ? 'border-border hover:border-brand-200 hover:bg-brand-50 cursor-pointer' : 'border-dashed border-border opacity-50'}`}
+                    onClick={() => available && window.print()}>
+                    <span className="text-2xl flex-shrink-0">{icon}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-text-primary">{label}</span>
+                        <span className="badge-gray text-xs">{format}</span>
+                        {!available && <span className="bg-surface-tertiary text-text-muted rounded-full px-2 py-0.5 text-xs">Próximamente</span>}
+                      </div>
+                      <p className="text-xs text-text-secondary">{desc}</p>
+                    </div>
+                    {available && <span className="text-brand-400 text-sm font-medium flex-shrink-0">Exportar →</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card border-dashed">
+              <p className="text-sm font-medium text-text-primary mb-2">Nota metodológica</p>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Este análisis CSRD es una evaluación preliminar basada en los datos de tu diagnóstico de huella de carbono. Para cumplimiento formal con la CSRD, se requiere verificación por un auditor externo acreditado (ISO 14064-3 o equivalente) y posiblemente un contador público autorizado para la assurance del reporte. EcoMetriX puede conectarte con verificadores acreditados — escríbenos a oscar@ecometrix.co.
+              </p>
+            </div>
+          </div>
+        )}
+
+      </main>
+    </div>
+  )
+}

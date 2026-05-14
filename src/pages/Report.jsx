@@ -255,6 +255,9 @@ export default function Report() {
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">
               Dashboard 360°
             </Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">
+              🇪🇺 CSRD
+            </Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">
               Nuevo diagnóstico
             </Link>

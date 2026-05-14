@@ -368,6 +368,7 @@ export default function Dashboard360() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">← Reporte</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
           </div>
         </div>
