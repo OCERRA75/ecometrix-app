@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import LanguageSelector from '@/components/LanguageSelector.jsx'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -41,6 +43,7 @@ const stats = [
 ]
 
 function Navbar({ scrolled }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md border-b border-border shadow-card' : 'bg-transparent'}`}>
@@ -55,7 +58,9 @@ function Navbar({ scrolled }) {
           ))}
           <a href="/precios" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>Precios</a>
         </div>
-        <a href="/diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
+        <div className="hidden md:flex items-center gap-2">
+          <LanguageSelector dark={!scrolled} />
+          <a href="/diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
           Diagnóstico gratis <IconArrow />
         </a>
         <button onClick={() => setOpen(!open)} className={`md:hidden ${scrolled ? 'text-text-primary' : 'text-white'}`}>
