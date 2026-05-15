@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import ChatAssistant from '@/components/ChatAssistant.jsx'
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -483,6 +484,9 @@ export default function Dashboard360() {
         </div>
 
       </main>
+
+      {/* Chat assistant flotante */}
+      <ChatAssistant reportData={data} />
     </div>
   )
 }

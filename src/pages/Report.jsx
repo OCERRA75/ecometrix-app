@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { RadialBarChart, RadialBar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts'
+import ChatAssistant from '@/components/ChatAssistant.jsx'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const IconLeaf = () => (
@@ -389,6 +390,9 @@ export default function Report() {
           .btn-primary, .btn-secondary { display: none !important; }
         }
       `}</style>
+
+      {/* Chat assistant flotante */}
+      <ChatAssistant reportData={data} />
     </div>
   )
 }
