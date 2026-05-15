@@ -53,6 +53,7 @@ function Navbar({ scrolled }) {
           {['Cómo funciona', 'Estándares', 'Sectores'].map(item => (
             <a key={item} href="#" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{item}</a>
           ))}
+          <a href="/precios" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>Precios</a>
         </div>
         <a href="/diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
           Diagnóstico gratis <IconArrow />
