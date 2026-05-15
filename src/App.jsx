@@ -7,6 +7,7 @@ import Dashboard360 from '@/pages/Dashboard360.jsx'
 import CSRD from '@/pages/CSRD.jsx'
 import Login from '@/pages/Login.jsx'
 import Pricing from '@/pages/Pricing.jsx'
+import Developers from '@/pages/Developers.jsx'
 import NotFound from '@/pages/NotFound.jsx'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/csrd"            element={<CSRD />} />
           <Route path="/login"           element={<Login />} />
           <Route path="/precios"         element={<Pricing />} />
+          <Route path="/developers"      element={<Developers />} />
           <Route path="*"               element={<NotFound />} />
         </Routes>
       </BrowserRouter>
