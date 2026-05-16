@@ -60,9 +60,10 @@ function Navbar({ scrolled }) {
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
-          <a href="/diagnostico" className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
-          Diagnóstico gratis <IconArrow />
-        </a>
+          <a href="/diagnostico" className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
+            Diagnóstico gratis <IconArrow />
+          </a>
+        </div>
         <button onClick={() => setOpen(!open)} className={`md:hidden ${scrolled ? 'text-text-primary' : 'text-white'}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
             <path d={open ? "M18 6L6 18M6 6l12 12" : "M3 12h18M3 6h18M3 18h18"} strokeLinecap="round" strokeLinejoin="round"/>
