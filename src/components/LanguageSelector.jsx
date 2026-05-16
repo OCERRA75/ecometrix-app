@@ -10,6 +10,7 @@ export default function LanguageSelector({ dark = false }) {
 
   const change = (code) => {
     i18n.changeLanguage(code)
+    localStorage.setItem('ecm_lang', code)
     setOpen(false)
   }
 
