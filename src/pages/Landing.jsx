@@ -355,9 +355,9 @@ function Footer() {
           </div>
           <p className="text-white/50 text-sm text-center">Plataforma de huella de carbono basada en GHG Protocol e ISO 14064</p>
           <div className="flex items-center gap-4">
-            <a href="mailto:oscar@ecometrix.co" className="text-white/60 hover:text-white text-sm transition-colors">oscar@ecometrix.co</a>
+            <LanguageSelector dark={true} />
             <span className="text-white/20">·</span>
-            <span className="text-white/60 text-sm">ecometrix-co.netlify.app</span>
+            <a href="mailto:oscar@ecometrix.co" className="text-white/60 hover:text-white text-sm transition-colors">oscar@ecometrix.co</a>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/10 text-center">
