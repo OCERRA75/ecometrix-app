@@ -52,7 +52,7 @@ function Navbar({ scrolled }) {
           <div className="w-8 h-8 rounded-lg bg-brand-300 flex items-center justify-center shadow-sm"><IconLeaf /></div>
           <span className={`text-lg font-semibold transition-colors ${scrolled ? 'text-brand-400' : 'text-white'}`}>EcoMetriX</span>
         </div>
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-5">
           {['Cómo funciona', 'Estándares', 'Sectores'].map(item => (
             <a key={item} href="#" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{item}</a>
           ))}
@@ -60,7 +60,7 @@ function Navbar({ scrolled }) {
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
-          <a href="/diagnostico" className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
+          <a href="/diagnostico" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
             Diagnóstico gratis <IconArrow />
           </a>
         </div>
