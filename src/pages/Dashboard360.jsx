@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard'
@@ -367,8 +367,8 @@ export default function Dashboard360() {
       score: scores.gobernanza,
       icon: '📋',
       color: 'blue',
-      description: 'Políticas de sostenibilidad, reportes formales y cumplimiento de estándares internacionales.',
-      actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar reporte CSRD (si aplica)'],
+      description: 'Políticas de sostenibilidad, Reportes formales y cumplimiento de estándares internacionales.',
+      actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar Reporte CSRD (si aplica)'],
     },
   ]
 
