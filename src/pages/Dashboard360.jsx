@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
+import CertificationCard from '@/components/CertificationCard'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, Cell, Legend
 } from 'recharts'
 
-// ─── ICONS ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
@@ -15,7 +22,7 @@ const IconLeaf = () => (
   </svg>
 )
 
-// ─── SCORE GAUGE SVG ──────────────────────────────────────────────────────────
+// â”€â”€â”€ SCORE GAUGE SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ScoreGauge({ score, label, color = '#1D9E75', size = 120 }) {
   const r = 44
   const cx = 60
@@ -61,14 +68,14 @@ function ScoreGauge({ score, label, color = '#1D9E75', size = 120 }) {
   )
 }
 
-// ─── SCORE BADGE ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ SCORE BADGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ScoreBadge({ score }) {
   if (score >= 70) return <span className="badge-green">Bueno</span>
   if (score >= 40) return <span className="bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-0.5 text-xs font-medium">Moderado</span>
   return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium">Crítico</span>
 }
 
-// ─── GREENWASHING DETECTOR ────────────────────────────────────────────────────
+// â”€â”€â”€ GREENWASHING DETECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function GreenwashingAlert({ score, respuestas }) {
   const flags = []
 
@@ -82,26 +89,26 @@ function GreenwashingAlert({ score, respuestas }) {
       flags.push('Motivación comercial sin historial de acción sostenible verificable.')
     }
     if (renovables && renovables.includes('solar') && score < 40) {
-      flags.push('Inversión en renovables pero huella de carbono aún alta — comunicar con cautela.')
+      flags.push('Inversión en renovables pero huella de carbono aún alta â€” comunicar con cautela.')
     }
   }
 
   if (flags.length === 0) return (
     <div className="flex items-center gap-2 px-4 py-3 bg-brand-50 border border-brand-100 rounded-xl">
-      <span className="text-brand-400 text-lg">✓</span>
+      <span className="text-brand-400 text-lg">âœ“</span>
       <p className="text-sm text-brand-400 font-medium">Sin alertas de greenwashing detectadas</p>
     </div>
   )
 
   return (
     <div className="px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-      <p className="text-sm font-medium text-amber-700 mb-2">⚠ Alertas de comunicación responsable</p>
+      <p className="text-sm font-medium text-amber-700 mb-2">âš  Alertas de comunicación responsable</p>
       {flags.map((f, i) => <p key={i} className="text-xs text-amber-600">{f}</p>)}
     </div>
   )
 }
 
-// ─── TIMELINE CHART ───────────────────────────────────────────────────────────
+// â”€â”€â”€ TIMELINE CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function TimelineChart({ totalKgMes, planAccion }) {
   // Genera proyección de 12 meses basada en el plan de acción
   const reduccionTotal = planAccion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) || 50
@@ -141,7 +148,7 @@ function TimelineChart({ totalKgMes, planAccion }) {
   )
 }
 
-// ─── BENCHMARK CHART ─────────────────────────────────────────────────────────
+// â”€â”€â”€ BENCHMARK CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BenchmarkChart({ empresa, totalTonAnio }) {
   const benchmarks = {
     'Manufactura':           { p25: 15, p50: 45, p75: 120 },
@@ -173,7 +180,7 @@ function BenchmarkChart({ empresa, totalTonAnio }) {
         <YAxis tick={{ fontSize: 11, fill: '#8BA898' }} unit=" t" />
         <Tooltip
           contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #D6E8E0' }}
-          formatter={(v) => [`${v} ton CO₂e/año`]}
+          formatter={(v) => [`${v} ton COâ‚‚e/año`]}
         />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((d, i) => <Cell key={i} fill={d.color} />)}
@@ -183,7 +190,7 @@ function BenchmarkChart({ empresa, totalTonAnio }) {
   )
 }
 
-// ─── RADAR CHART ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ RADAR CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function RadarSostenibilidad({ scores }) {
   const data = [
     { dimension: 'Carbono', score: scores.carbono },
@@ -204,7 +211,7 @@ function RadarSostenibilidad({ scores }) {
   )
 }
 
-// ─── QUADRANT CARD ────────────────────────────────────────────────────────────
+// â”€â”€â”€ QUADRANT CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function QuadrantCard({ title, score, icon, description, actions, color }) {
   const [expanded, setExpanded] = useState(false)
   const colorMap = {
@@ -248,11 +255,12 @@ function QuadrantCard({ title, score, icon, description, actions, color }) {
   )
 }
 
-// ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
+// â”€â”€â”€ MAIN DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function Dashboard360() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState(null)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('ecometrix_result')
@@ -260,6 +268,12 @@ export default function Dashboard360() {
       setData(JSON.parse(stored))
     }
     setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id)
+    })
   }, [])
 
   if (loading) return (
@@ -279,7 +293,7 @@ export default function Dashboard360() {
 
   const { empresa, calculo, analisis } = data
 
-  // ── Calcular scores por cuadrante ─────────────────────────────────────────
+  // â”€â”€ Calcular scores por cuadrante â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const calcularScores = () => {
     const r = data.respuestas || {}
 
@@ -327,15 +341,15 @@ export default function Dashboard360() {
     {
       title: 'Huella de Carbono',
       score: scores.carbono,
-      icon: '🌍',
+      icon: '🌍',
       color: 'green',
-      description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton CO₂e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
+      description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton COâ‚‚e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
       actions: analisis?.plan_accion?.slice(0, 3).map(a => a.accion) || ['Medir emisiones regularmente', 'Reducir consumo energético'],
     },
     {
       title: 'Gestión Energética',
       score: scores.energia,
-      icon: '⚡',
+      icon: 'âš¡',
       color: 'amber',
       description: 'Eficiencia en el uso de energía y adopción de fuentes renovables en operaciones.',
       actions: ['Auditoría energética de instalaciones', 'Evaluar contrato de energía renovable', 'Instalar medidores inteligentes por área'],
@@ -343,7 +357,7 @@ export default function Dashboard360() {
     {
       title: 'Economía Circular',
       score: scores.circular,
-      icon: '♻️',
+      icon: '♻️',
       color: 'purple',
       description: 'Gestión de residuos, reutilización de materiales y diseño de procesos circulares.',
       actions: ['Programa de separación y reciclaje', 'Reducir empaques plásticos', 'Política de compras sostenibles'],
@@ -351,7 +365,7 @@ export default function Dashboard360() {
     {
       title: 'Gobernanza ESG',
       score: scores.gobernanza,
-      icon: '📋',
+      icon: 'ðŸ“‹',
       color: 'blue',
       description: 'Políticas de sostenibilidad, reportes formales y cumplimiento de estándares internacionales.',
       actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar reporte CSRD (si aplica)'],
@@ -368,8 +382,8 @@ export default function Dashboard360() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">← Reporte</Link>
-            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
+            <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">â† Reporte</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">ðŸ‡ªðŸ‡º CSRD</Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
           </div>
         </div>
@@ -442,7 +456,7 @@ export default function Dashboard360() {
 
         {/* Timeline proyección */}
         <div className="card">
-          <h3 className="font-semibold text-text-primary mb-1">Proyección de reducción — 12 meses</h3>
+          <h3 className="font-semibold text-text-primary mb-1">Proyección de reducción â€” 12 meses</h3>
           <p className="text-xs text-text-muted mb-4">Basada en el plan de acción recomendado (línea punteada = proyección)</p>
           <TimelineChart totalKgMes={calculo.totalKgMes} planAccion={analisis?.plan_accion} />
         </div>
@@ -450,7 +464,7 @@ export default function Dashboard360() {
         {/* Benchmark sectorial */}
         <div className="card">
           <h3 className="font-semibold text-text-primary mb-1">Benchmark sectorial</h3>
-          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton CO₂e/año)</p>
+          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton COâ‚‚e/año)</p>
           <BenchmarkChart empresa={empresa} totalTonAnio={calculo.totalTonAnio} />
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
             {[
@@ -482,6 +496,17 @@ export default function Dashboard360() {
             </div>
           </div>
         </div>
+
+        {/* Certificación M15 */}
+        <section>
+          <h2 className="text-base font-semibold text-text-primary mb-4">🏅 Tu Certificación EcoMetriX</h2>
+          <div className="max-w-2xl">
+            <CertificationCard
+              diagnosticoData={data}
+              userId={userId}
+            />
+          </div>
+        </section>
 
       </main>
 
