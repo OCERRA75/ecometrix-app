@@ -19,32 +19,16 @@ const IconCheck = ({ white }) => (
   </svg>
 )
 
-const steps = [
-  { num: '01', title: 'Responde el cuestionario', desc: 'La IA te hace 15 preguntas inteligentes adaptadas a tu sector. Sin tecnicismos, sin hojas de cálculo.', icon: '📋', time: '10 min' },
-  { num: '02', title: 'Calculamos tu huella', desc: 'El motor calcula tus emisiones en Alcances 1 y 2 usando factores IPCC AR6 y el GHG Protocol Corporate Standard.', icon: '🧮', time: 'Automático' },
-  { num: '03', title: 'Recibes tu reporte PDF', desc: 'Diagnóstico completo, benchmark sectorial y un plan de reducción con 5 acciones priorizadas por ROI.', icon: '📄', time: '< 2 min' },
-]
-
-const standards = [
-  { name: 'GHG Protocol', label: 'Corporate Standard', color: 'bg-brand-50 text-brand-400 border-brand-100' },
-  { name: 'ISO 14064-1', label: '2018 Edition', color: 'bg-brand-50 text-brand-400 border-brand-100' },
-  { name: 'CSRD / ESRS', label: 'EU Regulation', color: 'bg-purple-50 text-purple-700 border-purple-100' },
-  { name: 'EU Taxonomy', label: 'Sustainable Finance', color: 'bg-purple-50 text-purple-700 border-purple-100' },
-  { name: 'IPCC AR6', label: 'Emission Factors', color: 'bg-amber-50 text-amber-700 border-amber-100' },
-]
-
-const sectors = ['Manufactura', 'Retail', 'Logística', 'Servicios', 'Alimentos', 'Construcción', 'Tecnología', 'Salud']
-
-const stats = [
-  { value: '15', unit: 'min', label: 'Para completar el diagnóstico' },
-  { value: '3', unit: 'Alcances', label: 'GHG Protocol cubiertos' },
-  { value: '100%', unit: '', label: 'Estándares internacionales' },
-  { value: '$0', unit: '', label: 'Costo del piloto' },
-]
-
 function Navbar({ scrolled }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+
+  const navLinks = [
+    [t('landing.nav.howItWorks'), '#como-funciona'],
+    [t('landing.nav.standards'), '#estandares'],
+    [t('landing.nav.sectors'), '#sectores'],
+  ]
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md border-b border-border shadow-card' : 'bg-transparent'}`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -53,15 +37,15 @@ function Navbar({ scrolled }) {
           <span className={`text-lg font-semibold transition-colors ${scrolled ? 'text-brand-400' : 'text-white'}`}>EcoMetriX</span>
         </div>
         <div className="hidden md:flex items-center gap-5">
-          {['Cómo funciona', 'Estándares', 'Sectores'].map(item => (
-            <a key={item} href="#" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{item}</a>
+          {navLinks.map(([label, href]) => (
+            <a key={href} href={href} className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{label}</a>
           ))}
-          <a href="/precios" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>Precios</a>
+          <a href="/precios" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{t('landing.nav.pricing')}</a>
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
           <a href="/diagnostico" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
-            Diagnóstico gratis <IconArrow />
+            {t('landing.nav.cta')} <IconArrow />
           </a>
         </div>
         <button onClick={() => setOpen(!open)} className={`md:hidden ${scrolled ? 'text-text-primary' : 'text-white'}`}>
@@ -72,10 +56,10 @@ function Navbar({ scrolled }) {
       </div>
       {open && (
         <div className="md:hidden bg-white border-b border-border px-6 py-4 flex flex-col gap-4">
-          {['Cómo funciona', 'Estándares', 'Sectores'].map(item => (
-            <a key={item} href="#" className="text-sm font-medium text-text-secondary">{item}</a>
+          {navLinks.map(([label, href]) => (
+            <a key={href} href={href} className="text-sm font-medium text-text-secondary" onClick={() => setOpen(false)}>{label}</a>
           ))}
-          <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-300 text-white text-sm font-medium">Diagnóstico gratis</a>
+          <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-300 text-white text-sm font-medium">{t('landing.nav.cta')}</a>
         </div>
       )}
     </nav>
@@ -83,6 +67,7 @@ function Navbar({ scrolled }) {
 }
 
 function Hero() {
+  const { t } = useTranslation()
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-brand-400">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -98,25 +83,29 @@ function Hero() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-sm font-medium mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-100 animate-pulse" />
-            GHG Protocol · ISO 14064 · CSRD Ready
+            {t('landing.badge')}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            Mide tu huella de carbono{' '}
-            <span className="text-brand-100">en 10 minutos</span>
+            {t('landing.headline')}{' '}
+            <span className="text-brand-100">{t('landing.headlineAccent')}</span>
           </h1>
           <p className="text-lg md:text-xl text-white/75 leading-relaxed mb-10 max-w-2xl">
-            EcoMetriX diagnostica las emisiones de tu empresa usando inteligencia artificial y los estándares más rigurosos del mundo. Obtén un reporte profesional listo para clientes, inversores y reguladores.
+            {t('landing.subheadline')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mb-14">
             <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-brand-400 text-base font-semibold hover:bg-brand-50 transition-all active:scale-95 shadow-lg">
-              Iniciar diagnóstico gratis <IconArrow />
+              {t('landing.ctaPrimary')} <IconArrow />
             </a>
             <a href="#como-funciona" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white text-base font-medium hover:bg-white/20 transition-all">
-              Ver cómo funciona
+              {t('landing.ctaSecondary')}
             </a>
           </div>
           <div className="flex flex-wrap gap-6">
-            {[['Sin costo', 'Piloto gratuito'], ['< 15 min', 'Para completar'], ['PDF incluido', 'Reporte profesional']].map(([val, label]) => (
+            {[
+              [t('landing.free'), t('landing.freeDesc')],
+              [t('landing.fast'), t('landing.fastDesc')],
+              [t('landing.pdf'), t('landing.pdfDesc')],
+            ].map(([val, label]) => (
               <div key={val} className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center"><IconCheck white /></div>
                 <span className="text-white font-semibold text-sm">{val}</span>
@@ -131,6 +120,13 @@ function Hero() {
 }
 
 function StatsBar() {
+  const { t } = useTranslation()
+  const stats = [
+    { value: '15', unit: 'min', label: t('landing.statsMin') },
+    { value: '3', unit: t('landing.statsScopes'), label: 'GHG Protocol' },
+    { value: '100%', unit: '', label: t('landing.statsStandards') },
+    { value: '$0', unit: '', label: t('landing.statsCost') },
+  ]
   return (
     <section className="bg-white border-b border-border">
       <div className="max-w-6xl mx-auto px-6 py-10">
@@ -151,20 +147,22 @@ function StatsBar() {
 }
 
 function Problem() {
+  const { t } = useTranslation()
+  const cards = [
+    { emoji: '📊', title: t('landing.problem.card1Title'), desc: t('landing.problem.card1Desc'), accent: 'border-l-red-400' },
+    { emoji: '💸', title: t('landing.problem.card2Title'), desc: t('landing.problem.card2Desc'), accent: 'border-l-amber-400' },
+    { emoji: '📋', title: t('landing.problem.card3Title'), desc: t('landing.problem.card3Desc'), accent: 'border-l-purple-400' },
+  ]
   return (
     <section className="py-20 bg-surface-secondary">
       <div className="max-w-6xl mx-auto px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
-          <span className="badge-amber mb-4 inline-block">El problema</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">Medir la huella de carbono era complicado y costoso</h2>
-          <p className="text-text-secondary text-lg leading-relaxed">Las PYMEs no tienen consultores de sostenibilidad ni presupuestos para certificaciones. Pero clientes, inversores y reguladores cada vez exigen más.</p>
+          <span className="badge-amber mb-4 inline-block">{t('landing.problem.badge')}</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">{t('landing.problem.title')}</h2>
+          <p className="text-text-secondary text-lg leading-relaxed">{t('landing.problem.desc')}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { emoji: '📊', title: 'Hojas de cálculo complejas', desc: 'Los métodos tradicionales requieren semanas de trabajo manual con fórmulas del GHG Protocol que pocos entienden.', accent: 'border-l-red-400' },
-            { emoji: '💸', title: 'Consultorías inaccesibles', desc: 'Una consultoría de huella de carbono cuesta entre $5.000 y $30.000 USD. Fuera del alcance de la mayoría de PYMEs.', accent: 'border-l-amber-400' },
-            { emoji: '📋', title: 'Regulación que avanza', desc: 'La CSRD europea ya obliga a reportar sostenibilidad. Colombia y Latam avanzan en la misma dirección.', accent: 'border-l-purple-400' },
-          ].map(({ emoji, title, desc, accent }) => (
+          {cards.map(({ emoji, title, desc, accent }) => (
             <div key={title} className={`card border-l-4 ${accent}`}>
               <span className="text-3xl mb-4 block">{emoji}</span>
               <h3 className="font-semibold text-text-primary mb-2">{title}</h3>
@@ -178,13 +176,19 @@ function Problem() {
 }
 
 function HowItWorks() {
+  const { t } = useTranslation()
+  const steps = [
+    { num: '01', title: t('landing.steps.s1Title'), desc: t('landing.steps.s1Desc'), icon: '📋', time: '10 min' },
+    { num: '02', title: t('landing.steps.s2Title'), desc: t('landing.steps.s2Desc'), icon: '🧮', time: t('landing.steps.auto') },
+    { num: '03', title: t('landing.steps.s3Title'), desc: t('landing.steps.s3Desc'), icon: '📄', time: '< 2 min' },
+  ]
   return (
     <section id="como-funciona" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-6">
         <div className="max-w-2xl mx-auto text-center mb-14">
-          <span className="badge-green mb-4 inline-block">Cómo funciona</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">De cero a reporte profesional en 3 pasos</h2>
-          <p className="text-text-secondary text-lg">Sin consultores, sin hojas de cálculo. Solo responde y la IA hace el resto.</p>
+          <span className="badge-green mb-4 inline-block">{t('landing.steps.badge')}</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">{t('landing.steps.title')}</h2>
+          <p className="text-text-secondary text-lg">{t('landing.steps.desc')}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map(({ title, desc, icon, time }) => (
@@ -204,14 +208,29 @@ function HowItWorks() {
 }
 
 function Standards() {
+  const { t } = useTranslation()
+  const standards = [
+    { name: 'GHG Protocol', label: 'Corporate Standard', color: 'bg-brand-50 text-brand-400 border-brand-100' },
+    { name: 'ISO 14064-1', label: '2018 Edition', color: 'bg-brand-50 text-brand-400 border-brand-100' },
+    { name: 'CSRD / ESRS', label: 'EU Regulation', color: 'bg-purple-50 text-purple-700 border-purple-100' },
+    { name: 'EU Taxonomy', label: 'Sustainable Finance', color: 'bg-purple-50 text-purple-700 border-purple-100' },
+    { name: 'IPCC AR6', label: 'Emission Factors', color: 'bg-amber-50 text-amber-700 border-amber-100' },
+  ]
+  const reportItems = [
+    [t('landing.standards.scope1'), t('landing.standards.scope1Desc')],
+    [t('landing.standards.scope2'), t('landing.standards.scope2Desc')],
+    [t('landing.standards.benchmark'), t('landing.standards.benchmarkDesc')],
+    [t('landing.standards.plan'), t('landing.standards.planDesc')],
+    [t('landing.standards.valuation'), t('landing.standards.valuationDesc')],
+  ]
   return (
     <section id="estandares" className="py-20 bg-surface-secondary">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-14 items-center">
           <div>
-            <span className="badge-gray mb-4 inline-block">Estándares internacionales</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">Metodología de clase mundial, accesible para tu empresa</h2>
-            <p className="text-text-secondary text-lg leading-relaxed mb-8">EcoMetriX aplica los mismos estándares que usan las empresas Fortune 500, adaptados para que cualquier PYME pueda cumplirlos.</p>
+            <span className="badge-gray mb-4 inline-block">{t('landing.standards.badge')}</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">{t('landing.standards.title')}</h2>
+            <p className="text-text-secondary text-lg leading-relaxed mb-8">{t('landing.standards.desc')}</p>
             <div className="flex flex-wrap gap-3 mb-6">
               {standards.map(({ name, label, color }) => (
                 <div key={name} className={`inline-flex flex-col px-4 py-2.5 rounded-xl border ${color}`}>
@@ -220,18 +239,12 @@ function Standards() {
                 </div>
               ))}
             </div>
-            <p className="text-sm text-text-muted">Próximamente: CDP Climate Disclosure · SBTi · GRI Standards</p>
+            <p className="text-sm text-text-muted">{t('landing.standards.coming')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-border p-8 shadow-card">
-            <h3 className="font-semibold text-text-primary mb-6">Tu reporte incluye</h3>
+            <h3 className="font-semibold text-text-primary mb-6">{t('landing.standards.reportTitle')}</h3>
             <div className="space-y-4">
-              {[
-                ['Alcance 1', 'Emisiones directas — combustibles, flota, refrigerantes'],
-                ['Alcance 2', 'Energía indirecta — electricidad, vapor, calor'],
-                ['Benchmark', 'Comparativa con empresas de tu sector'],
-                ['Plan de acción', '5 acciones priorizadas por ROI y facilidad'],
-                ['Valoración económica', 'Tu huella en toneladas CO2e y valor EU ETS'],
-              ].map(([title, desc]) => (
+              {reportItems.map(([title, desc]) => (
                 <div key={title} className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center flex-shrink-0 mt-0.5 text-brand-400"><IconCheck /></div>
                   <p className="text-sm text-text-primary"><span className="font-medium">{title}</span><span className="text-text-muted"> — {desc}</span></p>
@@ -246,14 +259,26 @@ function Standards() {
 }
 
 function Benefits() {
+  const { t } = useTranslation()
+  const sectors = [
+    t('landing.sectors.manufacturing'), t('landing.sectors.retail'),
+    t('landing.sectors.logistics'), t('landing.sectors.services'),
+    t('landing.sectors.food'), t('landing.sectors.construction'),
+    t('landing.sectors.tech'), t('landing.sectors.health'),
+  ]
+  const benefits = [
+    t('landing.benefits.b1'), t('landing.benefits.b2'),
+    t('landing.benefits.b3'), t('landing.benefits.b4'),
+    t('landing.benefits.b5'), t('landing.benefits.b6'),
+  ]
   return (
     <section id="sectores" className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-14 items-center">
           <div>
-            <span className="badge-green mb-4 inline-block">Para empresas</span>
-            <h2 className="text-3xl font-bold text-text-primary mb-5">Diseñado para cualquier sector</h2>
-            <p className="text-text-secondary leading-relaxed mb-8">Nuestro cuestionario adaptativo detecta tu sector y ajusta preguntas y factores de emisión correspondientes.</p>
+            <span className="badge-green mb-4 inline-block">{t('landing.benefits.badge')}</span>
+            <h2 className="text-3xl font-bold text-text-primary mb-5">{t('landing.benefits.title')}</h2>
+            <p className="text-text-secondary leading-relaxed mb-8">{t('landing.benefits.desc')}</p>
             <div className="grid grid-cols-4 gap-2">
               {sectors.map(s => (
                 <div key={s} className="px-3 py-2 rounded-lg bg-surface-tertiary text-text-secondary text-xs font-medium text-center">{s}</div>
@@ -261,14 +286,7 @@ function Benefits() {
             </div>
           </div>
           <div className="space-y-4">
-            {[
-              'Diagnóstico completo en menos de 15 minutos',
-              'Reporte PDF profesional entregado por email',
-              'Metodología GHG Protocol + ISO 14064 certificable',
-              'Plan de reducción personalizado por sector',
-              'Sin instalación, sin contratos, sin complicaciones',
-              'Preparado para cumplimiento CSRD europeo',
-            ].map(b => (
+            {benefits.map(b => (
               <div key={b} className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-brand-300 flex items-center justify-center flex-shrink-0 mt-0.5"><IconCheck white /></div>
                 <p className="text-text-primary text-sm leading-relaxed">{b}</p>
@@ -282,11 +300,19 @@ function Benefits() {
 }
 
 function CTASection() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [empresa, setEmpresa] = useState('')
   const [sector, setSector] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const sectors = [
+    t('landing.sectors.manufacturing'), t('landing.sectors.retail'),
+    t('landing.sectors.logistics'), t('landing.sectors.services'),
+    t('landing.sectors.food'), t('landing.sectors.construction'),
+    t('landing.sectors.tech'), t('landing.sectors.health'),
+  ]
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -301,41 +327,41 @@ function CTASection() {
     <section id="diagnostico" className="py-20 bg-brand-400">
       <div className="max-w-6xl mx-auto px-6">
         <div className="max-w-2xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">Únete al piloto gratuito</h2>
-          <p className="text-white/75 text-lg leading-relaxed">Sé una de las primeras empresas en medir su huella de carbono con EcoMetriX. Sin costo, sin compromiso. Solo resultados.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">{t('landing.cta.title')}</h2>
+          <p className="text-white/75 text-lg leading-relaxed">{t('landing.cta.desc')}</p>
         </div>
         <div className="max-w-lg mx-auto">
           {submitted ? (
             <div className="bg-white/10 border border-white/20 rounded-2xl p-8 text-center">
               <div className="text-4xl mb-4">🎉</div>
-              <h3 className="text-white font-semibold text-xl mb-2">¡Listo! Te contactamos pronto</h3>
-              <p className="text-white/70 text-sm">Revisaremos tu solicitud y te enviaremos el acceso al diagnóstico en menos de 24 horas.</p>
+              <h3 className="text-white font-semibold text-xl mb-2">{t('landing.cta.successTitle')}</h3>
+              <p className="text-white/70 text-sm">{t('landing.cta.successDesc')}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="bg-white/10 border border-white/20 rounded-2xl p-8 space-y-4 backdrop-blur-sm">
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-1.5">Nombre de tu empresa *</label>
-                <input type="text" value={empresa} onChange={e => setEmpresa(e.target.value)} placeholder="Ej: Textiles del Norte SAS" required
+                <label className="block text-white/80 text-sm font-medium mb-1.5">{t('landing.cta.companyLabel')}</label>
+                <input type="text" value={empresa} onChange={e => setEmpresa(e.target.value)} placeholder={t('landing.cta.companyPlaceholder')} required
                   className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 transition" />
               </div>
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-1.5">Correo corporativo *</label>
+                <label className="block text-white/80 text-sm font-medium mb-1.5">{t('landing.cta.emailLabel')}</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@empresa.com" required
                   className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 transition" />
               </div>
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-1.5">Sector</label>
+                <label className="block text-white/80 text-sm font-medium mb-1.5">{t('landing.cta.sectorLabel')}</label>
                 <select value={sector} onChange={e => setSector(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/40 transition">
-                  <option value="" className="text-gray-800">Selecciona tu sector</option>
+                  <option value="" className="text-gray-800">{t('landing.cta.sectorPlaceholder')}</option>
                   {sectors.map(s => <option key={s} value={s} className="text-gray-800">{s}</option>)}
                 </select>
               </div>
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl bg-white text-brand-400 font-semibold text-sm hover:bg-brand-50 transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2">
-                {loading ? <span className="w-4 h-4 border-2 border-brand-400/30 border-t-brand-400 rounded-full animate-spin" /> : <>Solicitar diagnóstico gratuito <IconArrow /></>}
+                {loading ? <span className="w-4 h-4 border-2 border-brand-400/30 border-t-brand-400 rounded-full animate-spin" /> : <>{t('landing.cta.submit')} <IconArrow /></>}
               </button>
-              <p className="text-white/50 text-xs text-center">Sin spam. Solo te contactamos para coordinar el diagnóstico.</p>
+              <p className="text-white/50 text-xs text-center">{t('landing.cta.privacy')}</p>
             </form>
           )}
         </div>
@@ -345,6 +371,7 @@ function CTASection() {
 }
 
 function Footer() {
+  const { t } = useTranslation()
   return (
     <footer className="bg-brand-500 py-12">
       <div className="max-w-6xl mx-auto px-6">
@@ -353,7 +380,7 @@ function Footer() {
             <div className="w-7 h-7 rounded-lg bg-brand-300 flex items-center justify-center"><IconLeaf /></div>
             <span className="text-white font-semibold">EcoMetriX</span>
           </div>
-          <p className="text-white/50 text-sm text-center">Plataforma de huella de carbono basada en GHG Protocol e ISO 14064</p>
+          <p className="text-white/50 text-sm text-center">{t('landing.footer.tagline')}</p>
           <div className="flex items-center gap-4">
             <LanguageSelector dark={true} />
             <span className="text-white/20">·</span>
@@ -361,7 +388,7 @@ function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/10 text-center">
-          <p className="text-white/30 text-xs">© 2026 EcoMetriX · Barranquilla, Colombia · Todos los derechos reservados</p>
+          <p className="text-white/30 text-xs">{t('landing.footer.copy')}</p>
         </div>
       </div>
     </footer>
