@@ -17,8 +17,8 @@ import {
 // â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
-    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 
@@ -89,20 +89,20 @@ function GreenwashingAlert({ score, respuestas }) {
       flags.push('Motivación comercial sin historial de acción sostenible verificable.')
     }
     if (renovables && renovables.includes('solar') && score < 40) {
-      flags.push('Inversión en renovables pero huella de carbono aún alta â€” comunicar con cautela.')
+      flags.push('Inversión en renovables pero huella de carbono aún alta -” comunicar con cautela.')
     }
   }
 
   if (flags.length === 0) return (
     <div className="flex items-center gap-2 px-4 py-3 bg-brand-50 border border-brand-100 rounded-xl">
       <span className="text-brand-400 text-lg">✓an>
-      <p className="text-sm text-brand-400 font-medium">Sin alertas de greenwashing detectadas</p>
+        <p className="text-sm text-brand-400 font-medium">Sin alertas de greenwashing detectadas</p>
     </div>
   )
 
   return (
     <div className="px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-      <p className="text-sm font-medium text-amber-700 mb-2">âš  Alertas de comunicación responsable</p>
+      <p className="text-sm font-medium text-amber-700 mb-2">⚠️ Alertas de comunicación responsable</p>
       {flags.map((f, i) => <p key={i} className="text-xs text-amber-600">{f}</p>)}
     </div>
   )
@@ -128,8 +128,8 @@ function TimelineChart({ totalKgMes, planAccion }) {
       <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="gradProyectado" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#1D9E75" stopOpacity={0.15}/>
-            <stop offset="95%" stopColor="#1D9E75" stopOpacity={0}/>
+            <stop offset="5%" stopColor="#1D9E75" stopOpacity={0.15} />
+            <stop offset="95%" stopColor="#1D9E75" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F3" />
@@ -151,16 +151,16 @@ function TimelineChart({ totalKgMes, planAccion }) {
 // â”€â”€â”€ BENCHMARK CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BenchmarkChart({ empresa, totalTonAnio }) {
   const benchmarks = {
-    'Manufactura':           { p25: 15, p50: 45, p75: 120 },
-    'Retail / Comercio':     { p25: 5,  p50: 18, p75: 60  },
-    'Logística / Transporte':{ p25: 30, p50: 80, p75: 200 },
-    'Servicios profesionales':{ p25: 2, p50: 8,  p75: 25  },
-    'Alimentos y bebidas':   { p25: 20, p50: 55, p75: 150 },
-    'Construcción':          { p25: 25, p50: 70, p75: 180 },
-    'Tecnología / Software': { p25: 1,  p50: 5,  p75: 18  },
-    'Salud / Farmacéutico':  { p25: 8,  p50: 22, p75: 65  },
-    'Agropecuario':          { p25: 40, p50: 110,p75: 300 },
-    'Otro':                  { p25: 10, p50: 30, p75: 90  },
+    'Manufactura': { p25: 15, p50: 45, p75: 120 },
+    'Retail / Comercio': { p25: 5, p50: 18, p75: 60 },
+    'Logística / Transporte': { p25: 30, p50: 80, p75: 200 },
+    'Servicios profesionales': { p25: 2, p50: 8, p75: 25 },
+    'Alimentos y bebidas': { p25: 20, p50: 55, p75: 150 },
+    'Construcción': { p25: 25, p50: 70, p75: 180 },
+    'Tecnología / Software': { p25: 1, p50: 5, p75: 18 },
+    'Salud / Farmacéutico': { p25: 8, p50: 22, p75: 65 },
+    'Agropecuario': { p25: 40, p50: 110, p75: 300 },
+    'Otro': { p25: 10, p50: 30, p75: 90 },
   }
 
   const bench = benchmarks[empresa?.sector] || benchmarks['Otro']
@@ -215,10 +215,10 @@ function RadarSostenibilidad({ scores }) {
 function QuadrantCard({ title, score, icon, description, actions, color }) {
   const [expanded, setExpanded] = useState(false)
   const colorMap = {
-    green:  { bg: 'bg-brand-50',  border: 'border-brand-200',  text: 'text-brand-400' },
+    green: { bg: 'bg-brand-50', border: 'border-brand-200', text: 'text-brand-400' },
     purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700' },
-    amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-700'  },
-    blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-700'   },
+    amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+    blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
   }
   const c = colorMap[color] || colorMap.green
 
@@ -242,7 +242,7 @@ function QuadrantCard({ title, score, icon, description, actions, color }) {
             <div key={i} className="flex items-start gap-2">
               <div className={`w-4 h-4 rounded-full ${c.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className={`w-2.5 h-2.5 ${c.text}`}>
-                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <p className="text-xs text-text-secondary">{a}</p>
@@ -341,7 +341,7 @@ export default function Dashboard360() {
     {
       title: 'Huella de Carbono',
       score: scores.carbono,
-      icon: '🌍',
+      icon: '🌍',
       color: 'green',
       description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton COâ₂e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
       actions: analisis?.plan_accion?.slice(0, 3).map(a => a.accion) || ['Medir emisiones regularmente', 'Reducir consumo energético'],
@@ -349,7 +349,7 @@ export default function Dashboard360() {
     {
       title: 'Gestión Energética',
       score: scores.energia,
-      icon: 'âš¡',
+      icon: '⚡',
       color: 'amber',
       description: 'Eficiencia en el uso de energía y adopción de fuentes renovables en operaciones.',
       actions: ['Auditoría energética de instalaciones', 'Evaluar contrato de energía renovable', 'Instalar medidores inteligentes por área'],
@@ -357,7 +357,7 @@ export default function Dashboard360() {
     {
       title: 'Economía Circular',
       score: scores.circular,
-      icon: '♻️',
+      icon: '♻️',
       color: 'purple',
       description: 'Gestión de residuos, reutilización de materiales y diseño de procesos circulares.',
       actions: ['Programa de separación y reciclaje', 'Reducir empaques plásticos', 'Política de compras sostenibles'],
@@ -464,7 +464,7 @@ export default function Dashboard360() {
         {/* Benchmark sectorial */}
         <div className="card">
           <h3 className="font-semibold text-text-primary mb-1">Benchmark sectorial</h3>
-          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton COâ₂e/año)</p>
+          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton CO₂e/año)</p>
           <BenchmarkChart empresa={empresa} totalTonAnio={calculo.totalTonAnio} />
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
             {[
