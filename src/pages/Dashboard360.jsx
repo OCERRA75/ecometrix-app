@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard'
@@ -383,7 +383,7 @@ export default function Dashboard360() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">← Reporte</Link>
-            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3"> CSRD</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
           </div>
         </div>
