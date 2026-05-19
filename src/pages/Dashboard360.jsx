@@ -365,7 +365,7 @@ export default function Dashboard360() {
     {
       title: 'Gobernanza ESG',
       score: scores.gobernanza,
-      icon: '',
+      icon: '📋',
       color: 'blue',
       description: 'Políticas de sostenibilidad, Reportes formales y cumplimiento de estándares internacionales.',
       actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar Reporte CSRD (si aplica)'],
