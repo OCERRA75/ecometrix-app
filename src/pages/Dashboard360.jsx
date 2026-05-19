@@ -95,7 +95,7 @@ function GreenwashingAlert({ score, respuestas }) {
 
   if (flags.length === 0) return (
     <div className="flex items-center gap-2 px-4 py-3 bg-brand-50 border border-brand-100 rounded-xl">
-      <span className="text-brand-400 text-lg">✓an>
+      <span className="text-brand-400 text-lg">✓</span>
         <p className="text-sm text-brand-400 font-medium">Sin alertas de greenwashing detectadas</p>
     </div>
   )
