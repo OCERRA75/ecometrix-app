@@ -365,7 +365,7 @@ export default function Dashboard360() {
     {
       title: 'Gobernanza ESG',
       score: scores.gobernanza,
-      icon: '&#128203;',
+      icon: '',
       color: 'blue',
       description: 'Políticas de sostenibilidad, Reportes formales y cumplimiento de estándares internacionales.',
       actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar Reporte CSRD (si aplica)'],
@@ -383,7 +383,7 @@ export default function Dashboard360() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">← Reporte</Link>
-            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">&#127466;&#127489; CSRD</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3"> CSRD</Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
           </div>
         </div>
