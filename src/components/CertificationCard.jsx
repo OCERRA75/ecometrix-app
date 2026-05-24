@@ -43,7 +43,7 @@ const BADGE_META = {
   first_emission: { icon: '🌱', name: 'Primera Huella',     desc: 'Primer registro de emisiones' },
   full_scope:     { icon: '📊', name: 'Alcance Completo',   desc: 'Los 3 alcances medidos'       },
   planner:        { icon: '🎯', name: 'Planificador',       desc: 'Plan de acción generado'      },
-  low_impact:     { icon: 'âš¡', name: 'Impacto Bajo',       desc: 'Nivel de impacto bajo'        },
+  low_impact:     { icon: '⚡', name: 'Impacto Bajo',       desc: 'Nivel de impacto bajo'        },
   leader:         { icon: '🏆', name: 'Líder Sostenible',   desc: 'Puntaje ≥ 90'                 },
 }
 
@@ -263,7 +263,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
           onClick={() => setShowBreakdown(v => !v)}
           className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors mb-2"
         >
-          <span>{showBreakdown ? 'â–¾' : 'â–¸'}</span>
+          <span>{showBreakdown ? '▾' : '▸'}</span>
           <span>Desglose de puntuación</span>
         </button>
         {showBreakdown && cert.breakdown && (
