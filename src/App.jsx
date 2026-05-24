@@ -9,6 +9,7 @@ import Login from '@/pages/Login.jsx'
 import Pricing from '@/pages/Pricing.jsx'
 import Developers from '@/pages/Developers.jsx'
 import NotFound from '@/pages/NotFound.jsx'
+import Ruta from '@/pages/Ruta.jsx'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/login"           element={<Login />} />
           <Route path="/precios"         element={<Pricing />} />
           <Route path="/developers"      element={<Developers />} />
+          <Route path="/ruta"           element={<Ruta />} />
           <Route path="*"               element={<NotFound />} />
         </Routes>
       </BrowserRouter>

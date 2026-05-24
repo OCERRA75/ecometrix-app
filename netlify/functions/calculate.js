@@ -3,24 +3,22 @@ const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
   electricidad: { Colombia: 0.126, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
   precio_kwh_cop: 650,
-  // Alcance 3 — factores spend-based (kg CO2e por USD gastado)
   alcance3: {
-    'Materias primas / insumos físicos':   0.85,
-    'Servicios profesionales / digitales':  0.15,
-    'Equipos y maquinaria':                 0.45,
-    'Alimentos / productos perecederos':    1.20,
-    'Materiales de construcción':           0.95,
-    'Tecnología / hardware':                0.35,
-    'Mixto':                                0.55,
-    default:                                0.55,
+    'Materias primas / insumos físicos': 0.85, 'Servicios profesionales / digitales': 0.15,
+    'Equipos y maquinaria': 0.45, 'Alimentos / productos perecederos': 1.20,
+    'Materiales de construcción': 0.95, 'Tecnología / hardware': 0.35, 'Mixto': 0.55, default: 0.55,
   },
-  // Transporte upstream (kg CO2e por ton-km estimado)
-  transporte_upstream: { 'Proveedores locales (< 100 km)': 0.05, 'Proveedores nacionales (100 – 1000 km)': 0.12, 'Importaciones regionales (LATAM)': 0.18, 'Importaciones intercontinentales': 0.35, 'Mixto local e internacional': 0.20 },
-  // Vuelos (kg CO2e por viaje promedio)
-  viajes: { 'No hay viajes de negocio': 0, 'Ocasional (< 5 viajes/año por empresa)': 250, 'Frecuente (5 – 20 viajes/año)': 1500, 'Muy frecuente (> 20 viajes/año)': 5000, 'Viajes internacionales frecuentes': 12000 },
+  transporte_upstream: {
+    'Proveedores locales (< 100 km)': 0.05, 'Proveedores nacionales (100 – 1000 km)': 0.12,
+    'Importaciones regionales (LATAM)': 0.18, 'Importaciones intercontinentales': 0.35, 'Mixto local e internacional': 0.20,
+  },
+  viajes: {
+    'No hay viajes de negocio': 0, 'Ocasional (< 5 viajes/año por empresa)': 250,
+    'Frecuente (5 – 20 viajes/año)': 1500, 'Muy frecuente (> 20 viajes/año)': 5000, 'Viajes internacionales frecuentes': 12000,
+  },
 }
 
-const COP_TO_USD = 4000 // tasa aproximada
+const COP_TO_USD = 4000
 
 function calcularEmisiones(empresa, respuestas) {
   let alcance1 = 0, alcance2 = 0, alcance3 = 0
@@ -89,8 +87,6 @@ function calcularEmisiones(empresa, respuestas) {
   }
 
   // ── ALCANCE 3 ──────────────────────────────────────────────────────────────
-
-  // Compras a proveedores (spend-based)
   const gastoProveedores = parseFloat(respuestas['a3_compras_proveedores']) || 0
   const tipoCompra = respuestas['a3_compras_tipo'] || 'Mixto'
   if (gastoProveedores > 0) {
@@ -98,10 +94,9 @@ function calcularEmisiones(empresa, respuestas) {
     const factor = FACTORES.alcance3[tipoCompra] || FACTORES.alcance3.default
     const emision = gastoUSD * factor
     alcance3 += emision
-    detalgesA3: detallesA3.push({ categoria: 'Bienes y servicios comprados', kgCO2e: emision, fuente: tipoCompra, cantidad: `$${gastoUSD.toFixed(0)} USD/mes` })
+    detallesA3.push({ categoria: 'Bienes y servicios comprados', kgCO2e: emision, fuente: tipoCompra, cantidad: `$${gastoUSD.toFixed(0)} USD/mes` })
   }
 
-  // Transporte upstream
   const transporteUp = respuestas['a3_transporte_proveedores']
   if (transporteUp && gastoProveedores > 0) {
     const factor = FACTORES.transporte_upstream[transporteUp] || 0.15
@@ -110,7 +105,6 @@ function calcularEmisiones(empresa, respuestas) {
     detallesA3.push({ categoria: 'Transporte upstream (proveedores)', kgCO2e: emision, fuente: transporteUp })
   }
 
-  // Transporte downstream
   const transporteDown = respuestas['a3_distribucion_clientes']
   if (transporteDown && transporteDown !== 'Entrega digital (sin transporte físico)') {
     const factorDown = { 'Clientes vienen a nuestras instalaciones': 0, 'Entrega local (< 100 km)': 80, 'Distribución nacional': 250, 'Distribución internacional': 800, 'Mixto': 150 }
@@ -119,7 +113,6 @@ function calcularEmisiones(empresa, respuestas) {
     detallesA3.push({ categoria: 'Distribución a clientes', kgCO2e: emision, fuente: transporteDown })
   }
 
-  // Viajes de negocio
   const viajes = respuestas['a3_viajes_negocio']
   if (viajes) {
     const emisionAnual = FACTORES.viajes[viajes] || 0
@@ -128,17 +121,15 @@ function calcularEmisiones(empresa, respuestas) {
     if (emisionMes > 0) detallesA3.push({ categoria: 'Viajes de negocios', kgCO2e: emisionMes, fuente: viajes })
   }
 
-  // Desplazamiento empleados
   const empleados = parseFloat(respuestas['a2_numero_empleados']) || 10
   const commuting = respuestas['a3_desplazamiento_empleados']
   if (commuting && commuting !== 'Trabajan desde casa (100% remoto)' && commuting !== 'A pie o bicicleta') {
     const factorComm = { 'Transporte público (metro, bus)': 2.5, 'Vehículo particular': 8.5, 'Mixto transporte público y particular': 5.0, 'Transporte empresarial': 4.0 }
-    const emision = empleados * (factorComm[commuting] || 5.0) * 22 // 22 días hábiles
+    const emision = empleados * (factorComm[commuting] || 5.0) * 22
     alcance3 += emision
     detallesA3.push({ categoria: 'Desplazamiento empleados', kgCO2e: emision, fuente: commuting, cantidad: `${empleados} empleados × 22 días` })
   }
 
-  // Residuos
   const residuos = respuestas['a3_residuos_cantidad']
   if (residuos) {
     const factorRes = { 'Reciclaje y compostaje (> 70%)': 20, 'Reciclaje parcial (30 – 70%)': 60, 'Mayoría a relleno sanitario': 150, 'Residuos peligrosos (requiere gestor especializado)': 200, 'No tenemos gestión formal de residuos': 120 }
@@ -163,10 +154,41 @@ function calcularEmisiones(empresa, respuestas) {
   }
 }
 
+// ── Guardar en Supabase ────────────────────────────────────────────────────
+async function guardarDiagnostico(resultado) {
+  const supabaseUrl = process.env.SUPABASE_URL || 'https://reoyytnbsjfgunqeylo.supabase.co'
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseKey || !resultado.user_id) return
+
+  try {
+    await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        id: resultado.id,
+        user_id: resultado.user_id,
+        empresa: resultado.empresa,
+        calculo: resultado.calculo,
+        analisis: resultado.analisis,
+        respuestas: resultado.respuestas,
+        created_at: resultado.timestamp,
+      }),
+    })
+  } catch (e) {
+    console.error('Supabase insert error:', e)
+    // No lanzar — el cálculo ya está listo, solo falla el guardado
+  }
+}
+
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
   try {
-    const { empresa, respuestas } = JSON.parse(event.body)
+    const { empresa, respuestas, user_id } = JSON.parse(event.body)
     const calculo = calcularEmisiones(empresa, respuestas)
     let analisis = null
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -188,9 +210,11 @@ Genera JSON exacto:
         if (jsonMatch) analisis = JSON.parse(jsonMatch[0])
       } catch(e) { console.error('Claude API error:', e) }
     }
+
     const resultado = {
-      id: `ecm_${Date.now()}`, empresa, calculo,
-      respuestas,
+      id: `ecm_${Date.now()}`,
+      user_id: user_id || null,
+      empresa, calculo, respuestas,
       analisis: analisis || {
         resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO2e/año (Alcances 1+2+3), con nivel de impacto ${calculo.nivelImpacto} para su sector.`,
         principales_fuentes: calculo.detalles.slice(0, 3).map(d => d.categoria),
@@ -206,6 +230,10 @@ Genera JSON exacto:
       },
       timestamp: new Date().toISOString(),
     }
+
+    // Guardar en Supabase si hay usuario autenticado
+    await guardarDiagnostico(resultado)
+
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultado) }
   } catch (err) {
     console.error('Calculate error:', err)

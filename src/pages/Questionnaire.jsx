@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '@/hooks/useAuth.jsx'
 import { useNavigate } from 'react-router-dom'
 import { useQuestionnaire } from '@/store/questionnaire.js'
 import {
@@ -264,6 +265,7 @@ function ResumenScreen({ onSubmit, loading }) {
 export default function Questionnaire() {
   const navigate = useNavigate()
   const { empresa, respuestas, step, currentQ, setRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
+  const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
 
   const preguntasMap = {
@@ -299,7 +301,7 @@ export default function Questionnaire() {
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      const payload = { empresa, respuestas }
+      const payload = { empresa, respuestas, user_id: user?.id || null }
       const res = await fetch('/.netlify/functions/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
