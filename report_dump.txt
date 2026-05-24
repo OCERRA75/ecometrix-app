@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { RadialBarChart, RadialBar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
-import CertificationCard from '@/components/CertificationCard.jsx'
 
-// ─── ICONS ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
@@ -27,7 +26,7 @@ const IconArrow = () => (
   </svg>
 )
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const nivelColor = {
   Bajo:     { bg: 'bg-brand-50',  text: 'text-brand-400',  border: 'border-brand-200',  bar: '#1D9E75' },
   Moderado: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  bar: '#BA7517' },
@@ -35,19 +34,19 @@ const nivelColor = {
 }
 
 const dificultadColor = {
-  'Fácil':  'badge-green',
+  'FÃ¡cil':  'badge-green',
   'Media':  'bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
-  'Difícil':'bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
+  'DifÃ­cil':'bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
 }
 
-// ─── LOADING SCREEN ───────────────────────────────────────────────────────────
+// â”€â”€â”€ LOADING SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function LoadingScreen() {
   const [step, setStep] = useState(0)
   const steps = [
     'Procesando tus respuestas...',
     'Aplicando factores IPCC AR6...',
     'Calculando emisiones por alcance...',
-    'Generando análisis con IA...',
+    'Generando anÃ¡lisis con IA...',
     'Preparando tu reporte...',
   ]
   useEffect(() => {
@@ -72,7 +71,7 @@ function LoadingScreen() {
   )
 }
 
-// ─── METRIC CARD ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ METRIC CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MetricCard({ label, value, unit, sub, accent = false }) {
   return (
     <div className={`card ${accent ? 'bg-brand-400 border-brand-400' : ''}`}>
@@ -86,17 +85,17 @@ function MetricCard({ label, value, unit, sub, accent = false }) {
   )
 }
 
-// ─── ALCANCE CHART ────────────────────────────────────────────────────────────
+// â”€â”€â”€ ALCANCE CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AlcanceChart({ alcance1, alcance2, alcance3 }) {
   const total = (alcance1 + alcance2 + (alcance3 || 0)) || 1
   const alcances = [
     { label: 'Alcance 1', desc: 'Emisiones directas',  value: alcance1, pct: Math.round(alcance1 / total * 100), color: 'bg-brand-300' },
-    { label: 'Alcance 2', desc: 'Energía indirecta',   value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
+    { label: 'Alcance 2', desc: 'EnergÃ­a indirecta',   value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
     ...(alcance3 > 0 ? [{ label: 'Alcance 3', desc: 'Cadena de valor', value: alcance3, pct: Math.round(alcance3 / total * 100), color: 'bg-blue-500' }] : []),
   ]
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Distribución por Alcance</h3>
+      <h3 className="font-semibold text-text-primary mb-1">DistribuciÃ³n por Alcance</h3>
       <p className="text-xs text-text-muted mb-4">GHG Protocol Corporate Standard</p>
       <div className="space-y-3">
         {alcances.map(({ label, desc, value, pct, color }) => (
@@ -108,7 +107,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
               </div>
               <div className="text-right">
                 <span className="font-semibold text-text-primary">{value.toLocaleString()}</span>
-                <span className="text-text-muted text-xs ml-1">kg COâ''e/mes</span>
+                <span className="text-text-muted text-xs ml-1">kg COâ‚‚e/mes</span>
               </div>
             </div>
             <div className="w-full h-2.5 bg-surface-tertiary rounded-full overflow-hidden">
@@ -122,11 +121,11 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
   )
 }
 
-// ─── PLAN DE ACCIÓN ───────────────────────────────────────────────────────────
+// â”€â”€â”€ PLAN DE ACCIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PlanAccion({ acciones }) {
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Plan de Reducción</h3>
+      <h3 className="font-semibold text-text-primary mb-1">Plan de ReducciÃ³n</h3>
       <p className="text-xs text-text-muted mb-4">5 acciones priorizadas por impacto y facilidad</p>
       <div className="space-y-3">
         {acciones.map((a, i) => (
@@ -149,13 +148,13 @@ function PlanAccion({ acciones }) {
   )
 }
 
-// ─── DETALLES POR FUENTE ──────────────────────────────────────────────────────
+// â”€â”€â”€ DETALLES POR FUENTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function DetallesFuentes({ detalles, total }) {
   if (!detalles?.length) return null
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Fuentes de Emisión</h3>
-      <p className="text-xs text-text-muted mb-4">Desglose detallado por categoría</p>
+      <h3 className="font-semibold text-text-primary mb-1">Fuentes de EmisiÃ³n</h3>
+      <p className="text-xs text-text-muted mb-4">Desglose detallado por categorÃ­a</p>
       <div className="space-y-3">
         {detalles.map((d, i) => {
           const pct = total > 0 ? Math.round(d.kgCO2e / total * 100) : 0
@@ -170,7 +169,7 @@ function DetallesFuentes({ detalles, total }) {
                 <div className="w-full h-1.5 bg-surface-tertiary rounded-full overflow-hidden">
                   <div className="h-full bg-brand-300 rounded-full" style={{ width: `${pct}%` }} />
                 </div>
-                {d.cantidad && <p className="text-xs text-text-muted mt-0.5">{d.cantidad} {d.factorUsado ? `· Factor: ${d.factorUsado}` : ''}</p>}
+                {d.cantidad && <p className="text-xs text-text-muted mt-0.5">{d.cantidad} {d.factorUsado ? `Â· Factor: ${d.factorUsado}` : ''}</p>}
               </div>
               <span className="text-xs font-medium text-text-secondary w-10 text-right flex-shrink-0">{pct}%</span>
             </div>
@@ -181,7 +180,7 @@ function DetallesFuentes({ detalles, total }) {
   )
 }
 
-// ─── MAIN REPORT ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ MAIN REPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function Report() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -197,7 +196,7 @@ export default function Report() {
           const parsed = JSON.parse(stored)
           setData(parsed)
           setLoading(false)
-          // Enviar email automáticamente (solo una vez)
+          // Enviar email automÃ¡ticamente (solo una vez)
           const emailSent = sessionStorage.getItem('ecometrix_email_sent')
           if (!emailSent) {
             sessionStorage.setItem('ecometrix_email_sent', '1')
@@ -228,7 +227,7 @@ export default function Report() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <p className="text-danger mb-4">{error}</p>
-        <Link to="/diagnostico" className="btn-primary">Nuevo diagnóstico</Link>
+        <Link to="/diagnostico" className="btn-primary">Nuevo diagnÃ³stico</Link>
       </div>
     </div>
   )
@@ -247,7 +246,7 @@ export default function Report() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted hidden sm:block">Diagnóstico — {empresa.nombre}</span>
+            <span className="text-xs text-text-muted hidden sm:block">DiagnÃ³stico â€” {empresa.nombre}</span>
             <button
               onClick={() => window.print()}
               className="btn-secondary text-sm py-1.5 px-3"
@@ -255,13 +254,13 @@ export default function Report() {
               <IconDownload /> Descargar PDF
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">
-              Dashboard 360°
+              Dashboard 360Â°
             </Link>
             <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">
-              🇪🇺 CSRD
+              ðŸ‡ªðŸ‡º CSRD
             </Link>
             <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">
-              Nuevo diagnóstico
+              Nuevo diagnÃ³stico
             </Link>
           </div>
         </div>
@@ -273,9 +272,9 @@ export default function Report() {
         <div className={`rounded-2xl border-2 ${nivel.border} ${nivel.bg} p-6 mb-8`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-text-muted mb-1">Diagnóstico de Huella de Carbono</p>
+              <p className="text-sm font-medium text-text-muted mb-1">DiagnÃ³stico de Huella de Carbono</p>
               <h1 className="text-2xl font-bold text-text-primary mb-1">{empresa.nombre}</h1>
-              <p className="text-sm text-text-secondary">{empresa.sector} · {empresa.tamano} · {empresa.pais}</p>
+              <p className="text-sm text-text-secondary">{empresa.sector} Â· {empresa.tamano} Â· {empresa.pais}</p>
             </div>
             <div className={`px-5 py-3 rounded-xl border-2 ${nivel.border} bg-white text-center flex-shrink-0`}>
               <p className="text-xs text-text-muted mb-1">Nivel de impacto</p>
@@ -284,39 +283,39 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Métricas principales */}
+        {/* MÃ©tricas principales */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <MetricCard
             label="Huella total"
             value={calculo.totalTonAnio.toLocaleString()}
-            unit="ton CO₂e/año"
+            unit="ton COâ‚‚e/aÃ±o"
             sub={`${calculo.totalKgMes.toLocaleString()} kg/mes`}
             accent
           />
           <MetricCard
-            label="Alcance 1 — Directas"
+            label="Alcance 1 â€” Directas"
             value={calculo.alcance1.toLocaleString()}
-            unit="kg COâ''e/mes"
+            unit="kg COâ‚‚e/mes"
             sub="Emisiones directas"
           />
           <MetricCard
-            label="Alcance 2 — Energía"
+            label="Alcance 2 â€” EnergÃ­a"
             value={calculo.alcance2.toLocaleString()}
-            unit="kg COâ''e/mes"
+            unit="kg COâ‚‚e/mes"
             sub="Electricidad indirecta"
           />
           {calculo.alcance3 > 0 && (
             <MetricCard
-              label="Alcance 3 — Cadena"
+              label="Alcance 3 â€” Cadena"
               value={calculo.alcance3.toLocaleString()}
-              unit="kg COâ''e/mes"
+              unit="kg COâ‚‚e/mes"
               sub="Cadena de valor"
             />
           )}
           <MetricCard
-            label="Valor económico"
+            label="Valor econÃ³mico"
             value={`$${(calculo.valorETS_COP / 1000000).toFixed(1)}M`}
-            unit="COP/año"
+            unit="COP/aÃ±o"
             sub="Equivalente EU ETS"
           />
         </div>
@@ -335,13 +334,13 @@ export default function Report() {
           </div>
         )}
 
-        {/* Gráficas + detalles */}
+        {/* GrÃ¡ficas + detalles */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <AlcanceChart alcance1={calculo.alcance1} alcance2={calculo.alcance2} alcance3={calculo.alcance3 || 0} />
           <DetallesFuentes detalles={calculo.detalles} total={calculo.totalKgMes} />
         </div>
 
-        {/* Plan de acción */}
+        {/* Plan de acciÃ³n */}
         {analisis?.plan_accion && (
           <div className="mb-6">
             <PlanAccion acciones={analisis.plan_accion} />
@@ -351,22 +350,22 @@ export default function Report() {
         {/* Siguiente paso */}
         {analisis?.siguiente_paso && (
           <div className="bg-brand-400 rounded-2xl p-6 mb-8 text-white">
-            <p className="text-sm font-medium text-white/70 mb-1">Recomendación inmediata</p>
+            <p className="text-sm font-medium text-white/70 mb-1">RecomendaciÃ³n inmediata</p>
             <p className="text-lg font-semibold mb-4">{analisis.siguiente_paso}</p>
             <Link to="/diagnostico" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-400 font-medium text-sm hover:bg-brand-50 transition-all">
-              Repetir diagnóstico <IconArrow />
+              Repetir diagnÃ³stico <IconArrow />
             </Link>
           </div>
         )}
 
-        {/* Metodología */}
+        {/* MetodologÃ­a */}
         <div className="card border-dashed">
-          <h3 className="font-semibold text-text-primary mb-3">Metodología aplicada</h3>
+          <h3 className="font-semibold text-text-primary mb-3">MetodologÃ­a aplicada</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              ['GHG Protocol', 'Corporate Standard — Alcances 1 y 2'],
-              ['ISO 14064-1', 'Cuantificación de emisiones — Ed. 2018'],
-              ['IPCC AR6', 'Factores de emisión — 6° Informe de Evaluación'],
+              ['GHG Protocol', 'Corporate Standard â€” Alcances 1 y 2'],
+              ['ISO 14064-1', 'CuantificaciÃ³n de emisiones â€” Ed. 2018'],
+              ['IPCC AR6', 'Factores de emisiÃ³n â€” 6Â° Informe de EvaluaciÃ³n'],
             ].map(([std, desc]) => (
               <div key={std} className="flex items-start gap-2">
                 <div className="w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 mt-0.5 text-brand-400"><IconCheck /></div>
@@ -378,15 +377,8 @@ export default function Report() {
             ))}
           </div>
           <p className="text-xs text-text-muted mt-4 pt-4 border-t border-border">
-            Este diagnóstico es una estimación basada en los datos proporcionados. Para una medición certificable se recomienda una auditoría con verificador acreditado ISO 14064-3.
+            Este diagnÃ³stico es una estimaciÃ³n basada en los datos proporcionados. Para una mediciÃ³n certificable se recomienda una auditorÃ­a con verificador acreditado ISO 14064-3.
           </p>
-        </div>
-
-
-        {/* Certificación EcoMetriX — M15 */}
-        <div className="mt-8 mb-2">
-          <h2 className="text-base font-semibold text-text-primary mb-4">🏅 Tu Certificación EcoMetriX</h2>
-          <CertificationCard diagnosticoData={data} userId={data?.id} />
         </div>
 
       </main>

@@ -1,8 +1,8 @@
-// src/components/CertificationCard.jsx
+﻿// src/components/CertificationCard.jsx
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-// ── Configuración de niveles ──────────────────────────────────────────────────
+// â”€â”€ ConfiguraciÃ³n de niveles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const LEVELS = {
   1: {
@@ -11,7 +11,7 @@ const LEVELS = {
     bg: 'from-gray-500/20 to-gray-600/10',
     border: 'border-gray-400/30',
     ring: '#6B7280',
-    icon: '🌿',
+    icon: 'ðŸŒ¿',
   },
   2: {
     name: 'Comprometido',
@@ -19,7 +19,7 @@ const LEVELS = {
     bg: 'from-emerald-500/20 to-emerald-600/10',
     border: 'border-emerald-400/30',
     ring: '#10B981',
-    icon: '♻️',
+    icon: 'â™»ï¸',
   },
   3: {
     name: 'Avanzado',
@@ -27,27 +27,27 @@ const LEVELS = {
     bg: 'from-green-600/20 to-green-700/10',
     border: 'border-green-500/30',
     ring: '#059669',
-    icon: '🌱',
+    icon: 'ðŸŒ±',
   },
   4: {
-    name: 'Líder Sostenible',
+    name: 'LÃ­der Sostenible',
     color: '#D97706',
     bg: 'from-amber-500/20 to-yellow-600/10',
     border: 'border-amber-400/30',
     ring: '#D97706',
-    icon: '🏆',
+    icon: 'ðŸ†',
   },
 }
 
 const BADGE_META = {
-  first_emission: { icon: '🌱', name: 'Primera Huella',     desc: 'Primer registro de emisiones' },
-  full_scope:     { icon: '📊', name: 'Alcance Completo',   desc: 'Los 3 alcances medidos'       },
-  planner:        { icon: '🎯', name: 'Planificador',       desc: 'Plan de acción generado'      },
+  first_emission: { icon: 'ðŸŒ±', name: 'Primera Huella',     desc: 'Primer registro de emisiones' },
+  full_scope:     { icon: 'ðŸ“Š', name: 'Alcance Completo',   desc: 'Los 3 alcances medidos'       },
+  planner:        { icon: 'ðŸŽ¯', name: 'Planificador',       desc: 'Plan de acciÃ³n generado'      },
   low_impact:     { icon: 'âš¡', name: 'Impacto Bajo',       desc: 'Nivel de impacto bajo'        },
-  leader:         { icon: '🏆', name: 'Líder Sostenible',   desc: 'Puntaje ≥ 90'                 },
+  leader:         { icon: 'ðŸ†', name: 'LÃ­der Sostenible',   desc: 'Puntaje â‰¥ 90'                 },
 }
 
-// ── Score ring SVG ────────────────────────────────────────────────────────────
+// â”€â”€ Score ring SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ScoreRing({ score, color }) {
   const r = 42
@@ -76,7 +76,7 @@ function ScoreRing({ score, color }) {
   )
 }
 
-// ── Badge pill ────────────────────────────────────────────────────────────────
+// â”€â”€ Badge pill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BadgePill({ badgeKey, earned = false, isNew = false }) {
   const meta = BADGE_META[badgeKey]
@@ -104,7 +104,7 @@ function BadgePill({ badgeKey, earned = false, isNew = false }) {
   )
 }
 
-// ── Breakdown bar ─────────────────────────────────────────────────────────────
+// â”€â”€ Breakdown bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BreakdownBar({ label, value, max }) {
   const pct = Math.round((value / max) * 100)
@@ -122,7 +122,7 @@ function BreakdownBar({ label, value, max }) {
   )
 }
 
-// ── Componente principal ──────────────────────────────────────────────────────
+// â”€â”€ Componente principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function CertificationCard({ diagnosticoData, userId, onCertified }) {
   const { t } = useTranslation()
@@ -173,13 +173,13 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
   const breakdownLabels = {
     alcances_1_2:    'Alcances 1 y 2',
     alcance_3:       'Alcance 3',
-    plan_accion:     'Plan de acción',
+    plan_accion:     'Plan de acciÃ³n',
     nivel_impacto:   'Nivel de impacto',
     perfil_empresa:  'Perfil empresa',
   }
   const breakdownMax = { alcances_1_2: 30, alcance_3: 15, plan_accion: 25, nivel_impacto: 20, perfil_empresa: 10 }
 
-  // ── Loading state ────────────────────────────────────────────────────────
+  // â”€â”€ Loading state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (loading) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-8 flex flex-col items-center gap-4 animate-pulse">
@@ -190,7 +190,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
     )
   }
 
-  // ── Error state ──────────────────────────────────────────────────────────
+  // â”€â”€ Error state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (error) {
     return (
       <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center">
@@ -205,16 +205,16 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
     )
   }
 
-  // ── Empty state ──────────────────────────────────────────────────────────
+  // â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (!cert) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-        <p className="text-gray-500 text-sm">Completa tu diagnóstico para obtener tu certificación.</p>
+        <p className="text-gray-500 text-sm">Completa tu diagnÃ³stico para obtener tu certificaciÃ³n.</p>
       </div>
     )
   }
 
-  // ── Main render ──────────────────────────────────────────────────────────
+  // â”€â”€ Main render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className={`
       rounded-2xl border ${level.border} bg-gradient-to-br ${level.bg}
@@ -222,12 +222,12 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
       transition-all duration-500
     `}>
 
-      {/* Header — nivel + score */}
+      {/* Header â€” nivel + score */}
       <div className="flex items-center gap-5">
         <ScoreRing score={cert.score} color={level.color} />
         <div className="flex flex-col gap-1 min-w-0">
           <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-            Certificación EcoMetriX
+            CertificaciÃ³n EcoMetriX
           </span>
           <h3 className="text-xl font-bold text-white leading-tight flex items-center gap-2">
             <span>{level.icon}</span>
@@ -244,27 +244,27 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
         </div>
       </div>
 
-      {/* Código de verificación */}
+      {/* CÃ³digo de verificaciÃ³n */}
       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-        <span className="text-xs text-gray-400">Código:</span>
+        <span className="text-xs text-gray-400">CÃ³digo:</span>
         <code className="text-xs font-mono text-emerald-400 flex-1">{cert.verification_code}</code>
         <button
           onClick={() => navigator.clipboard.writeText(cert.verification_code)}
           className="text-gray-500 hover:text-white transition-colors text-xs"
-          title="Copiar código"
+          title="Copiar cÃ³digo"
         >
-          📋
+          ðŸ“‹
         </button>
       </div>
 
-      {/* Desglose de puntuación */}
+      {/* Desglose de puntuaciÃ³n */}
       <div>
         <button
           onClick={() => setShowBreakdown(v => !v)}
           className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors mb-2"
         >
           <span>{showBreakdown ? 'â–¾' : 'â–¸'}</span>
-          <span>Desglose de puntuación</span>
+          <span>Desglose de puntuaciÃ³n</span>
         </button>
         {showBreakdown && cert.breakdown && (
           <div className="flex flex-col gap-2 pl-3 border-l border-white/10">
@@ -304,9 +304,9 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
           text-emerald-300 text-sm font-semibold flex items-center justify-center gap-2
           hover:bg-emerald-600/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <span>📄</span>
+        <span>ðŸ“„</span>
         <span>Descargar certificado PDF</span>
-        <span className="text-xs font-normal text-emerald-400/60 ml-1">(próximamente)</span>
+        <span className="text-xs font-normal text-emerald-400/60 ml-1">(prÃ³ximamente)</span>
       </button>
     </div>
   )

@@ -1,160 +1,118 @@
 // netlify/functions/get-certification.js
-import { createClient } from '@supabase/supabase-js'
+// M15 — Certificación EcoMetriX
+// Fase 1: cálculo local (sin Supabase). Fase 2: persistir en DB + QR verificable.
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // service role para escribir sin RLS
-)
+exports.handler = async function (event) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' }
+  }
 
-// ── Lógica de scoring ─────────────────────────────────────────────────────────
-
-function calcularScore(calculo, analisis, empresa) {
-  let score = 0
-  const breakdown = {}
-
-  // 30pts — Alcance 1 y 2 registrados
-  const tieneAlcance1 = calculo.alcance1 > 0
-  const tieneAlcance2 = calculo.alcance2 > 0
-  if (tieneAlcance1 && tieneAlcance2) breakdown.alcances_1_2 = 30
-  else if (tieneAlcance1 || tieneAlcance2) breakdown.alcances_1_2 = 15
-  else breakdown.alcances_1_2 = 0
-  score += breakdown.alcances_1_2
-
-  // 15pts — Alcance 3 registrado
-  breakdown.alcance_3 = calculo.alcance3 > 0 ? 15 : 0
-  score += breakdown.alcance_3
-
-  // 25pts — Plan de acción generado
-  const tienePlan = analisis?.plan_accion?.length > 0
-  breakdown.plan_accion = tienePlan ? 25 : 0
-  score += breakdown.plan_accion
-
-  // 20pts — Nivel de impacto (Bajo=20, Moderado=10, Alto=5)
-  const nivelMap = { 'Bajo': 20, 'Moderado': 10, 'Alto': 5 }
-  breakdown.nivel_impacto = nivelMap[calculo.nivelImpacto] || 5
-  score += breakdown.nivel_impacto
-
-  // 10pts — Perfil empresa completo
-  const camposEmpresa = [empresa.nombre, empresa.sector, empresa.tamano, empresa.pais]
-  const camposCompletos = camposEmpresa.filter(Boolean).length
-  breakdown.perfil_empresa = Math.round((camposCompletos / 4) * 10)
-  score += breakdown.perfil_empresa
-
-  return { score: Math.min(score, 100), breakdown }
-}
-
-function determinarNivel(score) {
-  if (score >= 90) return { level: 4, level_name: 'Líder Sostenible' }
-  if (score >= 70) return { level: 3, level_name: 'Avanzado' }
-  if (score >= 45) return { level: 2, level_name: 'Comprometido' }
-  return { level: 1, level_name: 'Iniciado Verde' }
-}
-
-function evaluarBadges(calculo, analisis) {
-  const badges = []
-
-  // 🌱 Primera huella — alcance 1 o 2 registrado
-  if (calculo.alcance1 > 0 || calculo.alcance2 > 0)
-    badges.push('first_emission')
-
-  // 📊 Alcance completo — los 3 alcances > 0
-  if (calculo.alcance1 > 0 && calculo.alcance2 > 0 && calculo.alcance3 > 0)
-    badges.push('full_scope')
-
-  // 🎯 Planificador — plan de acción generado
-  if (analisis?.plan_accion?.length > 0)
-    badges.push('planner')
-
-  // ⚡ Impacto bajo
-  if (calculo.nivelImpacto === 'Bajo')
-    badges.push('low_impact')
-
-  return badges
-}
-
-// ── Handler ───────────────────────────────────────────────────────────────────
-
-export const handler = async (event) => {
-  if (event.httpMethod !== 'POST')
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
-
+  let body
   try {
-    const { diagnostico_id, user_id, empresa, calculo, analisis } = JSON.parse(event.body)
+    body = JSON.parse(event.body)
+  } catch {
+    return { statusCode: 400, body: 'Invalid JSON' }
+  }
 
-    if (!diagnostico_id || !user_id || !empresa || !calculo)
-      return { statusCode: 400, body: JSON.stringify({ error: 'Faltan campos requeridos' }) }
+  const { diagnostico_id, empresa, calculo, analisis } = body
 
-    // 1. Calcular score y nivel
-    const { score, breakdown } = calcularScore(calculo, analisis, empresa)
-    const { level, level_name } = determinarNivel(score)
+  if (!calculo || !empresa) {
+    return { statusCode: 400, body: 'Missing required fields: empresa, calculo' }
+  }
 
-    // 2. Evaluar badges
-    const badgeKeys = evaluarBadges(calculo, analisis)
-    if (score >= 90) badgeKeys.push('leader')
+  // ── Cálculo de puntuación ─────────────────────────────────────────────────
+  // Max 100pts distribuidos en 5 dimensiones
+  const breakdown = {
+    // 30pts — mide alcances 1 y 2
+    alcances_1_2:
+      calculo.alcance1 > 0 && calculo.alcance2 > 0 ? 30
+      : calculo.alcance1 > 0 ? 20
+      : 0,
 
-    // 3. Marcar certificaciones anteriores como no actuales
-    await supabase
-      .from('certifications')
-      .update({ is_current: false })
-      .eq('user_id', user_id)
+    // 15pts — mide alcance 3 (cadena de valor)
+    alcance_3: calculo.alcance3 > 0 ? 15 : 0,
 
-    // 4. Insertar nueva certificación
-    const verificationCode = `ECM-${Date.now().toString(36).toUpperCase()}`
-    const { data: cert, error: certError } = await supabase
-      .from('certifications')
-      .insert({
-        user_id,
-        diagnostico_id,
-        level,
-        level_name,
-        score,
+    // 25pts — plan de acción (5pts por acción, max 5 acciones)
+    plan_accion: Math.min(25, (analisis?.plan_accion?.length || 0) * 5),
+
+    // 20pts — nivel de impacto (Bajo = mejor)
+    nivel_impacto:
+      calculo.nivelImpacto === 'Bajo' ? 20
+      : calculo.nivelImpacto === 'Moderado' ? 10
+      : 5,
+
+    // 10pts — perfil empresa completo
+    perfil_empresa:
+      empresa.nombre && empresa.sector && empresa.tamano && empresa.pais ? 10 : 5,
+  }
+
+  const score = Object.values(breakdown).reduce((a, b) => a + b, 0)
+
+  // ── Nivel ─────────────────────────────────────────────────────────────────
+  const level =
+    score >= 85 ? 4
+    : score >= 65 ? 3
+    : score >= 40 ? 2
+    : 1
+
+  const levelNames = {
+    1: 'Iniciado Verde',
+    2: 'Comprometido',
+    3: 'Avanzado',
+    4: 'Líder Sostenible',
+  }
+
+  // ── Badges ────────────────────────────────────────────────────────────────
+  const badgesEarned = []
+
+  // Siempre se gana al completar el diagnóstico
+  badgesEarned.push({ badge_key: 'first_emission' })
+
+  // Los 3 alcances medidos
+  if (calculo.alcance3 > 0) {
+    badgesEarned.push({ badge_key: 'full_scope' })
+  }
+
+  // Plan de acción generado (≥3 acciones)
+  if ((analisis?.plan_accion?.length || 0) >= 3) {
+    badgesEarned.push({ badge_key: 'planner' })
+  }
+
+  // Nivel de impacto bajo
+  if (calculo.nivelImpacto === 'Bajo') {
+    badgesEarned.push({ badge_key: 'low_impact' })
+  }
+
+  // Líder sostenible (score ≥ 90)
+  if (score >= 90) {
+    badgesEarned.push({ badge_key: 'leader' })
+  }
+
+  // ── Código de verificación ────────────────────────────────────────────────
+  // Fase 2: reemplazar con UUID firmado guardado en Supabase
+  const shortId = (diagnostico_id || 'DIAG').slice(0, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X')
+  const verification_code = `ECO-${shortId}-${score}`
+
+  // ── Respuesta ─────────────────────────────────────────────────────────────
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    },
+    body: JSON.stringify({
+      score,
+      level,
+      level_name: levelNames[level],
+      breakdown,
+      badges_earned: badgesEarned,
+      new_badges: badgesEarned.map((b) => b.badge_key), // todos son "nuevos" en fase 1
+      verification_code,
+      certification: {
         empresa_nombre: empresa.nombre,
-        verification_code: verificationCode,
-        is_current: true,
-      })
-      .select()
-      .single()
-
-    if (certError) throw certError
-
-    // 5. Insertar badges (ignora duplicados por UNIQUE constraint)
-    if (badgeKeys.length > 0) {
-      const badgeRows = badgeKeys.map(key => ({
-        user_id,
-        diagnostico_id,
-        badge_key: key,
-      }))
-      await supabase
-        .from('badges_earned')
-        .upsert(badgeRows, { onConflict: 'user_id,badge_key', ignoreDuplicates: true })
-    }
-
-    // 6. Obtener todos los badges del usuario
-    const { data: allBadges } = await supabase
-      .from('badges_earned')
-      .select('badge_key, earned_at')
-      .eq('user_id', user_id)
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        certification: cert,
-        score,
-        breakdown,
-        level,
-        level_name,
-        badges_earned: allBadges || [],
-        new_badges: badgeKeys,
-        verification_code: verificationCode,
-      }),
-    }
-  } catch (err) {
-    console.error('Certification error:', err)
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: err.message }),
-    }
+        issued_at: new Date().toISOString(),
+        // Fase 2: agregar { id, supabase_url, qr_url }
+      },
+    }),
   }
 }
