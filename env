@@ -1,0 +1,15 @@
+# ─── EcoMetriX — Variables de entorno ────────────────────────────────────────
+# NUNCA subir .env al repositorio (está en .gitignore)
+
+# Claude API — console.anthropic.com
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Supabase — proyecto: szaebpgqgokhmqdykukw
+VITE_SUPABASE_URL=https://szaebpgqgokhmqdykukw.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6YWVicGdxZ29raG1xZHlrdWt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzA0MjgsImV4cCI6MjA5NTM0NjQyOH0.BqY387ASxEvTOgX1AXfNDoStxMJt8jh36t9BYaryZTI
+
+# Resend — resend.com → API Keys
+RESEND_API_KEY=re_...
+
+# URL pública del sitio
+VITE_APP_URL=https://ecometrix-app-one.vercel.app

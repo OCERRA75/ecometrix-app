@@ -302,7 +302,7 @@ export default function Questionnaire() {
     setSubmitting(true)
     try {
       const payload = { empresa, respuestas, user_id: user?.id || null }
-      const res = await fetch('/.netlify/functions/calculate', {
+      const res = await fetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
