@@ -2,12 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
+import { supabase } from '@/lib/supabase.js'
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
