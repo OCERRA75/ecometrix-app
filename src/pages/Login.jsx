@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth.jsx'
+import { useTranslation } from 'react-i18next'
+import LanguageSelector from '@/components/LanguageSelector.jsx'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -12,12 +14,12 @@ const IconLeaf = () => (
 export default function Login() {
   const { signInWithEmail, user } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Si ya está logueado, redirigir
   if (user) {
     navigate('/dashboard')
     return null
@@ -28,10 +30,9 @@ export default function Login() {
     if (!email.trim()) return
     setLoading(true)
     setError('')
-
     const { error } = await signInWithEmail(email)
     if (error) {
-      setError('Error al enviar el magic link. Verifica el email e intenta de nuevo.')
+      setError(t('login.error'))
     } else {
       setSent(true)
     }
@@ -42,16 +43,19 @@ export default function Login() {
     <div className="min-h-screen bg-surface-secondary flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
 
-        {/* Logo */}
+        {/* Logo + selector idioma */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-400 flex items-center justify-center shadow-card">
-              <IconLeaf />
-            </div>
-            <span className="text-xl font-bold text-brand-400">EcoMetriX</span>
-          </Link>
-          <h1 className="text-2xl font-bold text-text-primary mb-2">Accede a tu cuenta</h1>
-          <p className="text-text-secondary text-sm">Sin contraseña — te enviamos un link mágico</p>
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Link to="/" className="inline-flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-brand-400 flex items-center justify-center shadow-card">
+                <IconLeaf />
+              </div>
+              <span className="text-xl font-bold text-brand-400">EcoMetriX</span>
+            </Link>
+            <div className="ml-2"><LanguageSelector /></div>
+          </div>
+          <h1 className="text-2xl font-bold text-text-primary mb-2">{t('login.title')}</h1>
+          <p className="text-text-secondary text-sm">{t('login.subtitle')}</p>
         </div>
 
         {/* Card */}
@@ -61,7 +65,7 @@ export default function Login() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Correo corporativo
+                    {t('login.emailLabel')}
                   </label>
                   <input
                     type="email"
@@ -88,17 +92,17 @@ export default function Login() {
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Enviando...
+                      {t('login.sending')}
                     </span>
-                  ) : 'Enviar magic link →'}
+                  ) : t('login.submit')}
                 </button>
               </form>
 
               <div className="mt-4 pt-4 border-t border-border text-center">
                 <p className="text-xs text-text-muted">
-                  ¿No tienes cuenta?{' '}
+                  {t('login.noAccount')}{' '}
                   <Link to="/diagnostico" className="text-brand-400 font-medium hover:underline">
-                    Inicia con un diagnóstico gratis
+                    {t('login.startFree')}
                   </Link>
                 </p>
               </div>
@@ -106,24 +110,23 @@ export default function Login() {
           ) : (
             <div className="text-center py-4">
               <div className="text-4xl mb-4">📬</div>
-              <h2 className="text-lg font-semibold text-text-primary mb-2">Revisa tu correo</h2>
+              <h2 className="text-lg font-semibold text-text-primary mb-2">{t('login.checkEmail')}</h2>
               <p className="text-sm text-text-secondary mb-4">
-                Enviamos un link mágico a <strong>{email}</strong>.<br />
-                Clic en el link para acceder — expira en 1 hora.
+                {t('login.sentTo')} <strong>{email}</strong>.<br />
+                {t('login.linkExpiry')}
               </p>
               <button
                 onClick={() => { setSent(false); setEmail('') }}
                 className="btn-ghost text-sm"
               >
-                Usar otro correo
+                {t('login.useOtherEmail')}
               </button>
             </div>
           )}
         </div>
 
-        {/* Seguridad */}
         <p className="text-center text-xs text-text-muted mt-4">
-          🔒 Sin contraseñas — autenticación segura con Supabase
+          {t('login.security')}
         </p>
       </div>
     </div>

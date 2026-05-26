@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth.jsx'
+import { useTranslation } from 'react-i18next'
+import LanguageSelector from '@/components/LanguageSelector.jsx'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -14,96 +16,74 @@ const IconCheck = () => (
   </svg>
 )
 
-const PLANES = [
-  {
-    id: 'free',
-    nombre: 'Free',
-    precio: '$0',
-    periodo: 'siempre',
-    desc: 'Para conocer tu huella de carbono por primera vez',
-    cta: 'Empezar gratis',
-    ctaLink: '/diagnostico',
-    destacado: false,
-    features: [
-      '1 diagnóstico por mes',
-      'Alcances 1 y 2',
-      'Reporte PDF básico',
-      'Entrega por email',
-      'Benchmarks sectoriales',
-    ],
-    noIncluye: [
-      'Alcance 3 (cadena de valor)',
-      'Dashboard 360°',
-      'Módulo CSRD/ESRS',
-      'Historial de diagnósticos',
-      'Asistente IA conversacional',
-      'Soporte prioritario',
-    ]
-  },
-  {
-    id: 'pro',
-    nombre: 'Pro',
-    precio: '$149.000',
-    periodo: 'COP/mes',
-    desc: 'Para empresas que quieren gestionar su sostenibilidad activamente',
-    cta: 'Iniciar prueba 14 días',
-    ctaLink: '/login',
-    destacado: true,
-    badge: 'Más popular',
-    features: [
-      'Diagnósticos ilimitados',
-      'Alcances 1, 2 y 3 completos',
-      'Reporte PDF profesional con IA',
-      'Dashboard Sostenibilidad 360°',
-      'Módulo CSRD/ESRS',
-      'Historial y comparativas',
-      'Asistente IA conversacional',
-      'Export de datos (PDF, XLSX)',
-      'Soporte por email 48h',
-    ],
-    noIncluye: [
-      'White-label / API',
-      'Verificación externa',
-    ]
-  },
-  {
-    id: 'enterprise',
-    nombre: 'Enterprise',
-    precio: 'A medida',
-    periodo: '',
-    desc: 'Para grupos empresariales, consultoras y organismos',
-    cta: 'Contactar ventas',
-    ctaLink: 'mailto:oscar@ecometrix.co',
-    destacado: false,
-    features: [
-      'Todo lo de Pro',
-      'Multi-empresa (hasta 50 sedes)',
-      'White-label con tu marca',
-      'API REST documentada',
-      'Integración ERP/CRM',
-      'Verificación externa incluida',
-      'Reporte XBRL para CSRD',
-      'SLA garantizado',
-      'Account manager dedicado',
-    ],
-    noIncluye: []
-  },
-]
-
 const FAQS = [
-  ['¿Necesito tarjeta de crédito para el plan Free?', 'No. El plan Free es completamente gratuito y no requiere datos de pago.'],
-  ['¿El diagnóstico es preciso sin Claude API?', 'Sí. El cálculo GHG usa factores IPCC AR6 directamente — la IA mejora la narrativa del reporte, pero los números son precisos.'],
-  ['¿Puedo cambiar de plan en cualquier momento?', 'Sí. Puedes hacer upgrade o downgrade en cualquier momento desde tu dashboard.'],
-  ['¿Los datos de mi empresa son privados?', 'Sí. Cada empresa tiene su propio espacio aislado con Row-Level Security en Supabase. Nadie más puede ver tus datos.'],
-  ['¿Aceptan pagos desde Colombia?', 'Aceptamos tarjetas internacionales (Visa, Mastercard) y próximamente PSE y Wompi para Colombia.'],
+  ['pricing.faq1q', 'pricing.faq1a'],
+  ['pricing.faq2q', 'pricing.faq2a'],
+  ['pricing.faq3q', 'pricing.faq3a'],
+  ['pricing.faq4q', 'pricing.faq4a'],
+  ['pricing.faq5q', 'pricing.faq5a'],
 ]
 
 export default function Pricing() {
   const { user, plan } = useAuth()
+  const { t } = useTranslation()
+
+  const PLANES = [
+    {
+      id: 'free',
+      nombre: 'Free',
+      precio: '$0',
+      periodo: t('pricing.always'),
+      desc: t('pricing.freeDesc'),
+      cta: t('pricing.startFree'),
+      ctaLink: '/diagnostico',
+      destacado: false,
+      features: [
+        t('pricing.free_f1'), t('pricing.free_f2'), t('pricing.free_f3'),
+        t('pricing.free_f4'), t('pricing.free_f5'),
+      ],
+      noIncluye: [
+        t('pricing.free_n1'), t('pricing.free_n2'), t('pricing.free_n3'),
+        t('pricing.free_n4'), t('pricing.free_n5'), t('pricing.free_n6'),
+      ]
+    },
+    {
+      id: 'pro',
+      nombre: 'Pro',
+      precio: '$149.000',
+      periodo: 'COP/mes',
+      desc: t('pricing.proDesc'),
+      cta: t('pricing.startTrial'),
+      ctaLink: '/login',
+      destacado: true,
+      badge: t('pricing.popular'),
+      features: [
+        t('pricing.pro_f1'), t('pricing.pro_f2'), t('pricing.pro_f3'),
+        t('pricing.pro_f4'), t('pricing.pro_f5'), t('pricing.pro_f6'),
+        t('pricing.pro_f7'), t('pricing.pro_f8'), t('pricing.pro_f9'),
+      ],
+      noIncluye: [t('pricing.pro_n1'), t('pricing.pro_n2')]
+    },
+    {
+      id: 'enterprise',
+      nombre: 'Enterprise',
+      precio: t('pricing.custom'),
+      periodo: '',
+      desc: t('pricing.enterpriseDesc'),
+      cta: t('pricing.contactSales'),
+      ctaLink: 'mailto:oscar@ecometrix.co',
+      destacado: false,
+      features: [
+        t('pricing.ent_f1'), t('pricing.ent_f2'), t('pricing.ent_f3'),
+        t('pricing.ent_f4'), t('pricing.ent_f5'), t('pricing.ent_f6'),
+        t('pricing.ent_f7'), t('pricing.ent_f8'), t('pricing.ent_f9'),
+      ],
+      noIncluye: []
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      {/* Header */}
       <header className="bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -111,12 +91,13 @@ export default function Pricing() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-3">
+            <LanguageSelector />
             {user ? (
-              <Link to="/dashboard" className="btn-primary text-sm py-1.5 px-4">Mi dashboard</Link>
+              <Link to="/dashboard" className="btn-primary text-sm py-1.5 px-4">{t('nav.dashboard')}</Link>
             ) : (
               <>
-                <Link to="/login" className="btn-ghost text-sm">Iniciar sesión</Link>
-                <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-4">Diagnóstico gratis</Link>
+                <Link to="/login" className="btn-ghost text-sm">{t('nav.login')}</Link>
+                <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-4">{t('nav.freeDiagnosis')}</Link>
               </>
             )}
           </div>
@@ -124,33 +105,22 @@ export default function Pricing() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-16">
-
-        {/* Hero */}
         <div className="text-center mb-14">
-          <span className="badge-green mb-4 inline-block">Planes y precios</span>
-          <h1 className="text-4xl font-bold text-text-primary mb-4">
-            Mide, gestiona y reporta<br />tu huella de carbono
-          </h1>
-          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-            Desde el primer diagnóstico gratuito hasta el cumplimiento CSRD completo.
-            Sin contratos largos, sin sorpresas.
-          </p>
+          <span className="badge-green mb-4 inline-block">{t('pricing.badge')}</span>
+          <h1 className="text-4xl font-bold text-text-primary mb-4">{t('pricing.title')}</h1>
+          <p className="text-lg text-text-secondary max-w-2xl mx-auto">{t('pricing.subtitle')}</p>
         </div>
 
-        {/* Pricing cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {PLANES.map(p => (
             <div key={p.id} className={`relative flex flex-col rounded-2xl border-2 overflow-hidden ${
-              p.destacado
-                ? 'border-brand-300 shadow-card-hover'
-                : 'border-border bg-white'
+              p.destacado ? 'border-brand-300 shadow-card-hover' : 'border-border bg-white'
             }`}>
               {p.badge && (
                 <div className="absolute top-0 left-0 right-0 bg-brand-300 text-white text-xs font-semibold text-center py-1.5">
                   {p.badge}
                 </div>
               )}
-
               <div className={`p-6 ${p.destacado ? 'bg-brand-50 pt-10' : 'pt-6'}`}>
                 <h3 className="text-lg font-bold text-text-primary mb-1">{p.nombre}</h3>
                 <p className="text-sm text-text-secondary mb-4">{p.desc}</p>
@@ -158,28 +128,21 @@ export default function Pricing() {
                   <span className="text-3xl font-bold text-text-primary">{p.precio}</span>
                   {p.periodo && <span className="text-sm text-text-muted">{p.periodo}</span>}
                 </div>
-
                 {p.ctaLink.startsWith('mailto:') ? (
                   <a href={p.ctaLink} className={`w-full flex items-center justify-center py-2.5 rounded-xl font-medium text-sm transition-all ${
                     p.destacado ? 'bg-brand-400 text-white hover:bg-brand-300' : 'bg-surface-tertiary text-text-primary hover:bg-border'
-                  }`}>
-                    {p.cta}
-                  </a>
+                  }`}>{p.cta}</a>
                 ) : (
                   <Link to={p.ctaLink} className={`w-full flex items-center justify-center py-2.5 rounded-xl font-medium text-sm transition-all ${
                     p.destacado ? 'bg-brand-400 text-white hover:bg-brand-300' : 'bg-surface-tertiary text-text-primary hover:bg-border'
-                  }`}>
-                    {p.cta}
-                  </Link>
+                  }`}>{p.cta}</Link>
                 )}
-
                 {user && plan === p.id && (
-                  <p className="text-center text-xs text-brand-400 font-medium mt-2">✓ Plan actual</p>
+                  <p className="text-center text-xs text-brand-400 font-medium mt-2">✓ {t('pricing.currentPlan')}</p>
                 )}
               </div>
-
               <div className="p-6 flex-1 border-t border-border">
-                <p className="text-xs font-semibold text-text-muted mb-3 uppercase tracking-wide">Incluye</p>
+                <p className="text-xs font-semibold text-text-muted mb-3 uppercase tracking-wide">{t('pricing.includes')}</p>
                 <ul className="space-y-2.5 mb-4">
                   {p.features.map(f => (
                     <li key={f} className="flex items-start gap-2.5">
@@ -188,10 +151,9 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-
                 {p.noIncluye.length > 0 && (
                   <>
-                    <p className="text-xs font-semibold text-text-muted mb-2 mt-4 uppercase tracking-wide">No incluye</p>
+                    <p className="text-xs font-semibold text-text-muted mb-2 mt-4 uppercase tracking-wide">{t('pricing.notIncludes')}</p>
                     <ul className="space-y-1.5">
                       {p.noIncluye.map(f => (
                         <li key={f} className="flex items-start gap-2">
@@ -207,37 +169,27 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Social proof */}
         <div className="bg-brand-50 border border-brand-100 rounded-2xl p-8 text-center mb-16">
-          <p className="text-lg font-semibold text-brand-400 mb-2">
-            Metodología certificable · GHG Protocol + ISO 14064 + CSRD
-          </p>
-          <p className="text-text-secondary text-sm">
-            Los mismos estándares que usan las empresas Fortune 500, accesibles para cualquier PYME latinoamericana.
-          </p>
+          <p className="text-lg font-semibold text-brand-400 mb-2">{t('pricing.methodology')}</p>
+          <p className="text-text-secondary text-sm">{t('pricing.methodologyDesc')}</p>
         </div>
 
-        {/* FAQs */}
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-text-primary text-center mb-8">Preguntas frecuentes</h2>
+          <h2 className="text-2xl font-bold text-text-primary text-center mb-8">{t('pricing.faq')}</h2>
           <div className="space-y-4">
-            {FAQS.map(([q, a]) => (
-              <div key={q} className="card">
-                <p className="font-semibold text-text-primary text-sm mb-2">{q}</p>
-                <p className="text-text-secondary text-sm">{a}</p>
+            {FAQS.map(([qKey, aKey]) => (
+              <div key={qKey} className="card">
+                <p className="font-semibold text-text-primary text-sm mb-2">{t(qKey)}</p>
+                <p className="text-text-secondary text-sm">{t(aKey)}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA final */}
         <div className="text-center mt-16">
-          <p className="text-text-secondary mb-4">¿Tienes preguntas sobre el plan Enterprise?</p>
-          <a href="mailto:oscar@ecometrix.co" className="btn-secondary">
-            Hablar con ventas →
-          </a>
+          <p className="text-text-secondary mb-4">{t('pricing.enterpriseQuestion')}</p>
+          <a href="mailto:oscar@ecometrix.co" className="btn-secondary">{t('pricing.contactSales')} →</a>
         </div>
-
       </main>
     </div>
   )

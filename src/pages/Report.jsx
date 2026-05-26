@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import LanguageSelector from '@/components/LanguageSelector.jsx'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { RadialBarChart, RadialBar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
@@ -88,15 +90,16 @@ function MetricCard({ label, value, unit, sub, accent = false }) {
 
 // ─── ALCANCE CHART ────────────────────────────────────────────────────────────
 function AlcanceChart({ alcance1, alcance2, alcance3 }) {
+  const { t } = useTranslation()
   const total = (alcance1 + alcance2 + (alcance3 || 0)) || 1
   const alcances = [
-    { label: 'Alcance 1', desc: 'Emisiones directas',  value: alcance1, pct: Math.round(alcance1 / total * 100), color: 'bg-brand-300' },
-    { label: 'Alcance 2', desc: 'Energía indirecta',   value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
-    ...(alcance3 > 0 ? [{ label: 'Alcance 3', desc: 'Cadena de valor', value: alcance3, pct: Math.round(alcance3 / total * 100), color: 'bg-blue-500' }] : []),
+    { label: t('report.scope1short'), desc: t('report.scope1desc'),  value: alcance1, pct: Math.round(alcance1 / total * 100), color: 'bg-brand-300' },
+    { label: t('report.scope2short'), desc: t('report.scope2desc'),   value: alcance2, pct: Math.round(alcance2 / total * 100), color: 'bg-purple-500' },
+    ...(alcance3 > 0 ? [{ label: t('report.scope3short'), desc: t('report.scope3desc'), value: alcance3, pct: Math.round(alcance3 / total * 100), color: 'bg-blue-500' }] : []),
   ]
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Distribución por Alcance</h3>
+      <h3 className="font-semibold text-text-primary mb-1">{t('report.distribution')}</h3>
       <p className="text-xs text-text-muted mb-4">GHG Protocol Corporate Standard</p>
       <div className="space-y-3">
         {alcances.map(({ label, desc, value, pct, color }) => (
@@ -126,7 +129,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
 function PlanAccion({ acciones }) {
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Plan de Reducción</h3>
+      <h3 className="font-semibold text-text-primary mb-1">{t('report.reductionPlan')}</h3>
       <p className="text-xs text-text-muted mb-4">5 acciones priorizadas por impacto y facilidad</p>
       <div className="space-y-3">
         {acciones.map((a, i) => (
@@ -151,10 +154,11 @@ function PlanAccion({ acciones }) {
 
 // ─── DETALLES POR FUENTE ──────────────────────────────────────────────────────
 function DetallesFuentes({ detalles, total }) {
+  const { t } = useTranslation()
   if (!detalles?.length) return null
   return (
     <div className="card">
-      <h3 className="font-semibold text-text-primary mb-1">Fuentes de Emisión</h3>
+      <h3 className="font-semibold text-text-primary mb-1">{t('report.sources')}</h3>
       <p className="text-xs text-text-muted mb-4">Desglose detallado por categoría</p>
       <div className="space-y-3">
         {detalles.map((d, i) => {
@@ -183,6 +187,7 @@ function DetallesFuentes({ detalles, total }) {
 
 // ─── MAIN REPORT ──────────────────────────────────────────────────────────────
 export default function Report() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -228,7 +233,7 @@ export default function Report() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <p className="text-danger mb-4">{error}</p>
-        <Link to="/diagnostico" className="btn-primary">Nuevo diagnóstico</Link>
+        <Link to="/diagnostico" className="btn-primary">{t('report.newDiagnosis')}</Link>
       </div>
     </div>
   )
@@ -247,12 +252,12 @@ export default function Report() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted hidden sm:block">Diagnóstico — {empresa.nombre}</span>
+            <span className="text-xs text-text-muted hidden sm:block">{t('report.title')} — {empresa.nombre}</span>
             <button
               onClick={() => window.print()}
               className="btn-secondary text-sm py-1.5 px-3"
             >
-              <IconDownload /> Descargar PDF
+              <IconDownload /> {t('report.downloadPDF')}
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">
               Dashboard 360°
@@ -273,12 +278,12 @@ export default function Report() {
         <div className={`rounded-2xl border-2 ${nivel.border} ${nivel.bg} p-6 mb-8`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-text-muted mb-1">Diagnóstico de Huella de Carbono</p>
+              <p className="text-sm font-medium text-text-muted mb-1">{t('report.title')}</p>
               <h1 className="text-2xl font-bold text-text-primary mb-1">{empresa.nombre}</h1>
               <p className="text-sm text-text-secondary">{empresa.sector} · {empresa.tamano} · {empresa.pais}</p>
             </div>
             <div className={`px-5 py-3 rounded-xl border-2 ${nivel.border} bg-white text-center flex-shrink-0`}>
-              <p className="text-xs text-text-muted mb-1">Nivel de impacto</p>
+              <p className="text-xs text-text-muted mb-1">{t('report.impactLevel')}</p>
               <p className={`text-2xl font-bold ${nivel.text}`}>{calculo.nivelImpacto}</p>
             </div>
           </div>
@@ -287,34 +292,34 @@ export default function Report() {
         {/* Métricas principales */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <MetricCard
-            label="Huella total"
+            label={t('report.totalFootprint')}
             value={calculo.totalTonAnio.toLocaleString()}
             unit="ton CO₂e/año"
             sub={`${calculo.totalKgMes.toLocaleString()} kg/mes`}
             accent
           />
           <MetricCard
-            label="Alcance 1 — Directas"
+            label={t('report.scope1')}
             value={calculo.alcance1.toLocaleString()}
             unit="kg COâ''e/mes"
             sub="Emisiones directas"
           />
           <MetricCard
-            label="Alcance 2 — Energía"
+            label={t('report.scope2')}
             value={calculo.alcance2.toLocaleString()}
             unit="kg COâ''e/mes"
             sub="Electricidad indirecta"
           />
           {calculo.alcance3 > 0 && (
             <MetricCard
-              label="Alcance 3 — Cadena"
+              label={t('report.scope3')}
               value={calculo.alcance3.toLocaleString()}
               unit="kg COâ''e/mes"
               sub="Cadena de valor"
             />
           )}
           <MetricCard
-            label="Valor económico"
+            label={t('report.economicValue')}
             value={`$${(calculo.valorETS_COP / 1000000).toFixed(1)}M`}
             unit="COP/año"
             sub="Equivalente EU ETS"
@@ -324,11 +329,11 @@ export default function Report() {
         {/* Resumen ejecutivo */}
         {analisis?.resumen_ejecutivo && (
           <div className="card mb-6">
-            <h3 className="font-semibold text-text-primary mb-3">Resumen ejecutivo</h3>
+            <h3 className="font-semibold text-text-primary mb-3">{t('report.executiveSummary')}</h3>
             <p className="text-text-secondary leading-relaxed">{analisis.resumen_ejecutivo}</p>
             {analisis.benchmark && (
               <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs font-medium text-text-muted mb-1">Benchmark sectorial</p>
+                <p className="text-xs font-medium text-text-muted mb-1">{t('report.sectorBenchmark')}</p>
                 <p className="text-sm text-text-secondary">{analisis.benchmark}</p>
               </div>
             )}
@@ -361,7 +366,7 @@ export default function Report() {
 
         {/* Metodología */}
         <div className="card border-dashed">
-          <h3 className="font-semibold text-text-primary mb-3">Metodología aplicada</h3>
+          <h3 className="font-semibold text-text-primary mb-3">{t('report.methodology')}</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               ['GHG Protocol', 'Corporate Standard — Alcances 1 y 2'],
