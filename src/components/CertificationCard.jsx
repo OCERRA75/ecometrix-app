@@ -139,7 +139,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/.netlify/functions/get-certification', {
+      const res = await fetch('/api/get-certification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
