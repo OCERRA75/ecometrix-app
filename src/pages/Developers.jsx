@@ -13,7 +13,7 @@ const IconCopy = () => (
   </svg>
 )
 
-const BASE_URL = 'https://ecometrix-co.netlify.app'
+const BASE_URL = 'https://ecometrix-app-one.vercel.app'
 
 const ENDPOINTS = [
   {
