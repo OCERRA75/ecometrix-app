@@ -145,6 +145,7 @@ function OnboardingScreen({ onNext }) {
 }
 
 function QuestionCard({ pregunta, value, onChange }) {
+  const { t } = useTranslation()
   const [showAyuda, setShowAyuda] = useState(false)
   const [numValue, setNumValue] = useState(pregunta.tipo === 'opciones_con_numero' && value?.num ? value.num : '')
 
