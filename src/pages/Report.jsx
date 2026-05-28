@@ -127,6 +127,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
 
 // ─── PLAN DE ACCIÓN ───────────────────────────────────────────────────────────
 function PlanAccion({ acciones }) {
+  const { t } = useTranslation()
   return (
     <div className="card">
       <h3 className="font-semibold text-text-primary mb-1">{t('report.reductionPlan')}</h3>
@@ -206,7 +207,7 @@ export default function Report() {
           const emailSent = sessionStorage.getItem('ecometrix_email_sent')
           if (!emailSent) {
             sessionStorage.setItem('ecometrix_email_sent', '1')
-            fetch('/.netlify/functions/send-report', {
+            fetch('/api/send-report', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
