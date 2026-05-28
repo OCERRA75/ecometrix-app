@@ -364,25 +364,79 @@ export default function Report() {
           </div>
         )}
 
-        {/* Metodología */}
+        {/* Metodología + Badge estándares M17.3 */}
         <div className="card border-dashed">
-          <h3 className="font-semibold text-text-primary mb-3">{t('report.methodology')}</h3>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-text-primary">{t('report.methodology')}</h3>
+            <a href="/estandares" className="text-xs text-brand-400 hover:underline">Ver comparativa →</a>
+          </div>
+
+          {/* Badges de cobertura */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
             {[
-              ['GHG Protocol', 'Corporate Standard — Alcances 1 y 2'],
-              ['ISO 14064-1', 'Cuantificación de emisiones — Ed. 2018'],
-              ['IPCC AR6', 'Factores de emisión — 6° Informe de Evaluación'],
-            ].map(([std, desc]) => (
-              <div key={std} className="flex items-start gap-2">
-                <div className="w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 mt-0.5 text-brand-400"><IconCheck /></div>
-                <div>
-                  <p className="text-sm font-medium text-text-primary">{std}</p>
-                  <p className="text-xs text-text-muted">{desc}</p>
+              { std: 'GHG Protocol', desc: 'Alcances 1, 2 y 3', status: 'full', icon: '🌍' },
+              { std: 'ISO 14064-1', desc: 'Metodología compatible', status: 'full', icon: '📋' },
+              { std: 'IPCC AR6', desc: 'Factores de emisión', status: 'full', icon: '📊' },
+              {
+                std: 'CSRD / ESRS E1',
+                desc: calculo?.alcance1 > 0 && calculo?.alcance2 > 0 && calculo?.alcance3 > 0
+                  ? 'Alcances 1+2+3 medidos' : 'Alcances parciales',
+                status: calculo?.alcance1 > 0 && calculo?.alcance2 > 0 && calculo?.alcance3 > 0
+                  ? 'partial' : 'pending',
+                icon: '🇪🇺',
+              },
+              {
+                std: 'SBTi Baseline',
+                desc: calculo?.totalTonAnio > 0 ? `${calculo.totalTonAnio} ton CO₂e/año` : 'Baseline disponible',
+                status: calculo?.totalTonAnio > 0 ? 'full' : 'pending',
+                icon: '🎯',
+              },
+              {
+                std: 'GRI 305',
+                desc: 'Indicadores de emisiones',
+                status: calculo?.alcance1 > 0 ? 'partial' : 'pending',
+                icon: '📈',
+              },
+            ].map(({ std, desc, status, icon }) => (
+              <div key={std} className={`rounded-xl border p-3 flex items-start gap-2.5 ${
+                status === 'full'    ? 'bg-brand-50 border-brand-200' :
+                status === 'partial' ? 'bg-amber-50 border-amber-200' :
+                'bg-surface-tertiary border-border opacity-60'
+              }`}>
+                <span className="text-base flex-shrink-0 mt-0.5">{icon}</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <p className="text-xs font-semibold text-text-primary truncate">{std}</p>
+                    <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                      status === 'full'    ? 'bg-brand-300' :
+                      status === 'partial' ? 'bg-amber-400' :
+                      'bg-gray-300'
+                    }`}>
+                      {status === 'full' && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="w-2.5 h-2.5"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      {status === 'partial' && <span className="text-white text-xs font-bold leading-none">~</span>}
+                      {status === 'pending' && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="w-2.5 h-2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-muted leading-tight">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <p className="text-xs text-text-muted mt-4 pt-4 border-t border-border">
+
+          {/* Leyenda */}
+          <div className="flex items-center gap-4 mb-4 flex-wrap">
+            <span className="flex items-center gap-1.5 text-xs text-text-muted">
+              <span className="w-3 h-3 rounded-full bg-brand-300 flex-shrink-0" /> Cubierto
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-text-muted">
+              <span className="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0" /> Parcial
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-text-muted">
+              <span className="w-3 h-3 rounded-full bg-gray-300 flex-shrink-0" /> Requiere más datos
+            </span>
+          </div>
+
+          <p className="text-xs text-text-muted pt-4 border-t border-border">
             Este diagnóstico es una estimación basada en los datos proporcionados. Para una medición certificable se recomienda una auditoría con verificador acreditado ISO 14064-3.
           </p>
         </div>
