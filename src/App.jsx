@@ -9,6 +9,8 @@ import Login from '@/pages/Login.jsx'
 import Pricing from '@/pages/Pricing.jsx'
 import Developers from '@/pages/Developers.jsx'
 import NotFound from '@/pages/NotFound.jsx'
+import Standards from '@/pages/Standards.jsx'
+import Verify from '@/pages/Verify.jsx'
 import Ruta from '@/pages/Ruta.jsx'
 
 export default function App() {
@@ -26,6 +28,8 @@ export default function App() {
           <Route path="/precios"         element={<Pricing />} />
           <Route path="/developers"      element={<Developers />} />
           <Route path="/ruta"           element={<Ruta />} />
+          <Route path="/estandares"      element={<Standards />} />
+          <Route path="/verificar/:codigo" element={<Verify />} />
           <Route path="*"               element={<NotFound />} />
         </Routes>
       </BrowserRouter>
