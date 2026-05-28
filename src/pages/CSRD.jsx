@@ -147,6 +147,57 @@ const ROADMAP_FASES = [
   },
 ]
 
+
+// ─── ESRS PILLARS ─────────────────────────────────────────────────────────────
+const ESRS_PILLARS = [
+  {
+    id: 'cross',
+    label: 'Transversales',
+    color: 'bg-slate-100 border-slate-300 text-slate-700',
+    dot: 'bg-slate-400',
+    standards: ['ESRS 1 — Requisitos generales', 'ESRS 2 — Divulgaciones generales'],
+    desc: 'Base metodológica para todos los reportes ESRS',
+  },
+  {
+    id: 'env',
+    label: 'Medioambiente',
+    color: 'bg-brand-50 border-brand-200 text-brand-400',
+    dot: 'bg-brand-300',
+    standards: ['E1 — Cambio climático ★', 'E2 — Contaminación', 'E3 — Recursos hídricos', 'E4 — Biodiversidad', 'E5 — Economía circular'],
+    desc: 'E1 es obligatorio para todas las empresas bajo CSRD',
+  },
+  {
+    id: 'social',
+    label: 'Social',
+    color: 'bg-purple-50 border-purple-200 text-purple-700',
+    dot: 'bg-purple-400',
+    standards: ['S1 — Fuerza laboral ★', 'S2 — Trabajadores cadena', 'S3 — Comunidades', 'S4 — Consumidores'],
+    desc: 'S1 es obligatorio para empresas con más de 250 empleados',
+  },
+  {
+    id: 'gov',
+    label: 'Gobernanza',
+    color: 'bg-amber-50 border-amber-200 text-amber-700',
+    dot: 'bg-amber-400',
+    standards: ['G1 — Conducta empresarial ★'],
+    desc: 'G1 es obligatorio — anticorrupción y cadena de valor',
+  },
+]
+
+// ─── CHECKLIST MANUAL ─────────────────────────────────────────────────────────
+const CHECKLIST_ITEMS = [
+  { id: 'c1', categoria: 'E1 — Clima', texto: 'Hemos medido nuestras emisiones GHG (Alcances 1 y 2)', peso: 3 },
+  { id: 'c2', categoria: 'E1 — Clima', texto: 'Tenemos objetivo de reducción de emisiones con fecha límite', peso: 3 },
+  { id: 'c3', categoria: 'E1 — Clima', texto: 'Existe una política de cambio climático documentada', peso: 2 },
+  { id: 'c4', categoria: 'E1 — Clima', texto: 'Medimos emisiones de Alcance 3 (cadena de valor)', peso: 2 },
+  { id: 'c5', categoria: 'G1 — Gobernanza', texto: 'Tenemos política anticorrupción documentada', peso: 2 },
+  { id: 'c6', categoria: 'G1 — Gobernanza', texto: 'Existe canal de denuncias operativo', peso: 1 },
+  { id: 'c7', categoria: 'G1 — Gobernanza', texto: 'Código de conducta para proveedores vigente', peso: 1 },
+  { id: 'c8', categoria: 'S1 — Social', texto: 'Métricas de salud y seguridad ocupacional disponibles', peso: 2 },
+  { id: 'c9', categoria: 'S1 — Social', texto: 'Datos de diversidad e inclusión registrados', peso: 1 },
+  { id: 'c10', categoria: 'E5 — Circular', texto: 'Sistema de gestión de residuos con métricas de reciclaje', peso: 1 },
+]
+
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function evaluarCumplimiento(calculo, respuestas, empresa) {
   const estados = {}
@@ -301,6 +352,118 @@ function RoadmapItem({ fase, titulo, plazo, color, acciones }) {
   )
 }
 
+
+// ─── ESRS PILLARS MAP ─────────────────────────────────────────────────────────
+function ESRSPillarsMap() {
+  const [active, setActive] = useState(null)
+  return (
+    <div className="card mb-6">
+      <h2 className="font-semibold text-text-primary mb-1">Marco ESRS — European Sustainability Reporting Standards</h2>
+      <p className="text-sm text-text-secondary mb-4">Haz clic en cada pilar para ver los estándares que incluye. Los marcados con ★ son obligatorios para la mayoría de empresas.</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {ESRS_PILLARS.map(p => (
+          <button key={p.id} onClick={() => setActive(active === p.id ? null : p.id)}
+            className={`text-left p-3 rounded-xl border-2 transition-all ${p.color} ${active === p.id ? 'shadow-md scale-[1.02]' : 'hover:scale-[1.01]'}`}>
+            <div className={`w-2.5 h-2.5 rounded-full ${p.dot} mb-2`} />
+            <p className="text-xs font-bold uppercase tracking-wide mb-1">{p.label}</p>
+            <p className="text-xs opacity-70">{p.standards.length} estándares</p>
+          </button>
+        ))}
+      </div>
+      {active && (() => {
+        const p = ESRS_PILLARS.find(x => x.id === active)
+        return (
+          <div className={`mt-4 p-4 rounded-xl border ${p.color}`}>
+            <p className="text-xs font-semibold mb-2">{p.desc}</p>
+            <div className="flex flex-wrap gap-2">
+              {p.standards.map(s => (
+                <span key={s} className="text-xs bg-white/60 rounded-lg px-2.5 py-1 font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+    </div>
+  )
+}
+
+// ─── MANUAL CHECKLIST ─────────────────────────────────────────────────────────
+function ManualChecklist() {
+  const [checked, setChecked] = useState({})
+  const toggle = (id) => setChecked(prev => ({ ...prev, [id]: !prev[id] }))
+  const score = Math.round(
+    CHECKLIST_ITEMS.filter(i => checked[i.id]).reduce((a, i) => a + i.peso, 0) /
+    CHECKLIST_ITEMS.reduce((a, i) => a + i.peso, 0) * 100
+  )
+  const categorias = [...new Set(CHECKLIST_ITEMS.map(i => i.categoria))]
+
+  return (
+    <div className="card mb-6 border-blue-200">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="font-semibold text-text-primary">Checklist de preparación CSRD</h2>
+          <p className="text-sm text-text-secondary">Marca lo que ya tienes implementado en tu empresa</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-bold text-brand-400">{score}%</p>
+          <p className="text-xs text-text-muted">preparación</p>
+        </div>
+      </div>
+      <div className="w-full h-2 bg-surface-tertiary rounded-full mb-5">
+        <div className="h-2 bg-brand-300 rounded-full transition-all duration-500" style={{ width: `${score}%` }} />
+      </div>
+      {categorias.map(cat => (
+        <div key={cat} className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">{cat}</p>
+          <div className="space-y-2">
+            {CHECKLIST_ITEMS.filter(i => i.categoria === cat).map(item => (
+              <label key={item.id} className="flex items-start gap-3 cursor-pointer group">
+                <div className={`w-5 h-5 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${checked[item.id] ? 'bg-brand-300 border-brand-300' : 'border-border group-hover:border-brand-300'}`}
+                  onClick={() => toggle(item.id)}>
+                  {checked[item.id] && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="w-3 h-3"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <span className={`text-sm transition-colors ${checked[item.id] ? 'text-text-muted line-through' : 'text-text-primary'}`}>{item.texto}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── CTA UPGRADE ──────────────────────────────────────────────────────────────
+function CTAUpgrade() {
+  return (
+    <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white mb-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">Plan Pro / Enterprise</p>
+          <h3 className="text-lg font-bold mb-2">Cumplimiento CSRD completo con EcoMetriX</h3>
+          <ul className="space-y-1.5 mb-4">
+            {[
+              'Diagnósticos mensuales ilimitados con trazabilidad',
+              'Reporte CSRD/ESRS E1 listo para auditor externo',
+              'Export XBRL para presentación ante reguladores',
+              'Verificación externa con auditores certificados',
+            ].map(f => (
+              <li key={f} className="flex items-center gap-2 text-sm text-white/90">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 flex-shrink-0"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-2 flex-wrap">
+            <a href="/precios" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">Ver planes →</a>
+            <a href="mailto:oscar@ecometrix.co" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">Contactar ventas</a>
+          </div>
+        </div>
+        <span className="text-5xl flex-shrink-0 hidden sm:block">🏆</span>
+      </div>
+    </div>
+  )
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function CSRD() {
   const [data, setData] = useState(null)
@@ -403,6 +566,9 @@ export default function CSRD() {
               </div>
             </div>
 
+            <ESRSPillarsMap />
+            {!data && <ManualChecklist />}
+
             {/* Resumen de brechas */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="card text-center border-brand-200">
@@ -486,6 +652,7 @@ export default function CSRD() {
           </div>
         )}
 
+        <CTAUpgrade />
       </main>
     </div>
   )
