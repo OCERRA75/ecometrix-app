@@ -207,7 +207,7 @@ export default function Report() {
           const emailSent = sessionStorage.getItem('ecometrix_email_sent')
           if (!emailSent) {
             sessionStorage.setItem('ecometrix_email_sent', '1')
-            fetch('/.netlify/functions/send-report', {
+            fetch('/api/send-report', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -229,6 +229,26 @@ export default function Report() {
               .eq('id', id)
               .single()
 
+            if (dbData && !dbError) {
+              setData(dbData)
+              setEmpresa(dbData.empresa)
+              setCalculo(dbData.calculo)
+              setAnalisis(dbData.analisis)
+              setLoading(false)
+              return
+            }
+          } catch (e) {
+            console.warn('Supabase fallback failed:', e)
+          }
+        }
+        // Fallback: cargar desde Supabase
+        if (id && id !== 'preview') {
+          try {
+            const { data: dbData, error: dbError } = await supabase
+              .from('diagnosticos')
+              .select('*')
+              .eq('id', id)
+              .single()
             if (dbData && !dbError) {
               setData(dbData)
               setEmpresa(dbData.empresa)
