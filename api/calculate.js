@@ -157,7 +157,7 @@ function calcularEmisiones(empresa, respuestas) {
 async function guardarDiagnostico(resultado) {
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseKey || !resultado.user_id) return
+  if (!supabaseKey) return
 
   try {
     await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
