@@ -128,6 +128,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
 
 // ─── PLAN DE ACCIÓN ───────────────────────────────────────────────────────────
 function PlanAccion({ acciones }) {
+  const { t } = useTranslation()
   return (
     <div className="card">
       <h3 className="font-semibold text-text-primary mb-1">{t('report.reductionPlan')}</h3>
@@ -229,6 +230,26 @@ export default function Report() {
               .eq('id', id)
               .single()
 
+            if (dbData && !dbError) {
+              setData(dbData)
+              setEmpresa(dbData.empresa)
+              setCalculo(dbData.calculo)
+              setAnalisis(dbData.analisis)
+              setLoading(false)
+              return
+            }
+          } catch (e) {
+            console.warn('Supabase fallback failed:', e)
+          }
+        }
+        // Fallback: cargar desde Supabase
+        if (id && id !== 'preview') {
+          try {
+            const { data: dbData, error: dbError } = await supabase
+              .from('diagnosticos')
+              .select('*')
+              .eq('id', id)
+              .single()
             if (dbData && !dbError) {
               setData(dbData)
               setEmpresa(dbData.empresa)
