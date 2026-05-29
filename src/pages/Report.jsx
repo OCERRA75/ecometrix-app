@@ -112,7 +112,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
               </div>
               <div className="text-right">
                 <span className="font-semibold text-text-primary">{value.toLocaleString()}</span>
-                <span className="text-text-muted text-xs ml-1">kg COâ''e/mes</span>
+                <span className="text-text-muted text-xs ml-1">kg CO₂e/mes</span>
               </div>
             </div>
             <div className="w-full h-2.5 bg-surface-tertiary rounded-full overflow-hidden">
@@ -204,7 +204,23 @@ export default function Report() {
           const parsed = JSON.parse(stored)
           setData(parsed)
           setLoading(false)
-          // Enviar email automáticamente (solo una vez)
+
+          // Guardar en Supabase (solo una vez por sesión)
+          const saved = sessionStorage.getItem('ecometrix_db_saved')
+          if (!saved && parsed.id) {
+            sessionStorage.setItem('ecometrix_db_saved', '1')
+            supabase.from('diagnosticos').upsert({
+              id: parsed.id,
+              empresa: parsed.empresa,
+              calculo: parsed.calculo,
+              analisis: parsed.analisis,
+              created_at: new Date().toISOString(),
+            }).then(({ error: dbErr }) => {
+              if (dbErr) console.warn('Supabase save failed:', dbErr)
+            })
+          }
+
+          // Enviar email (solo una vez por sesión)
           const emailSent = sessionStorage.getItem('ecometrix_email_sent')
           if (!emailSent) {
             sessionStorage.setItem('ecometrix_email_sent', '1')
@@ -221,67 +237,23 @@ export default function Report() {
           }
           return
         }
-        // Fallback: cargar desde Supabase
-        if (id && id !== 'preview') {
-          try {
-            const { data: dbData, error: dbError } = await supabase
-              .from('diagnosticos')
-              .select('*')
-              .eq('id', id)
-              .single()
 
-            if (dbData && !dbError) {
-              setData(dbData)
-              setEmpresa(dbData.empresa)
-              setCalculo(dbData.calculo)
-              setAnalisis(dbData.analisis)
-              setLoading(false)
-              return
-            }
-          } catch (e) {
-            console.warn('Supabase fallback failed:', e)
-          }
-        }
-        // Fallback: cargar desde Supabase
+        // Fallback: cargar desde Supabase si no hay sessionStorage
         if (id && id !== 'preview') {
-          try {
-            const { data: dbData, error: dbError } = await supabase
-              .from('diagnosticos')
-              .select('*')
-              .eq('id', id)
-              .single()
-            if (dbData && !dbError) {
-              setData(dbData)
-              setEmpresa(dbData.empresa)
-              setCalculo(dbData.calculo)
-              setAnalisis(dbData.analisis)
-              setLoading(false)
-              return
-            }
-          } catch (e) {
-            console.warn('Supabase fallback failed:', e)
+          const { data: dbData, error: dbError } = await supabase
+            .from('diagnosticos')
+            .select('*')
+            .eq('id', id)
+            .single()
+
+          if (dbData && !dbError) {
+            setData(dbData)
+            setLoading(false)
+            return
           }
+          console.warn('Supabase fallback failed:', dbError)
         }
-        // Fallback: cargar desde Supabase
-        if (id && id !== 'preview') {
-          try {
-            const { data: dbData, error: dbError } = await supabase
-              .from('diagnosticos')
-              .select('*')
-              .eq('id', id)
-              .single()
-            if (dbData && !dbError) {
-              setData(dbData)
-              setEmpresa(dbData.empresa)
-              setCalculo(dbData.calculo)
-              setAnalisis(dbData.analisis)
-              setLoading(false)
-              return
-            }
-          } catch (e) {
-            console.warn('Supabase fallback failed:', e)
-          }
-        }
+
         navigate('/diagnostico')
       } catch (err) {
         setError('Error cargando el reporte')
@@ -364,20 +336,20 @@ export default function Report() {
           <MetricCard
             label={t('report.scope1')}
             value={calculo.alcance1.toLocaleString()}
-            unit="kg COâ''e/mes"
+            unit="kg CO₂e/mes"
             sub="Emisiones directas"
           />
           <MetricCard
             label={t('report.scope2')}
             value={calculo.alcance2.toLocaleString()}
-            unit="kg COâ''e/mes"
+            unit="kg CO₂e/mes"
             sub="Electricidad indirecta"
           />
           {calculo.alcance3 > 0 && (
             <MetricCard
               label={t('report.scope3')}
               value={calculo.alcance3.toLocaleString()}
-              unit="kg COâ''e/mes"
+              unit="kg CO₂e/mes"
               sub="Cadena de valor"
             />
           )}
@@ -503,7 +475,6 @@ export default function Report() {
             Este diagnóstico es una estimación basada en los datos proporcionados. Para una medición certificable se recomienda una auditoría con verificador acreditado ISO 14064-3.
           </p>
         </div>
-
 
         {/* Certificación EcoMetriX — M15 */}
         <div className="mt-8 mb-2">
