@@ -12,25 +12,27 @@ import NotFound from '@/pages/NotFound.jsx'
 import Standards from '@/pages/Standards.jsx'
 import Verify from '@/pages/Verify.jsx'
 import Ruta from '@/pages/Ruta.jsx'
+import Integrations from '@/pages/Integrations.jsx'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/"                element={<Landing />} />
-          <Route path="/diagnostico"     element={<Questionnaire />} />
-          <Route path="/reporte/:id"     element={<Report />} />
-          <Route path="/reporte/preview" element={<Report />} />
-          <Route path="/dashboard"       element={<Dashboard360 />} />
-          <Route path="/csrd"            element={<CSRD />} />
-          <Route path="/login"           element={<Login />} />
-          <Route path="/precios"         element={<Pricing />} />
-          <Route path="/developers"      element={<Developers />} />
-          <Route path="/ruta"           element={<Ruta />} />
-          <Route path="/estandares"      element={<Standards />} />
-          <Route path="/verificar/:codigo" element={<Verify />} />
-          <Route path="*"               element={<NotFound />} />
+          <Route path="/"                    element={<Landing />} />
+          <Route path="/diagnostico"         element={<Questionnaire />} />
+          <Route path="/reporte/:id"         element={<Report />} />
+          <Route path="/reporte/preview"     element={<Report />} />
+          <Route path="/dashboard"           element={<Dashboard360 />} />
+          <Route path="/csrd"                element={<CSRD />} />
+          <Route path="/login"               element={<Login />} />
+          <Route path="/precios"             element={<Pricing />} />
+          <Route path="/developers"          element={<Developers />} />
+          <Route path="/ruta"                element={<Ruta />} />
+          <Route path="/estandares"          element={<Standards />} />
+          <Route path="/verificar/:codigo"   element={<Verify />} />
+          <Route path="/integraciones"       element={<Integrations />} />
+          <Route path="*"                    element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
