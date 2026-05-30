@@ -204,7 +204,7 @@ async function generarManualPDF() {
 
   beneficios.forEach(([titulo, desc], i) => {
     checkPage(18)
-    doc.setFillColor(i % 2 === 0 ? ...verdeClaro : 255, 255, 255)
+    if (i % 2 === 0) { doc.setFillColor(...verdeClaro) } else { doc.setFillColor(255, 255, 255) }
     if (i % 2 !== 0) doc.setFillColor(255, 255, 255)
     doc.roundedRect(M, y, W - M * 2, 14, 2, 2, 'F')
     doc.setFillColor(...verde)
