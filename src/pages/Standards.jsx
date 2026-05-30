@@ -160,7 +160,7 @@ async function generarPDFComparativa(standards) {
   doc.text('Descripción detallada de cada estándar', margin, y); y += 10
 
   standards.forEach(std => {
-    if (y > 240) { doc.addPage(); y = 20 }
+    if (y > 220) { doc.addPage(); y = 20 }
 
     // Nombre
     doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
@@ -187,7 +187,7 @@ async function generarPDFComparativa(standards) {
     doc.text('Limitaciones:', margin + 80, y - std.ventajas.length * 4 - 4)
     std.limitaciones.forEach((l, i) => {
       doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
-      doc.text(`− ${l}`, margin + 83, y - std.ventajas.length * 4 + i * 4)
+      doc.text(`- ${l}`, margin + 83, y - std.ventajas.length * 4 + i * 4)
     })
 
     // EcoMetriX

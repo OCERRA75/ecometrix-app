@@ -88,7 +88,7 @@ const ESRS_REQUIREMENTS = [
 const ROADMAP_FASES = [
   {
     fase: 'Fase 0', titulo: 'Diagnóstico base', plazo: 'Inmediato', color: 'brand',
-    acciones: ['Completar diagnóstico de huella de carbono (Alcances 1, 2 y 3) ✓', 'Identificar brechas vs requerimientos ESRS E1', 'Nombrar responsable de sostenibilidad en la empresa']
+    acciones: ['Completar diagnostico de huella de carbono (Alcances 1, 2 y 3)', 'Identificar brechas vs requerimientos ESRS E1', 'Nombrar responsable de sostenibilidad en la empresa']
   },
   {
     fase: 'Fase 1', titulo: 'Fundamentos', plazo: '1–3 meses', color: 'purple',
