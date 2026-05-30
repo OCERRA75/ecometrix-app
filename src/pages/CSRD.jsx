@@ -248,7 +248,7 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
     y += 5
     f.acciones.forEach(a => {
       if (y > 272) { doc.addPage(); y = 20 }
-      const lines = doc.splitTextToSize(`→ ${a}`, W - margin * 2 - 4)
+      const lines = doc.splitTextToSize(`> ${a}`, W - margin * 2 - 4)
       doc.setTextColor(55, 65, 81)
       doc.text(lines, margin + 3, y)
       y += lines.length * 4.5
