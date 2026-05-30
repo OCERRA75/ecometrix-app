@@ -130,11 +130,11 @@ async function generarPDFComparativa(standards) {
       const x = margin + labelW + i * colW + colW / 2
       const val = std.features[feature]
       if (val) {
-        doc.setTextColor(29, 158, 117); doc.setFontSize(10)
-        doc.text('✓', x, y + 5.5, { align: 'center' })
+        doc.setTextColor(29, 158, 117); doc.setFontSize(9)
+        doc.text('SI', x, y + 5.5, { align: 'center' })
       } else {
-        doc.setTextColor(220, 38, 38); doc.setFontSize(10)
-        doc.text('✗', x, y + 5.5, { align: 'center' })
+        doc.setTextColor(220, 38, 38); doc.setFontSize(9)
+        doc.text('NO', x, y + 5.5, { align: 'center' })
       }
     })
     y += 8
@@ -164,7 +164,7 @@ async function generarPDFComparativa(standards) {
 
     // Nombre
     doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
-    doc.text(`${std.logo}  ${std.nombre}`, margin, y)
+    doc.text(std.nombre, margin, y)
     doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128)
     doc.text(`${std.org} · ${std.año} · ${std.tipo}`, margin, y + 5)
     y += 10
