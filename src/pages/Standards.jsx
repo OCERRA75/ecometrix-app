@@ -160,14 +160,14 @@ async function generarPDFComparativa(standards) {
   doc.text('Descripción detallada de cada estándar', margin, y); y += 10
 
   standards.forEach(std => {
-    if (y > 220) { doc.addPage(); y = 20 }
+    if (y > 200) { doc.addPage(); y = 20 }
 
     // Nombre
     doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
     doc.text(std.nombre, margin, y)
     doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128)
     doc.text(`${std.org} · ${std.año} · ${std.tipo}`, margin, y + 5)
-    y += 10
+    y += 11
 
     // Descripción
     doc.setFontSize(8); doc.setTextColor(55, 65, 81)
@@ -175,28 +175,34 @@ async function generarPDFComparativa(standards) {
     doc.text(descLines, margin, y)
     y += descLines.length * 4 + 3
 
-    // Ventajas y limitaciones
+    // Ventajas (izquierda) + Limitaciones (derecha) — layout paralelo
+    const yBlock = y
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(29, 158, 117)
-    doc.text('Ventajas:', margin, y); y += 4
+    doc.text('Ventajas:', margin, yBlock)
+    let yLeft = yBlock + 4
     std.ventajas.forEach(v => {
       doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
-      doc.text(`+ ${v}`, margin + 3, y); y += 4
+      doc.text(`+ ${v}`, margin + 3, yLeft); yLeft += 4
     })
 
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(220, 38, 38)
-    doc.text('Limitaciones:', margin + 80, y - std.ventajas.length * 4 - 4)
-    std.limitaciones.forEach((l, i) => {
+    doc.text('Limitaciones:', margin + 80, yBlock)
+    let yRight = yBlock + 4
+    std.limitaciones.forEach(l => {
       doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
-      doc.text(`- ${l}`, margin + 83, y - std.ventajas.length * 4 + i * 4)
+      doc.text(`- ${l}`, margin + 83, yRight); yRight += 4
     })
+
+    y = Math.max(yLeft, yRight) + 2
 
     // EcoMetriX
     doc.setFillColor(240, 253, 244)
     doc.roundedRect(margin, y, W - margin * 2, 8, 2, 2, 'F')
     doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(29, 158, 117)
-    doc.text(`EcoMetriX: `, margin + 2, y + 5)
+    doc.text('EcoMetriX: ', margin + 2, y + 5)
     doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
-    doc.text(std.ecometrix, margin + 22, y + 5)
+    const ecoText = doc.splitTextToSize(std.ecometrix, W - margin * 2 - 24)
+    doc.text(ecoText[0], margin + 22, y + 5)
     y += 14
   })
 
