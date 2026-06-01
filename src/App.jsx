@@ -14,6 +14,7 @@ import Verify from '@/pages/Verify.jsx'
 import Ruta from '@/pages/Ruta.jsx'
 import Integrations from '@/pages/Integrations.jsx'
 import Manual from '@/pages/Manual.jsx'
+import ReductionPlan from '@/pages/ReductionPlan.jsx'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/verificar/:codigo"   element={<Verify />} />
           <Route path="/integraciones"       element={<Integrations />} />
           <Route path="/manual"              element={<Manual />} />
+          <Route path="/plan"                element={<ReductionPlan />} />
           <Route path="*"                    element={<NotFound />} />
         </Routes>
       </BrowserRouter>
