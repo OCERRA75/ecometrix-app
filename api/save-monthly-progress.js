@@ -14,7 +14,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Verificar JWT del usuario
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (!token) return res.status(401).json({ error: 'Token requerido' })
 
@@ -31,23 +30,33 @@ export default async function handler(req, res) {
       })
     }
 
-    // Upsert: crea o actualiza el registro del mes
+    // Primero obtener el registro existente para preservar meta_kgco2
+    const { data: existente } = await supabase
+      .from('planes_de_reduccion')
+      .select('meta_kgco2, acciones')
+      .eq('user_id', user.id)
+      .eq('diagnostico_id', diagnostico_id)
+      .eq('mes', mes)
+      .eq('anio', anio)
+      .single()
+
+    if (!existente) {
+      return res.status(404).json({ error: 'not_found', message: 'Registro del mes no encontrado' })
+    }
+
+    // Update directo preservando meta_kgco2
     const { data, error } = await supabase
       .from('planes_de_reduccion')
-      .upsert({
-        user_id: user.id,
-        diagnostico_id,
-        mes,
-        anio,
+      .update({
         real_kgco2,
         nota: nota || null,
-        acciones: acciones || [],
+        acciones: acciones || existente.acciones || [],
         estado: 'completado',
-        // meta_kgco2 no se toca si ya existe
-      }, {
-        onConflict: 'user_id,diagnostico_id,mes,anio',
-        ignoreDuplicates: false,
       })
+      .eq('user_id', user.id)
+      .eq('diagnostico_id', diagnostico_id)
+      .eq('mes', mes)
+      .eq('anio', anio)
       .select()
       .single()
 
