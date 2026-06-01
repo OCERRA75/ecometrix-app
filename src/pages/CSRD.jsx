@@ -88,7 +88,7 @@ const ESRS_REQUIREMENTS = [
 const ROADMAP_FASES = [
   {
     fase: 'Fase 0', titulo: 'Diagnóstico base', plazo: 'Inmediato', color: 'brand',
-    acciones: ['Completar diagnostico de huella de carbono (Alcances 1, 2 y 3)', 'Identificar brechas vs requerimientos ESRS E1', 'Nombrar responsable de sostenibilidad en la empresa']
+    acciones: ['Completar diagnóstico de huella de carbono (Alcances 1, 2 y 3) ✓', 'Identificar brechas vs requerimientos ESRS E1', 'Nombrar responsable de sostenibilidad en la empresa']
   },
   {
     fase: 'Fase 1', titulo: 'Fundamentos', plazo: '1–3 meses', color: 'purple',
@@ -248,7 +248,7 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
     y += 5
     f.acciones.forEach(a => {
       if (y > 272) { doc.addPage(); y = 20 }
-      const lines = doc.splitTextToSize(`> ${a}`, W - margin * 2 - 4)
+      const lines = doc.splitTextToSize(`→ ${a}`, W - margin * 2 - 4)
       doc.setTextColor(55, 65, 81)
       doc.text(lines, margin + 3, y)
       y += lines.length * 4.5
