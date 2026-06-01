@@ -258,17 +258,45 @@ export default function Dashboard360() {
   const [userId, setUserId] = useState(null)
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('ecometrix_result')
-    if (stored) {
-      setData(JSON.parse(stored))
-    }
-    setLoading(false)
-  }, [])
+    async function loadData() {
+      // 1. Intentar desde sessionStorage (diagnóstico recién hecho)
+      const stored = sessionStorage.getItem('ecometrix_result')
+      if (stored) {
+        setData(JSON.parse(stored))
+        setLoading(false)
+        return
+      }
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id)
-    })
+      // 2. Si no hay sessionStorage, buscar en Supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); return }
+
+      setUserId(user.id)
+
+      const { data: diag } = await supabase
+        .from('diagnosticos')
+        .select('id, empresa, calculo, analisis, respuestas')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (diag) {
+        const result = {
+          id: diag.id,
+          empresa: diag.empresa,
+          calculo: diag.calculo,
+          analisis: diag.analisis,
+          respuestas: diag.respuestas,
+        }
+        setData(result)
+        sessionStorage.setItem('ecometrix_result', JSON.stringify(result))
+      }
+
+      setLoading(false)
+    }
+
+    loadData()
   }, [])
 
   if (loading) return (
