@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import LanguageSelector from '@/components/LanguageSelector.jsx'
 import { useAuth } from '@/hooks/useAuth.jsx'
 import { useNavigate } from 'react-router-dom'
 import { useQuestionnaire } from '@/store/questionnaire.js'
@@ -31,13 +29,12 @@ const IconInfo = () => (
 )
 
 function ProgressBar({ pct, step }) {
-  const { t } = useTranslation()
   const steps = [
-    { id: 'onboarding', label: t('questionnaire.step1') },
-    { id: 'alcance1',   label: t('questionnaire.step2') },
-    { id: 'alcance2',   label: t('questionnaire.step3') },
-    { id: 'alcance3',   label: t('questionnaire.step4') },
-    { id: 'resumen',    label: t('questionnaire.step5') },
+    { id: 'onboarding', label: 'Tu empresa' },
+    { id: 'alcance1',   label: 'Alcance 1' },
+    { id: 'alcance2',   label: 'Alcance 2' },
+    { id: 'alcance3',   label: 'Alcance 3' },
+    { id: 'resumen',    label: 'Resumen' },
   ]
   return (
     <div className="w-full">
@@ -60,22 +57,21 @@ function ProgressBar({ pct, step }) {
       <div className="w-full h-1.5 bg-surface-tertiary rounded-full overflow-hidden">
         <div className="h-full bg-brand-300 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-right text-xs text-text-muted mt-1">{pct}% {t('questionnaire.completed')}</p>
+      <p className="text-right text-xs text-text-muted mt-1">{pct}% completado</p>
     </div>
   )
 }
 
 function OnboardingScreen({ onNext }) {
   const { empresa, setEmpresa } = useQuestionnaire()
-  const { t } = useTranslation()
   const [errors, setErrors] = useState({})
 
   const validate = () => {
     const e = {}
-    if (!empresa.nombre.trim()) e.nombre = t('questionnaire.required')
-    if (!empresa.email.trim()) e.email = t('questionnaire.required')
-    if (!empresa.sector) e.sector = t('questionnaire.selectSector')
-    if (!empresa.tamano) e.tamano = t('questionnaire.selectSize')
+    if (!empresa.nombre.trim()) e.nombre = 'Campo requerido'
+    if (!empresa.email.trim()) e.email = 'Campo requerido'
+    if (!empresa.sector) e.sector = 'Selecciona un sector'
+    if (!empresa.tamano) e.tamano = 'Selecciona el tamaño'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -83,18 +79,18 @@ function OnboardingScreen({ onNext }) {
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-8">
-        <span className="badge-green mb-3 inline-block">{t('questionnaire.step1of5')}</span>
-        <h1 className="text-2xl font-bold text-text-primary mb-2">{t('questionnaire.companyTitle')}</h1>
+        <span className="badge-green mb-3 inline-block">Paso 1 de 5</span>
+        <h1 className="text-2xl font-bold text-text-primary mb-2">Cuéntanos sobre tu empresa</h1>
         <p className="text-text-secondary text-sm">Adaptamos las preguntas a tu sector para calcular los 3 alcances del GHG Protocol.</p>
       </div>
       <div className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">{t('questionnaire.companyName')} *</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Nombre de la empresa *</label>
           <input type="text" value={empresa.nombre} onChange={e => setEmpresa({ nombre: e.target.value })} placeholder="Ej: Textiles del Norte SAS" className={`input ${errors.nombre ? 'border-danger' : ''}`} />
           {errors.nombre && <p className="text-danger text-xs mt-1">{errors.nombre}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">{t('questionnaire.email')} *</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Correo corporativo *</label>
           <input type="email" value={empresa.email} onChange={e => setEmpresa({ email: e.target.value })} placeholder="tu@empresa.com" className={`input ${errors.email ? 'border-danger' : ''}`} />
           {errors.email && <p className="text-danger text-xs mt-1">{errors.email}</p>}
         </div>
@@ -103,7 +99,7 @@ function OnboardingScreen({ onNext }) {
           <input type="text" value={empresa.nit} onChange={e => setEmpresa({ nit: e.target.value })} placeholder="Ej: 900.123.456-7" className="input" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">{t('questionnaire.sector')} *</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Sector *</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {SECTORES.map(s => (
               <button key={s} type="button" onClick={() => setEmpresa({ sector: s })}
@@ -115,7 +111,7 @@ function OnboardingScreen({ onNext }) {
           {errors.sector && <p className="text-danger text-xs mt-1">{errors.sector}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">{t('questionnaire.size')} *</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Tamaño *</label>
           <div className="grid grid-cols-2 gap-2">
             {TAMANOS.map(t => (
               <button key={t.value} type="button" onClick={() => setEmpresa({ tamano: t.value })}
@@ -128,7 +124,7 @@ function OnboardingScreen({ onNext }) {
           {errors.tamano && <p className="text-danger text-xs mt-1">{errors.tamano}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">{t('questionnaire.country')}</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">País de operación</label>
           <select value={empresa.pais} onChange={e => setEmpresa({ pais: e.target.value })} className="input">
             {['Colombia', 'México', 'Argentina', 'Chile', 'Perú', 'Ecuador', 'España', 'Otro'].map(p => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -136,16 +132,15 @@ function OnboardingScreen({ onNext }) {
       </div>
       <div className="mt-8">
         <button onClick={() => { if (validate()) onNext() }} className="btn-primary w-full justify-center py-3 text-base">
-          {t('questionnaire.startDiagnosis')} <IconArrow />
+          Comenzar diagnóstico <IconArrow />
         </button>
-        <p className="text-center text-xs text-text-muted mt-3">{t('questionnaire.diagnosisComplete')}</p>
+        <p className="text-center text-xs text-text-muted mt-3">Diagnóstico completo: Alcances 1, 2 y 3 del GHG Protocol</p>
       </div>
     </div>
   )
 }
 
 function QuestionCard({ pregunta, value, onChange }) {
-  const { t } = useTranslation()
   const [showAyuda, setShowAyuda] = useState(false)
   const [numValue, setNumValue] = useState(pregunta.tipo === 'opciones_con_numero' && value?.num ? value.num : '')
 
@@ -184,7 +179,7 @@ function QuestionCard({ pregunta, value, onChange }) {
           <input type="number" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={pregunta.placeholder} min="0" className="input pr-28 text-lg py-4" />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-text-muted font-medium">{pregunta.unidad}</span>
         </div>
-        {!pregunta.requerido && <p className="text-xs text-text-muted mt-2">{t('questionnaire.optionalField')}</p>}
+        {!pregunta.requerido && <p className="text-xs text-text-muted mt-2">Campo opcional — estimaremos si no lo tienes.</p>}
       </div>
     )
   }
@@ -222,7 +217,6 @@ function QuestionCard({ pregunta, value, onChange }) {
 
 function ResumenScreen({ onSubmit, loading }) {
   const { empresa, respuestas } = useQuestionnaire()
-  const { t } = useTranslation()
   const a1 = getPreguntasFiltradas(preguntasAlcance1, empresa.sector, respuestas)
   const a2 = getPreguntasFiltradas(preguntasAlcance2, empresa.sector, respuestas)
   const a3 = getPreguntasAlcance3Filtradas(empresa.sector, respuestas)
@@ -232,11 +226,11 @@ function ResumenScreen({ onSubmit, loading }) {
     <div className="max-w-xl mx-auto">
       <div className="mb-8 text-center">
         <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-4 text-3xl">✅</div>
-        <h1 className="text-2xl font-bold text-text-primary mb-2">{t('questionnaire.complete')}</h1>
-        <p className="text-text-secondary text-sm">{t('questionnaire.completeDesc')}</p>
+        <h1 className="text-2xl font-bold text-text-primary mb-2">¡Cuestionario completado!</h1>
+        <p className="text-text-secondary text-sm">Alcances 1, 2 y 3 del GHG Protocol evaluados.</p>
       </div>
       <div className="card mb-6">
-        <h3 className="font-semibold text-text-primary mb-4">{t('questionnaire.companyData')}</h3>
+        <h3 className="font-semibold text-text-primary mb-4">Datos de la empresa</h3>
         <div className="space-y-2">
           {[['Empresa', empresa.nombre], ['Email', empresa.email], ['Sector', empresa.sector], ['Tamaño', empresa.tamano], ['País', empresa.pais]].map(([k, v]) => v && (
             <div key={k} className="flex justify-between text-sm">
@@ -256,13 +250,13 @@ function ResumenScreen({ onSubmit, loading }) {
         ))}
       </div>
       <div className="bg-brand-50 border border-brand-100 rounded-xl px-5 py-4 mb-6">
-        <p className="text-sm text-brand-400 font-medium mb-1">{t('questionnaire.whatHappens')}</p>
-        <p className="text-sm text-text-secondary">{t('questionnaire.whatHappensDesc')} <strong>{empresa.email}</strong>.</p>
+        <p className="text-sm text-brand-400 font-medium mb-1">¿Qué pasa ahora?</p>
+        <p className="text-sm text-text-secondary">La IA calculará tus emisiones de los 3 alcances y generará tu reporte PDF con plan de reducción en <strong>{empresa.email}</strong>.</p>
       </div>
       <button onClick={onSubmit} disabled={loading} className="btn-primary w-full justify-center py-3.5 text-base">
         {loading ? (
-          <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t('questionnaire.calculating')}</span>
-        ) : <>{t('questionnaire.calculate')} <IconArrow /></>}
+          <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Calculando huella (3 alcances)...</span>
+        ) : <>Calcular mi huella de carbono <IconArrow /></>}
       </button>
     </div>
   )
@@ -270,7 +264,6 @@ function ResumenScreen({ onSubmit, loading }) {
 
 export default function Questionnaire() {
   const navigate = useNavigate()
-  const { t } = useTranslation()
   const { empresa, respuestas, step, currentQ, setRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
   const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
@@ -309,7 +302,7 @@ export default function Questionnaire() {
     setSubmitting(true)
     try {
       const payload = { empresa, respuestas, user_id: user?.id || null }
-      const res = await fetch('/api/calculate', {
+      const res = await fetch('/.netlify/functions/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -336,7 +329,6 @@ export default function Questionnaire() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </a>
           <div className="flex-1"><ProgressBar pct={pct} step={step} /></div>
-          <LanguageSelector />
         </div>
       </header>
 
@@ -357,9 +349,9 @@ export default function Questionnaire() {
           <div className="max-w-xl mx-auto">
             <QuestionCard key={preguntaActual.id} pregunta={preguntaActual} value={valorActual} onChange={(val) => setRespuesta(preguntaActual.id, val)} />
             <div className="flex items-center justify-between mt-10">
-              <button onClick={handlePrev} className="btn-ghost"><IconArrow left /> {t('questionnaire.prev')}</button>
+              <button onClick={handlePrev} className="btn-ghost"><IconArrow left /> Anterior</button>
               <button onClick={handleNext} disabled={!canGoNext()} className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
-                {currentQ < preguntas.length - 1 ? t('questionnaire.next') : step === 'alcance1' ? t('questionnaire.goScope2') : step === 'alcance2' ? t('questionnaire.goScope3') : t('questionnaire.goSummary')}
+                {currentQ < preguntas.length - 1 ? 'Siguiente' : step === 'alcance1' ? 'Ir a Alcance 2' : step === 'alcance2' ? 'Ir a Alcance 3' : 'Ver resumen'}
                 <IconArrow />
               </button>
             </div>

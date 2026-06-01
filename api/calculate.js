@@ -1,4 +1,4 @@
-// api/calculate.js — Vercel Serverless Function
+// netlify/functions/calculate.js
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
   electricidad: { Colombia: 0.126, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
@@ -154,10 +154,11 @@ function calcularEmisiones(empresa, respuestas) {
   }
 }
 
+// ── Guardar en Supabase ────────────────────────────────────────────────────
 async function guardarDiagnostico(resultado) {
-  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseUrl = process.env.SUPABASE_URL || 'https://reoyytnbsjfgunqeylo.supabase.co'
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseKey) return
+  if (!supabaseKey || !resultado.user_id) return
 
   try {
     await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
@@ -180,19 +181,16 @@ async function guardarDiagnostico(resultado) {
     })
   } catch (e) {
     console.error('Supabase insert error:', e)
+    // No lanzar — el cálculo ya está listo, solo falla el guardado
   }
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
+export const handler = async (event) => {
+  if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
   try {
-    const { empresa, respuestas, user_id } = req.body
+    const { empresa, respuestas, user_id } = JSON.parse(event.body)
     const calculo = calcularEmisiones(empresa, respuestas)
     let analisis = null
-
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (apiKey) {
       const prompt = `Eres consultor experto en huella de carbono (GHG Protocol, ISO 14064).
@@ -210,7 +208,7 @@ Genera JSON exacto:
         const text = aiData.content?.[0]?.text || ''
         const jsonMatch = text.match(/\{[\s\S]*\}/)
         if (jsonMatch) analisis = JSON.parse(jsonMatch[0])
-      } catch (e) { console.error('Claude API error:', e) }
+      } catch(e) { console.error('Claude API error:', e) }
     }
 
     const resultado = {
@@ -233,11 +231,12 @@ Genera JSON exacto:
       timestamp: new Date().toISOString(),
     }
 
+    // Guardar en Supabase si hay usuario autenticado
     await guardarDiagnostico(resultado)
 
-    return res.status(200).json(resultado)
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultado) }
   } catch (err) {
     console.error('Calculate error:', err)
-    return res.status(500).json({ error: err.message })
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err.message }) }
   }
 }
