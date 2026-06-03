@@ -41,7 +41,7 @@ function Navbar({ scrolled }) {
           {navLinks.map(([label, href]) => (
             <a key={href} href={href} className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{label}</a>
           ))}
-          <a href="/precios" className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{t('landing.nav.pricing')}</a>
+
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
