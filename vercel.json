@@ -1,8 +1,8 @@
 {
-  "rewrites": [
+  "crons": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "path": "/api/send-monthly-reminder",
+      "schedule": "0 14 1 * *"
     }
   ]
 }
