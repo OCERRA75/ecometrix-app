@@ -27,6 +27,7 @@ function Navbar({ scrolled }) {
     [t('landing.nav.howItWorks'), '#como-funciona'],
     [t('landing.nav.standards'), '#estandares'],
     [t('landing.nav.sectors'), '#sectores'],
+    ['Precios', '#precios'],
   ]
 
   return (
@@ -299,6 +300,181 @@ function Benefits() {
   )
 }
 
+
+function SocialProof() {
+  const testimonials = [
+    {
+      quote: 'En menos de 15 minutos tuvimos nuestro reporte de huella de carbono listo. Nunca pensé que fuera tan fácil.',
+      name: 'María González',
+      role: 'Gerente de Operaciones',
+      company: 'Textiles del Norte',
+      sector: 'Manufactura',
+      initial: 'M',
+    },
+    {
+      quote: 'El certificado EcoMetriX nos abrió puertas en licitaciones donde antes nos pedían reportes de sostenibilidad carísimos.',
+      name: 'Carlos Ramos',
+      role: 'Director General',
+      company: 'LogiCaribe S.A.S.',
+      sector: 'Logística',
+      initial: 'C',
+    },
+    {
+      quote: 'Lo usamos cada mes para rastrear nuestras emisiones. El plan de reducción nos ayudó a bajar un 18% en 6 meses.',
+      name: 'Luisa Herrera',
+      role: 'Coordinadora ESG',
+      company: 'Grupo Comercial Andino',
+      sector: 'Retail',
+      initial: 'L',
+    },
+  ]
+
+  return (
+    <section className="py-20 bg-surface-secondary">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <span className="badge-green mb-4 inline-block">Casos de éxito</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">
+            PyMEs colombianas ya miden su impacto
+          </h2>
+          <p className="text-text-secondary text-lg">
+            Más de 100 empresas han generado su reporte de sostenibilidad con EcoMetriX.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {testimonials.map(({ quote, name, role, company, sector, initial }) => (
+            <div key={name} className="bg-white rounded-2xl border border-border p-6 shadow-card flex flex-col">
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} viewBox="0 0 24 24" fill="#10b981" className="w-4 h-4">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                ))}
+              </div>
+              <p className="text-text-secondary text-sm leading-relaxed mb-6 flex-1">"{quote}"</p>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-brand-300 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                  {initial}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-text-primary">{name}</p>
+                  <p className="text-xs text-text-muted">{role} · {company}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-50">
+          {['GHG Protocol', 'ISO 14064', 'CSRD/ESRS', 'IPCC AR6', 'Science Based Targets'].map(s => (
+            <span key={s} className="text-sm font-semibold text-text-muted">{s}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PricingPreview() {
+  const planes = [
+    {
+      nombre: 'Básico',
+      precio: '$79.000',
+      desc: 'Para PyMEs que quieren medir y certificar su huella.',
+      features: ['Diagnósticos ilimitados', 'Reporte PDF', 'Certificación EcoMetriX', 'Dashboard 360°'],
+      cta: 'Empezar con Básico',
+      highlight: false,
+    },
+    {
+      nombre: 'Pro',
+      precio: '$199.000',
+      desc: 'Para empresas que quieren reducir emisiones activamente.',
+      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Acceso API'],
+      cta: 'Empezar con Pro',
+      highlight: true,
+      badge: 'Más popular',
+    },
+    {
+      nombre: 'Enterprise',
+      precio: '$499.000',
+      desc: 'Para grupos empresariales y grandes organizaciones.',
+      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'SLA garantizado'],
+      cta: 'Contactar ventas',
+      highlight: false,
+    },
+  ]
+
+  return (
+    <section id="precios" className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <span className="badge-gray mb-4 inline-block">Precios</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">
+            Planes para cada etapa
+          </h2>
+          <p className="text-text-secondary text-lg">
+            Empieza gratis. Escala cuando lo necesites.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {planes.map((plan) => (
+            <div
+              key={plan.nombre}
+              className={`relative rounded-2xl p-6 flex flex-col border-2 ${
+                plan.highlight
+                  ? 'border-brand-300 bg-brand-400 text-white shadow-xl'
+                  : 'border-border bg-white'
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-brand-100 text-brand-400 text-xs font-semibold px-3 py-1 rounded-full border border-brand-200">
+                    {plan.badge}
+                  </span>
+                </div>
+              )}
+              <h3 className={`text-lg font-bold mb-1 ${plan.highlight ? 'text-white' : 'text-text-primary'}`}>
+                {plan.nombre}
+              </h3>
+              <p className={`text-xs mb-4 ${plan.highlight ? 'text-white/70' : 'text-text-muted'}`}>
+                {plan.desc}
+              </p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className={`text-3xl font-bold ${plan.highlight ? 'text-white' : 'text-text-primary'}`}>
+                  {plan.precio}
+                </span>
+                <span className={`text-sm ${plan.highlight ? 'text-white/60' : 'text-text-muted'}`}>/mes</span>
+              </div>
+              <div className="space-y-2.5 mb-6 flex-1">
+                {plan.features.map(f => (
+                  <div key={f} className="flex items-center gap-2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke={plan.highlight ? 'white' : '#10b981'} strokeWidth={2.5} className="w-4 h-4 flex-shrink-0">
+                      <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className={`text-sm ${plan.highlight ? 'text-white/90' : 'text-text-secondary'}`}>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <a
+                href="/precios"
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all ${
+                  plan.highlight
+                    ? 'bg-white text-brand-400 hover:bg-brand-50'
+                    : 'bg-brand-300 text-white hover:bg-brand-400'
+                }`}
+              >
+                {plan.cta}
+              </a>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-text-muted text-xs mt-8">
+          Diagnóstico gratuito para empezar · Sin tarjeta de crédito · Cancela cuando quieras
+        </p>
+      </div>
+    </section>
+  )
+}
+
 function CTASection() {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
@@ -411,6 +587,8 @@ export default function Landing() {
       <HowItWorks />
       <Standards />
       <Benefits />
+      <SocialProof />
+      <PricingPreview />
       <CTASection />
       <Footer />
     </div>
