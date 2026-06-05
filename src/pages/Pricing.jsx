@@ -82,7 +82,7 @@ export default function Pricing() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [planActual, setPlanActual] = useState(null)
-  const [loading, setLoading] = useState(null) // id del plan en proceso
+  const [loading, setLoading] = useState(null)
   const [loadingAuth, setLoadingAuth] = useState(true)
 
   useEffect(() => {
@@ -113,9 +113,13 @@ export default function Pricing() {
       })
 
       const json = await res.json()
+
+      // DEBUG TEMPORAL — eliminar después de confirmar montos
+      console.log('RESPUESTA API:', json)
+      console.log('MONTO ENVIADO:', json.monto)
+
       if (!json.ok) throw new Error(json.message)
 
-      // Redirigir a Wompi Checkout
       const params = new URLSearchParams({
         'public-key': json.public_key,
         currency: 'COP',
@@ -133,7 +137,6 @@ export default function Pricing() {
     setLoading(null)
   }
 
-  // Detectar retorno de Wompi
   const urlParams = new URLSearchParams(window.location.search)
   const pagoExitoso = urlParams.get('pago') === 'exitoso'
 
@@ -153,7 +156,6 @@ export default function Pricing() {
       </header>
 
       <div className="max-w-5xl mx-auto px-6 py-16">
-        {/* Banner pago exitoso */}
         {pagoExitoso && (
           <div className="mb-8 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-center">
             <p className="text-emerald-400 font-semibold">✓ Pago procesado correctamente</p>
@@ -161,7 +163,6 @@ export default function Pricing() {
           </div>
         )}
 
-        {/* Hero */}
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold mb-3">Planes EcoMetriX</h1>
           <p className="text-zinc-400 max-w-lg mx-auto">
@@ -169,7 +170,6 @@ export default function Pricing() {
           </p>
         </div>
 
-        {/* Tarjetas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PLANES.map((plan) => {
             const esActual = planActual === plan.id
@@ -234,7 +234,6 @@ export default function Pricing() {
           })}
         </div>
 
-        {/* Footer note */}
         <p className="text-center text-zinc-600 text-xs mt-8">
           Pagos procesados de forma segura por Wompi · Acepta tarjetas, PSE y más · Cancela cuando quieras
         </p>
