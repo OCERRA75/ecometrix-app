@@ -83,6 +83,7 @@ export default function Pricing() {
   const [user, setUser] = useState(null)
   const [planActual, setPlanActual] = useState(null)
   const [loading, setLoading] = useState(null) // id del plan en proceso
+  const [loadingAuth, setLoadingAuth] = useState(true)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -91,6 +92,7 @@ export default function Pricing() {
         supabase.from('perfiles').select('plan').eq('user_id', user.id).single()
           .then(({ data }) => setPlanActual(data?.plan))
       }
+      setLoadingAuth(false)
     })
   }, [])
 
@@ -217,14 +219,14 @@ export default function Pricing() {
                 ) : (
                   <button
                     onClick={() => handlePagar(plan)}
-                    disabled={loading === plan.id}
+                    disabled={loading === plan.id || loadingAuth}
                     className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                       esPro
                         ? 'bg-emerald-500 text-white hover:bg-emerald-400'
                         : 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700'
                     }`}
                   >
-                    {loading === plan.id ? 'Procesando...' : `Activar ${plan.nombre}`}
+                    {loadingAuth ? 'Cargando...' : loading === plan.id ? 'Procesando...' : `Activar ${plan.nombre}`}
                   </button>
                 )}
               </div>
