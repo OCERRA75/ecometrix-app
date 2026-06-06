@@ -377,6 +377,7 @@ function SocialProof() {
 function PricingPreview() {
   const planes = [
     {
+      id: 'basico',
       nombre: 'Básico',
       precio: '$79.000',
       desc: 'Para PyMEs que quieren medir y certificar su huella.',
@@ -385,6 +386,7 @@ function PricingPreview() {
       highlight: false,
     },
     {
+      id: 'pro',
       nombre: 'Pro',
       precio: '$199.000',
       desc: 'Para empresas que quieren reducir emisiones activamente.',
@@ -394,6 +396,7 @@ function PricingPreview() {
       badge: 'Más popular',
     },
     {
+      id: 'enterprise',
       nombre: 'Enterprise',
       precio: '$499.000',
       desc: 'Para grupos empresariales y grandes organizaciones.',
@@ -455,7 +458,7 @@ function PricingPreview() {
                 ))}
               </div>
               <a
-                href="/precios"
+                href={`/precios?plan=${plan.id}`}
                 className={`w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all ${
                   plan.highlight
                     ? 'bg-white text-brand-400 hover:bg-brand-50'
