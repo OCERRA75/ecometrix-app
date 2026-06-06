@@ -559,18 +559,18 @@ async function generarManualPDF() {
 
   const planes = [
     {
-      nombre: 'Free', precio: '$0', periodo: 'Siempre gratis',
-      features: ['Diagnosticos ilimitados', 'Reporte completo con 3 alcances', 'Certificado con codigo verificable', 'Email con reporte y PDF', 'Modulo CSRD basico'],
+      nombre: 'Basico', precio: '$79.000 COP', periodo: 'por mes',
+      features: ['Diagnosticos ilimitados', 'Reporte PDF descargable', 'Certificacion EcoMetriX', 'Dashboard 360', 'Soporte por email'],
       color: gris,
     },
     {
-      nombre: 'Pro', precio: '$149.000 COP', periodo: 'por mes',
-      features: ['Todo lo del plan Free', 'Historial de diagnosticos', 'Comparacion entre periodos', 'Integraciones ERP (Siigo, Alegra)', 'Exportacion PDF avanzada', 'Soporte prioritario'],
+      nombre: 'Pro', precio: '$199.000 COP', periodo: 'por mes',
+      features: ['Todo lo del Basico', 'Plan de reduccion mensual', 'Seguimiento mes a mes', 'Modulo CSRD/ESRS', 'Acceso API (1000 req/mes)', 'Soporte prioritario'],
       color: verde,
     },
     {
-      nombre: 'Enterprise', precio: 'Precio personalizado', periodo: '',
-      features: ['Todo lo del plan Pro', 'Multiples empresas / sucursales', 'API para integracion custom', 'Reporte CSRD completo para auditores', 'Verificacion externa ISO 14064-3', 'Onboarding dedicado'],
+      nombre: 'Enterprise', precio: '$499.000 COP', periodo: 'por mes',
+      features: ['Todo lo del Pro', 'Multiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electronica'],
       color: [180, 83, 9],
     },
   ]
@@ -985,19 +985,19 @@ export default function Manual() {
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 {
-                  nombre: 'Free', precio: '$0', periodo: 'siempre',
-                  features: ['Diagnósticos ilimitados', 'Reporte completo 3 alcances', 'Certificado verificable', 'Email con reporte PDF', 'Módulo CSRD básico'],
-                  color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/diagnostico',
+                  nombre: 'Básico', precio: '$79.000 COP', periodo: '/mes',
+                  features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Soporte por email'],
+                  color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/precios?plan=basico',
                 },
                 {
-                  nombre: 'Pro', precio: '$149.000 COP', periodo: '/mes',
-                  features: ['Todo el plan Free', 'Historial de diagnósticos', 'Integraciones ERP', 'Exportación PDF avanzada', 'Soporte prioritario'],
-                  color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/login', badge: 'Más popular',
+                  nombre: 'Pro', precio: '$199.000 COP', periodo: '/mes',
+                  features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API (1000 req/mes)', 'Soporte prioritario'],
+                  color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/precios?plan=pro', badge: 'Más popular',
                 },
                 {
-                  nombre: 'Enterprise', precio: 'Personalizado', periodo: '',
-                  features: ['Todo el plan Pro', 'Múltiples empresas', 'API personalizada', 'Reporte CSRD completo', 'Verificación ISO 14064-3'],
-                  color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: 'mailto:oscar@ecometrix.co',
+                  nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes',
+                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'],
+                  color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/precios?plan=enterprise',
                 },
               ].map(({ nombre, precio, periodo, features, color, btn, link, badge }) => (
                 <div key={nombre} className={`bg-white rounded-2xl border-2 ${color} p-5 flex flex-col`}>
@@ -1015,7 +1015,7 @@ export default function Manual() {
                     ))}
                   </ul>
                   <a href={link} className={`block text-center text-xs font-bold py-2.5 rounded-xl transition-colors ${btn}`}>
-                    {nombre === 'Enterprise' ? 'Contactar →' : nombre === 'Pro' ? 'Iniciar prueba →' : 'Empezar gratis →'}
+                    {nombre === 'Enterprise' ? 'Activar Enterprise →' : nombre === 'Pro' ? 'Activar Pro →' : 'Activar Básico →'}
                   </a>
                 </div>
               ))}
