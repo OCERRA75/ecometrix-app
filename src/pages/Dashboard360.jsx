@@ -306,10 +306,37 @@ export default function Dashboard360() {
   )
 
   if (!data) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-text-secondary mb-4">No hay datos de diagnóstico disponibles.</p>
-        <Link to="/diagnostico" className="btn-primary">Iniciar diagnóstico</Link>
+    <div className="min-h-screen bg-surface-secondary flex items-center justify-center px-6">
+      <div className="text-center max-w-md">
+        <div className="w-20 h-20 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 text-brand-400">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-text-primary mb-3">Tu Dashboard de Sostenibilidad</h2>
+        <p className="text-text-secondary mb-2 leading-relaxed">
+          Aquí verás tu perfil ESG completo: huella de carbono, eficiencia energética, economía circular y gobernanza.
+        </p>
+        <p className="text-sm text-text-muted mb-8">
+          Completa tu diagnóstico en menos de 10 minutos para activar el dashboard.
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-8 text-left">
+          {[
+            { icon: '📊', label: 'Radar ESG 5 dimensiones' },
+            { icon: '🔍', label: 'Detector de greenwashing' },
+            { icon: '📈', label: 'Proyección 12 meses' },
+            { icon: '🏅', label: 'Certificado verificable' },
+          ].map(({ icon, label }) => (
+            <div key={label} className="flex items-center gap-2.5 bg-white border border-border rounded-xl px-3 py-2.5">
+              <span className="text-lg">{icon}</span>
+              <span className="text-xs text-text-secondary font-medium">{label}</span>
+            </div>
+          ))}
+        </div>
+        <Link to="/diagnostico" className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-sm">
+          Iniciar diagnóstico gratis →
+        </Link>
       </div>
     </div>
   )
