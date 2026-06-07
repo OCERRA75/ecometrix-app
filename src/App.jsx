@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/hooks/useAuth.jsx'
+import PlanGuard from '@/components/PlanGuard.jsx'
 import Landing from '@/pages/Landing.jsx'
 import Questionnaire from '@/pages/Questionnaire.jsx'
 import Report from '@/pages/Report.jsx'
@@ -27,17 +28,17 @@ export default function App() {
           <Route path="/reporte/:id"         element={<Report />} />
           <Route path="/reporte/preview"     element={<Report />} />
           <Route path="/dashboard"           element={<Dashboard360 />} />
-          <Route path="/csrd"                element={<CSRD />} />
           <Route path="/login"               element={<Login />} />
           <Route path="/precios"             element={<Pricing />} />
-          <Route path="/developers"          element={<Developers />} />
           <Route path="/ruta"                element={<Ruta />} />
           <Route path="/estandares"          element={<Standards />} />
           <Route path="/verificar/:codigo"   element={<Verify />} />
-          <Route path="/integraciones"       element={<Integrations />} />
           <Route path="/manual"              element={<Manual />} />
-          <Route path="/plan"                element={<ReductionPlan />} />
           <Route path="/admin"               element={<Admin />} />
+          <Route path="/plan"                element={<PlanGuard requiereNivel={1}><ReductionPlan /></PlanGuard>} />
+          <Route path="/csrd"                element={<PlanGuard requiereNivel={2}><CSRD /></PlanGuard>} />
+          <Route path="/integraciones"       element={<PlanGuard requiereNivel={2}><Integrations /></PlanGuard>} />
+          <Route path="/developers"          element={<PlanGuard requiereNivel={2}><Developers /></PlanGuard>} />
           <Route path="*"                    element={<NotFound />} />
         </Routes>
       </BrowserRouter>
