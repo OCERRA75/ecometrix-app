@@ -100,6 +100,8 @@ export default function PlanGuard({ children, requiereNivel }) {
   const planRequerido = info.planNombre || 'Plan superior'
   const planId = info.planId || 'pro'
 
+  console.log('PlanGuard:', { planUsuario, nivelUsuario, requiereNivel, pathname: location.pathname, info })
+
   // Si no tiene el nivel requerido → mostrar gate
   if (nivelUsuario < requiereNivel) {
     return (
