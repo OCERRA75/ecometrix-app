@@ -399,6 +399,65 @@ export default function Report() {
           </div>
         )}
 
+        {/* Plan de Reducción — Preview bloqueado */}
+        <div className="mb-6 rounded-2xl border border-border overflow-hidden">
+          {/* Header */}
+          <div className="bg-surface-secondary px-6 py-4 flex items-center justify-between border-b border-border">
+            <div>
+              <h3 className="font-semibold text-text-primary">📉 Plan de Reducción Mensual</h3>
+              <p className="text-xs text-text-muted mt-0.5">Seguimiento mes a mes de tus emisiones con metas progresivas</p>
+            </div>
+            <Link
+              to="/precios?plan=basico"
+              className="flex-shrink-0 bg-brand-400 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-brand-300 transition-all"
+            >
+              Activar Plan →
+            </Link>
+          </div>
+
+          {/* Preview de los primeros 3 meses con blur */}
+          <div className="relative">
+            <div className="px-6 py-4 space-y-3 select-none pointer-events-none" style={{ filter: 'blur(3px)', opacity: 0.5 }}>
+              {['Enero', 'Febrero', 'Marzo'].map((mes, i) => (
+                <div key={mes} className="flex items-center justify-between bg-white border border-border rounded-xl px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">{mes}</p>
+                    <p className="text-xs text-text-muted">Meta: {Math.round((calculo?.totalKgMes || 5000) * (1 - i * 0.018)).toLocaleString()} kg CO₂ · ↳ Acción del mes</p>
+                  </div>
+                  <span className="text-xs px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-400 font-medium">Reportar</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Overlay con CTA */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px]">
+              <div className="text-center px-6">
+                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-3">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-brand-400">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <p className="font-semibold text-text-primary text-sm mb-1">Disponible en Plan Básico</p>
+                <p className="text-xs text-text-muted mb-4 max-w-xs">Activa tu plan para hacer seguimiento mensual de tus emisiones y ver tu progreso real hacia la reducción.</p>
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  <Link
+                    to="/precios?plan=basico"
+                    className="bg-brand-400 text-white text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-brand-300 transition-all"
+                  >
+                    Activar desde $79.000/mes →
+                  </Link>
+                  <Link
+                    to="/precios"
+                    className="border border-border text-text-secondary text-xs font-medium px-5 py-2.5 rounded-xl hover:bg-surface-secondary transition-all"
+                  >
+                    Ver todos los planes
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Metodología + Badge estándares M17.3 */}
         <div className="card border-dashed">
           <div className="flex items-center justify-between mb-4">

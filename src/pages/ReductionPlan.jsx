@@ -44,6 +44,8 @@ export default function ReductionPlan() {
   const [checkInMes, setCheckInMes] = useState(null)
   const mesActual = new Date().getMonth() + 1
 
+  const [planUsuario, setPlanUsuario] = useState(null)
+
   useEffect(() => {
     loadPlan()
   }, [])
@@ -53,6 +55,18 @@ export default function ReductionPlan() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { navigate('/login'); return }
+
+      // Verificar plan del usuario
+      const { data: perfil } = await supabase
+        .from('perfiles')
+        .select('plan')
+        .eq('user_id', session.user.id)
+        .single()
+
+      const plan = perfil?.plan || 'free'
+      setPlanUsuario(plan)
+
+      if (plan === 'free') { setLoading(false); return }
 
       // Obtener último diagnóstico del usuario
       const { data: diag } = await supabase
@@ -167,6 +181,51 @@ export default function ReductionPlan() {
         {loading ? (
           <div className="flex items-center justify-center py-20 text-zinc-500 text-sm">
             Cargando plan...
+          </div>
+        ) : planUsuario === 'free' ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-8 h-8 text-emerald-400">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-white mb-2">Plan de Reducción</h2>
+            <p className="text-zinc-400 text-sm max-w-sm mb-2">
+              El seguimiento mensual de emisiones está disponible en el <span className="text-emerald-400 font-medium">Plan Básico</span> o superior.
+            </p>
+            <p className="text-zinc-600 text-xs max-w-sm mb-8">
+              Activa tu plan para hacer seguimiento mes a mes, reportar emisiones reales y ver tu progreso hacia la reducción.
+            </p>
+
+            {/* Preview de los 3 primeros meses */}
+            <div className="w-full max-w-md space-y-3 mb-8 relative">
+              <div className="space-y-3" style={{ filter: 'blur(2px)', opacity: 0.4, pointerEvents: 'none', userSelect: 'none' }}>
+                {['Enero', 'Febrero', 'Marzo'].map((mes) => (
+                  <div key={mes} className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-white">{mes}</p>
+                      <p className="text-xs text-zinc-500">Meta: 5.000 kg CO₂ · ↳ Acción del mes</p>
+                    </div>
+                    <span className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-600">Reportar</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/precios?plan=basico"
+                className="bg-emerald-500 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-emerald-400 transition-all"
+              >
+                Activar desde $79.000/mes →
+              </a>
+              <a
+                href="/precios"
+                className="border border-zinc-700 text-zinc-400 text-sm font-medium px-6 py-3 rounded-xl hover:bg-zinc-900 transition-all"
+              >
+                Ver todos los planes
+              </a>
+            </div>
           </div>
         ) : plan.length === 0 ? (
           <div className="text-center py-20 text-zinc-500 text-sm">
