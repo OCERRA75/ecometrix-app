@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+﻿import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/hooks/useAuth.jsx'
 import PlanGuard from '@/components/PlanGuard.jsx'
 import Landing from '@/pages/Landing.jsx'
