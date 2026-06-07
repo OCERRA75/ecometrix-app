@@ -54,7 +54,7 @@ export default function ReductionPlan() {
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { navigate('/login'); return }
+      if (!session) { setLoading(false); return }
 
       // Verificar plan del usuario
       const { data: perfil } = await supabase
