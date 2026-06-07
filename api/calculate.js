@@ -156,7 +156,7 @@ function calcularEmisiones(empresa, respuestas) {
 
 // ── Guardar en Supabase ────────────────────────────────────────────────────
 async function guardarDiagnostico(resultado) {
-  const supabaseUrl = process.env.SUPABASE_URL || 'https://reoyytnbsjfgunqeylo.supabase.co'
+  const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!supabaseKey || !resultado.user_id) return
 
@@ -185,10 +185,16 @@ async function guardarDiagnostico(resultado) {
   }
 }
 
-export const handler = async (event) => {
-  if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+
+  if (req.method === 'OPTIONS') return res.status(200).end()
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
   try {
-    const { empresa, respuestas, user_id } = JSON.parse(event.body)
+    const { empresa, respuestas, user_id } = req.body
     const calculo = calcularEmisiones(empresa, respuestas)
     let analisis = null
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -231,12 +237,11 @@ Genera JSON exacto:
       timestamp: new Date().toISOString(),
     }
 
-    // Guardar en Supabase si hay usuario autenticado
     await guardarDiagnostico(resultado)
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultado) }
+    return res.status(200).json(resultado)
   } catch (err) {
     console.error('Calculate error:', err)
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err.message }) }
+    return res.status(500).json({ error: err.message })
   }
 }
