@@ -182,7 +182,7 @@ export default function ReductionPlan() {
           <div className="flex items-center justify-center py-20 text-zinc-500 text-sm">
             Cargando plan...
           </div>
-        ) : planUsuario === 'free' ? (
+        ) : planUsuario === 'free' || planUsuario === null ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
             <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-8 h-8 text-emerald-400">
