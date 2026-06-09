@@ -2,6 +2,7 @@
 // M16 — Integraciones ERP: Siigo, Alegra, SIESA, CSV genérico
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -13,11 +14,7 @@ const IconLeaf = () => (
 // ─── CONNECTOR CONFIG ─────────────────────────────────────────────────────────
 const CONNECTORS = [
   {
-    id: 'siigo',
-    name: 'Siigo',
-    logo: '🟦',
-    type: 'api',
-    color: 'blue',
+    id: 'siigo', name: 'Siigo', logo: '🟦', type: 'api', color: 'blue',
     desc: 'Importa facturas de compra, gastos por categoría y consumos directamente desde tu cuenta Siigo.',
     alcances: ['Alcance 1', 'Alcance 2', 'Alcance 3'],
     fields: [
@@ -29,11 +26,7 @@ const CONNECTORS = [
     dataTypes: ['Facturas de compra', 'Gastos operativos', 'Servicios públicos', 'Combustibles'],
   },
   {
-    id: 'alegra',
-    name: 'Alegra',
-    logo: '🟧',
-    type: 'api',
-    color: 'amber',
+    id: 'alegra', name: 'Alegra', logo: '🟧', type: 'api', color: 'amber',
     desc: 'Conecta tu cuenta Alegra para importar gastos, compras a proveedores y servicios automáticamente.',
     alcances: ['Alcance 1', 'Alcance 2', 'Alcance 3'],
     fields: [
@@ -44,15 +37,10 @@ const CONNECTORS = [
     dataTypes: ['Gastos por categoría', 'Compras a proveedores', 'Facturas de servicios', 'Nómina'],
   },
   {
-    id: 'siesa',
-    name: 'SIESA Enterprise',
-    logo: '🟩',
-    type: 'csv',
-    color: 'green',
+    id: 'siesa', name: 'SIESA Enterprise', logo: '🟩', type: 'csv', color: 'green',
     desc: 'Exporta el reporte de compras o gastos desde SIESA en Excel y cárgalo aquí. Compatible con SIESA 8.5 y Enterprise.',
     alcances: ['Alcance 1', 'Alcance 2', 'Alcance 3'],
-    fields: [],
-    helpUrl: null,
+    fields: [], helpUrl: null,
     dataTypes: ['Órdenes de compra', 'Gastos por centro de costo', 'Servicios públicos', 'Logística'],
     csvTemplate: {
       columns: ['fecha', 'descripcion', 'categoria', 'valor_cop', 'unidad', 'cantidad', 'proveedor'],
@@ -60,15 +48,10 @@ const CONNECTORS = [
     },
   },
   {
-    id: 'csv',
-    name: 'CSV / Excel genérico',
-    logo: '📄',
-    type: 'csv',
-    color: 'gray',
+    id: 'csv', name: 'CSV / Excel genérico', logo: '📄', type: 'csv', color: 'gray',
     desc: 'Importa datos desde cualquier ERP o sistema contable exportando a CSV o Excel. Usa nuestra plantilla o mapea tus columnas.',
     alcances: ['Alcance 1', 'Alcance 2', 'Alcance 3'],
-    fields: [],
-    helpUrl: null,
+    fields: [], helpUrl: null,
     dataTypes: ['Cualquier gasto categorizable', 'Consumos energéticos', 'Compras', 'Logística'],
     csvTemplate: {
       columns: ['fecha', 'descripcion', 'categoria', 'valor_cop', 'unidad', 'cantidad', 'proveedor'],
@@ -84,27 +67,27 @@ const COLOR_MAP = {
   gray:  { bg: 'bg-gray-50',   border: 'border-gray-200',   badge: 'bg-gray-100 text-gray-700',   btn: 'bg-gray-700 hover:bg-gray-800 text-white' },
 }
 
-// Categorías GHG para mapeo CSV
 const GHG_CATEGORIES = [
-  { value: 'electricidad',        label: 'Electricidad',                  alcance: 2 },
-  { value: 'gas_natural',         label: 'Gas natural',                   alcance: 1 },
-  { value: 'combustible_diesel',  label: 'Combustible (diésel)',          alcance: 1 },
-  { value: 'combustible_gasolina',label: 'Combustible (gasolina)',        alcance: 1 },
-  { value: 'refrigerantes',       label: 'Refrigerantes / HFCs',         alcance: 1 },
-  { value: 'transporte_aereo',    label: 'Transporte aéreo',              alcance: 3 },
-  { value: 'transporte_terrestre',label: 'Transporte terrestre',          alcance: 3 },
-  { value: 'compras_bienes',      label: 'Compra de bienes',              alcance: 3 },
-  { value: 'compras_servicios',   label: 'Compra de servicios',           alcance: 3 },
-  { value: 'residuos',            label: 'Gestión de residuos',           alcance: 3 },
-  { value: 'agua',                label: 'Agua y aguas residuales',       alcance: 3 },
-  { value: 'nomina',              label: 'Nómina / desplazamiento empleados', alcance: 3 },
+  { value: 'electricidad',         label: 'Electricidad',                       alcance: 2 },
+  { value: 'gas_natural',          label: 'Gas natural',                        alcance: 1 },
+  { value: 'combustible_diesel',   label: 'Combustible (diésel)',               alcance: 1 },
+  { value: 'combustible_gasolina', label: 'Combustible (gasolina)',             alcance: 1 },
+  { value: 'refrigerantes',        label: 'Refrigerantes / HFCs',              alcance: 1 },
+  { value: 'transporte_aereo',     label: 'Transporte aéreo',                  alcance: 3 },
+  { value: 'transporte_terrestre', label: 'Transporte terrestre',              alcance: 3 },
+  { value: 'compras_bienes',       label: 'Compra de bienes',                  alcance: 3 },
+  { value: 'compras_servicios',    label: 'Compra de servicios',               alcance: 3 },
+  { value: 'residuos',             label: 'Gestión de residuos',               alcance: 3 },
+  { value: 'agua',                 label: 'Agua y aguas residuales',           alcance: 3 },
+  { value: 'nomina',               label: 'Nómina / desplazamiento empleados', alcance: 3 },
 ]
 
-// ─── API CONNECTOR FORM ───────────────────────────────────────────────────────
+// ─── API CONNECTOR CARD ───────────────────────────────────────────────────────
 function APIConnectorCard({ connector, onSuccess }) {
+  const { t } = useTranslation()
   const c = COLOR_MAP[connector.color]
   const [credentials, setCredentials] = useState({})
-  const [status, setStatus] = useState('idle') // idle | connecting | success | error
+  const [status, setStatus] = useState('idle')
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [expanded, setExpanded] = useState(false)
@@ -137,7 +120,7 @@ function APIConnectorCard({ connector, onSuccess }) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-bold text-text-primary">{connector.name}</h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>API directa</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{t('integrations.connectApi')}</span>
             </div>
             <p className="text-sm text-text-secondary">{connector.desc}</p>
           </div>
@@ -145,18 +128,16 @@ function APIConnectorCard({ connector, onSuccess }) {
         {status === 'success' && (
           <div className="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-full px-3 py-1 flex-shrink-0">
             <span className="w-2 h-2 rounded-full bg-brand-300" />
-            <span className="text-xs font-medium text-brand-400">Conectado</span>
+            <span className="text-xs font-medium text-brand-400">{t('integrations.connected')}</span>
           </div>
         )}
       </div>
 
-      {/* Alcances y datos */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {connector.alcances.map(a => <span key={a} className="badge-green text-xs">{a}</span>)}
         {connector.dataTypes.slice(0, 3).map(d => <span key={d} className="badge-gray text-xs">{d}</span>)}
       </div>
 
-      {/* Form credenciales */}
       <div className="space-y-3 mb-4">
         {connector.fields.map(field => (
           <div key={field.key}>
@@ -176,11 +157,11 @@ function APIConnectorCard({ connector, onSuccess }) {
 
       {status === 'success' && result && (
         <div className="bg-white border border-brand-200 rounded-xl p-3 mb-3">
-          <p className="text-xs font-semibold text-brand-400 mb-2">Datos importados</p>
+          <p className="text-xs font-semibold text-brand-400 mb-2">{t('integrations.importSuccess')}</p>
           <div className="grid grid-cols-3 gap-2">
             <div className="text-center">
               <p className="text-lg font-bold text-text-primary">{result.total_registros || 0}</p>
-              <p className="text-xs text-text-muted">Registros</p>
+              <p className="text-xs text-text-muted">{t('integrations.rowsImported')}</p>
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-brand-400">{result.alcance1_items || 0}</p>
@@ -193,7 +174,7 @@ function APIConnectorCard({ connector, onSuccess }) {
           </div>
           {result.resumen && (
             <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-400 mt-2 hover:underline">
-              {expanded ? 'Ocultar detalle' : 'Ver detalle de categorías →'}
+              {expanded ? 'Ocultar detalle' : `${t('integrations.preview')} →`}
             </button>
           )}
           {expanded && result.resumen && (
@@ -216,17 +197,17 @@ function APIConnectorCard({ connector, onSuccess }) {
           className={`flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${c.btn}`}
         >
           {status === 'connecting' ? (
-            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Conectando...</span></>
+            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>{t('integrations.connecting')}</span></>
           ) : status === 'success' ? (
-            <><span>✓</span><span>Sincronizar de nuevo</span></>
+            <><span>✓</span><span>{t('integrations.importData')}</span></>
           ) : (
-            <span>Conectar {connector.name}</span>
+            <span>{t('integrations.connect')} {connector.name}</span>
           )}
         </button>
         {connector.helpUrl && (
           <a href={connector.helpUrl} target="_blank" rel="noopener noreferrer"
             className="px-3 py-2.5 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors">
-            Docs
+            {t('integrations.helpDocs')}
           </a>
         )}
       </div>
@@ -234,14 +215,15 @@ function APIConnectorCard({ connector, onSuccess }) {
   )
 }
 
-// ─── CSV IMPORTER ─────────────────────────────────────────────────────────────
+// ─── CSV IMPORTER CARD ────────────────────────────────────────────────────────
 function CSVImporterCard({ connector, onSuccess }) {
+  const { t } = useTranslation()
   const c = COLOR_MAP[connector.color]
   const fileRef = useRef(null)
   const [file, setFile] = useState(null)
   const [rows, setRows] = useState([])
   const [mapping, setMapping] = useState({})
-  const [step, setStep] = useState('upload') // upload | map | preview | done
+  const [step, setStep] = useState('upload')
   const [status, setStatus] = useState('idle')
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
@@ -280,11 +262,7 @@ function CSVImporterCard({ connector, onSuccess }) {
       formData.append('file', file)
       formData.append('mapping', JSON.stringify(mapping))
       formData.append('connector_id', connector.id)
-
-      const res = await fetch('/api/csv-import', {
-        method: 'POST',
-        body: formData,
-      })
+      const res = await fetch('/api/csv-import', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
       setResult(data)
@@ -316,7 +294,7 @@ function CSVImporterCard({ connector, onSuccess }) {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-bold text-text-primary">{connector.name}</h3>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>CSV / Excel</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.badge}`}>{t('integrations.uploadCsv')}</span>
           </div>
           <p className="text-sm text-text-secondary">{connector.desc}</p>
         </div>
@@ -327,60 +305,53 @@ function CSVImporterCard({ connector, onSuccess }) {
         {connector.dataTypes.slice(0, 3).map(d => <span key={d} className="badge-gray text-xs">{d}</span>)}
       </div>
 
-      {/* Step: Upload */}
       {step === 'upload' && (
         <div>
-          <div
-            onClick={() => fileRef.current?.click()}
-            className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-brand-300 hover:bg-brand-50 transition-all mb-3"
-          >
+          <div onClick={() => fileRef.current?.click()}
+            className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-brand-300 hover:bg-brand-50 transition-all mb-3">
             <p className="text-2xl mb-2">📂</p>
-            <p className="text-sm font-medium text-text-primary mb-1">Arrastra tu archivo o haz clic</p>
-            <p className="text-xs text-text-muted">CSV o Excel (.csv, .xlsx) — máx. 5MB</p>
+            <p className="text-sm font-medium text-text-primary mb-1">{t('integrations.uploadFile')}</p>
+            <p className="text-xs text-text-muted">{t('integrations.supportedFormats')}</p>
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFile} />
           </div>
-          <button onClick={downloadTemplate} className="w-full py-2 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors flex items-center justify-center gap-2">
-            <span>⬇</span> Descargar plantilla {connector.name}
+          <button onClick={downloadTemplate}
+            className="w-full py-2 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors flex items-center justify-center gap-2">
+            <span>⬇</span> {t('integrations.downloadTemplate')} {connector.name}
           </button>
         </div>
       )}
 
-      {/* Step: Map columns */}
       {step === 'map' && (
         <div>
           <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">
-            Mapear columnas — {file?.name}
+            {t('integrations.mapColumns')} — {file?.name}
           </p>
           <div className="space-y-2 mb-4">
             {[
-              { key: 'fecha', label: 'Fecha del gasto', required: true },
-              { key: 'descripcion', label: 'Descripción', required: true },
-              { key: 'categoria_ghg', label: 'Categoría GHG', required: true, isCategory: true },
-              { key: 'valor_cop', label: 'Valor en COP', required: true },
-              { key: 'cantidad', label: 'Cantidad / unidades', required: false },
-              { key: 'proveedor', label: 'Proveedor', required: false },
+              { key: 'fecha',         label: t('integrations.columnDate'),     required: true },
+              { key: 'descripcion',   label: t('integrations.columnDesc'),     required: true },
+              { key: 'categoria_ghg', label: t('integrations.category'),       required: true, isCategory: true },
+              { key: 'valor_cop',     label: t('integrations.columnValue'),    required: true },
+              { key: 'cantidad',      label: t('integrations.columnQty'),      required: false },
+              { key: 'proveedor',     label: t('integrations.columnSupplier'), required: false },
             ].map(field => (
               <div key={field.key} className="flex items-center gap-2">
                 <span className={`text-xs w-36 flex-shrink-0 ${field.required ? 'font-medium text-text-primary' : 'text-text-muted'}`}>
                   {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
                 </span>
                 {field.isCategory ? (
-                  <select
-                    value={mapping[field.key] || ''}
+                  <select value={mapping[field.key] || ''}
                     onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
-                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300"
-                  >
-                    <option value="">Selecciona categoría GHG...</option>
+                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
+                    <option value="">{t('integrations.selectCategory')}</option>
                     {GHG_CATEGORIES.map(cat => (
                       <option key={cat.value} value={cat.value}>{cat.label} (Alcance {cat.alcance})</option>
                     ))}
                   </select>
                 ) : (
-                  <select
-                    value={mapping[field.key] || ''}
+                  <select value={mapping[field.key] || ''}
                     onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
-                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300"
-                  >
+                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
                     <option value="">Columna del archivo...</option>
                     {headers.map(h => <option key={h} value={h}>{h}</option>)}
                   </select>
@@ -389,9 +360,8 @@ function CSVImporterCard({ connector, onSuccess }) {
             ))}
           </div>
 
-          {/* Preview rows */}
           <div className="overflow-x-auto mb-4">
-            <p className="text-xs text-text-muted mb-1">Vista previa (primeras 5 filas):</p>
+            <p className="text-xs text-text-muted mb-1">{t('integrations.preview')} (5 filas):</p>
             <table className="w-full text-xs border border-border rounded-lg overflow-hidden">
               <thead className="bg-surface-tertiary">
                 <tr>{headers.map(h => <th key={h} className="px-2 py-1.5 text-left text-text-muted font-medium">{h}</th>)}</tr>
@@ -411,36 +381,32 @@ function CSVImporterCard({ connector, onSuccess }) {
           <div className="flex gap-2">
             <button onClick={() => { setStep('upload'); setFile(null); setHeaders([]); setRows([]) }}
               className="px-4 py-2.5 rounded-xl border border-border text-sm text-text-secondary hover:bg-surface-tertiary transition-colors">
-              Cancelar
+              {t('common.cancel')}
             </button>
-            <button
-              onClick={handleImport}
-              disabled={status === 'importing'}
-              className="flex-1 py-2.5 rounded-xl bg-brand-300 hover:bg-brand-400 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
-            >
+            <button onClick={handleImport} disabled={status === 'importing'}
+              className="flex-1 py-2.5 rounded-xl bg-brand-300 hover:bg-brand-400 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 transition-colors">
               {status === 'importing' ? (
-                <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Importando...</span></>
+                <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>{t('integrations.importing')}</span></>
               ) : (
-                <span>Importar datos</span>
+                <span>{t('integrations.importData')}</span>
               )}
             </button>
           </div>
         </div>
       )}
 
-      {/* Step: Done */}
       {step === 'done' && result && (
         <div className="bg-white border border-brand-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-full bg-brand-300 flex items-center justify-center">
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} className="w-3.5 h-3.5"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
-            <p className="text-sm font-semibold text-brand-400">Importación exitosa</p>
+            <p className="text-sm font-semibold text-brand-400">{t('integrations.importSuccess')}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div className="text-center p-2 bg-surface-secondary rounded-lg">
               <p className="text-xl font-bold text-text-primary">{result.total_registros}</p>
-              <p className="text-xs text-text-muted">Registros procesados</p>
+              <p className="text-xs text-text-muted">{t('integrations.rowsImported')}</p>
             </div>
             <div className="text-center p-2 bg-surface-secondary rounded-lg">
               <p className="text-xl font-bold text-brand-400">{result.total_cop?.toLocaleString()}</p>
@@ -462,8 +428,8 @@ function CSVImporterCard({ connector, onSuccess }) {
               className="flex-1 py-2 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors">
               Importar otro archivo
             </button>
-            <Link to="/diagnostico" className="flex-1 py-2 rounded-xl bg-brand-300 text-white text-xs font-semibold text-center hover:bg-brand-400 transition-colors">
-              Usar en diagnóstico →
+            <Link to="/questionnaire" className="flex-1 py-2 rounded-xl bg-brand-300 text-white text-xs font-semibold text-center hover:bg-brand-400 transition-colors">
+              {t('dashboard.newDiagnosis')} →
             </Link>
           </div>
         </div>
@@ -474,12 +440,12 @@ function CSVImporterCard({ connector, onSuccess }) {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Integrations() {
+  const { t } = useTranslation()
   const [connectedSystems, setConnectedSystems] = useState({})
   const navigate = useNavigate()
 
   function handleSuccess(connectorId, data) {
     setConnectedSystems(prev => ({ ...prev, [connectorId]: data }))
-    // Guardar en sessionStorage para uso en diagnóstico
     const existing = JSON.parse(sessionStorage.getItem('ecometrix_integrations') || '{}')
     existing[connectorId] = data
     sessionStorage.setItem('ecometrix_integrations', JSON.stringify(existing))
@@ -498,26 +464,23 @@ export default function Integrations() {
           <div className="flex items-center gap-3">
             {connectedCount > 0 && (
               <span className="text-xs bg-brand-50 border border-brand-200 text-brand-400 rounded-full px-3 py-1 font-medium">
-                {connectedCount} sistema{connectedCount > 1 ? 's' : ''} conectado{connectedCount > 1 ? 's' : ''}
+                {connectedCount} {t('integrations.connected')}
               </span>
             )}
             <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">← Dashboard</Link>
-            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
+            <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('dashboard.newDiagnosis')}</Link>
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">
 
-        {/* Hero */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <span className="badge-green">M16 — Integraciones ERP</span>
+            <span className="badge-green">{t('integrations.badge')}</span>
           </div>
-          <h1 className="text-2xl font-bold text-text-primary mb-2">Conecta tu sistema contable</h1>
-          <p className="text-text-secondary max-w-2xl">
-            Importa automáticamente tus facturas, gastos y consumos desde Siigo, Alegra o SIESA para calcular tu huella de carbono sin ingresar datos manualmente.
-          </p>
+          <h1 className="text-2xl font-bold text-text-primary mb-2">{t('integrations.title')}</h1>
+          <p className="text-text-secondary max-w-2xl">{t('integrations.subtitle')}</p>
         </div>
 
         {/* Cómo funciona */}
@@ -525,9 +488,9 @@ export default function Integrations() {
           <h2 className="font-semibold text-text-primary mb-3">¿Cómo funciona?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { n: '1', title: 'Conecta tu ERP', desc: 'Ingresa tus credenciales API o sube tu archivo CSV exportado', icon: '🔗' },
-              { n: '2', title: 'Mapea las categorías', desc: 'EcoMetriX clasifica cada gasto según los alcances GHG Protocol', icon: '🗂' },
-              { n: '3', title: 'Genera tu diagnóstico', desc: 'Los datos importados se usan directamente en el cálculo de huella', icon: '📊' },
+              { n: '1', title: t('integrations.connectApi'), desc: 'Ingresa tus credenciales API o sube tu archivo CSV exportado', icon: '🔗' },
+              { n: '2', title: t('integrations.mapColumns'), desc: 'EcoMetriX clasifica cada gasto según los alcances GHG Protocol', icon: '🗂' },
+              { n: '3', title: t('integrations.importData'), desc: 'Los datos importados se usan directamente en el cálculo de huella', icon: '📊' },
             ].map(step => (
               <div key={step.n} className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-brand-300 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">{step.n}</div>
@@ -540,23 +503,20 @@ export default function Integrations() {
           </div>
         </div>
 
-        {/* Conectores API */}
-        <h2 className="text-base font-semibold text-text-primary mb-4">Conexión directa por API</h2>
+        <h2 className="text-base font-semibold text-text-primary mb-4">{t('integrations.connectApi')}</h2>
         <div className="grid md:grid-cols-2 gap-5 mb-8">
           {CONNECTORS.filter(c => c.type === 'api').map(connector => (
             <APIConnectorCard key={connector.id} connector={connector} onSuccess={handleSuccess} />
           ))}
         </div>
 
-        {/* Importadores CSV */}
-        <h2 className="text-base font-semibold text-text-primary mb-4">Importación por archivo (CSV / Excel)</h2>
+        <h2 className="text-base font-semibold text-text-primary mb-4">{t('integrations.uploadCsv')}</h2>
         <div className="grid md:grid-cols-2 gap-5 mb-8">
           {CONNECTORS.filter(c => c.type === 'csv').map(connector => (
             <CSVImporterCard key={connector.id} connector={connector} onSuccess={handleSuccess} />
           ))}
         </div>
 
-        {/* CTA */}
         <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white">
           <div className="flex items-start justify-between gap-4">
             <div>
