@@ -2,6 +2,7 @@
 // M17.2 — Tabla comparativa de estándares de sostenibilidad con export PDF real
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -65,10 +66,10 @@ const FEATURES = [
 ]
 
 const SIZE_OPTIONS = [
-  { id: 'micro', label: 'Micro (< 10)' },
-  { id: 'pequena', label: 'Pequeña (10–50)' },
-  { id: 'mediana', label: 'Mediana (50–250)' },
-  { id: 'grande', label: 'Grande (> 250)' },
+  { id: 'micro',   labelKey: 'standards.micro' },
+  { id: 'pequena', labelKey: 'standards.small' },
+  { id: 'mediana', labelKey: 'standards.medium' },
+  { id: 'grande',  labelKey: 'standards.large' },
 ]
 
 const COLOR_MAP = {
@@ -86,27 +87,23 @@ async function generarPDFComparativa(standards) {
   const W = 297, margin = 14
   let y = 0
 
-  // Header
   doc.setFillColor(29, 158, 117)
   doc.rect(0, 0, W, 24, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(15); doc.setFont('helvetica', 'bold')
-  doc.text('EcoMetriX — Comparativa de Estándares de Sostenibilidad', margin, 10)
+  doc.text('EcoMetriX - Comparativa de Estandares de Sostenibilidad', margin, 10)
   doc.setFontSize(9); doc.setFont('helvetica', 'normal')
-  doc.text('GHG Protocol · ISO 14064 · CSRD/ESRS · GRI Standards · Science Based Targets', margin, 18)
+  doc.text('GHG Protocol - ISO 14064 - CSRD/ESRS - GRI Standards - Science Based Targets', margin, 18)
   doc.text(new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }), W - margin, 18, { align: 'right' })
 
   y = 32
-
-  // Tabla comparativa
   const colW = (W - margin * 2 - 50) / standards.length
   const labelW = 50
 
-  // Header tabla
   doc.setFillColor(249, 250, 251)
   doc.rect(margin, y, W - margin * 2, 14, 'F')
   doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(107, 114, 128)
-  doc.text('CARACTERÍSTICA', margin + 2, y + 9)
+  doc.text('CARACTERISTICA', margin + 2, y + 9)
   standards.forEach((std, i) => {
     const x = margin + labelW + i * colW
     doc.setTextColor(28, 25, 23)
@@ -117,7 +114,6 @@ async function generarPDFComparativa(standards) {
   })
   y += 16
 
-  // Filas features
   FEATURES.forEach((feature, fi) => {
     if (y > 185) { doc.addPage(); y = 20 }
     if (fi % 2 === 0) {
@@ -131,16 +127,15 @@ async function generarPDFComparativa(standards) {
       const val = std.features[feature]
       if (val) {
         doc.setTextColor(29, 158, 117); doc.setFontSize(10)
-        doc.text('✓', x, y + 5.5, { align: 'center' })
+        doc.text('v', x, y + 5.5, { align: 'center' })
       } else {
         doc.setTextColor(220, 38, 38); doc.setFontSize(10)
-        doc.text('✗', x, y + 5.5, { align: 'center' })
+        doc.text('x', x, y + 5.5, { align: 'center' })
       }
     })
     y += 8
   })
 
-  // Fila EcoMetriX
   y += 2
   doc.setFillColor(240, 253, 244)
   doc.rect(margin, y, W - margin * 2, 8, 'F')
@@ -154,60 +149,49 @@ async function generarPDFComparativa(standards) {
   })
   y += 14
 
-  // Detalle por estándar
   doc.addPage(); y = 20
   doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
-  doc.text('Descripción detallada de cada estándar', margin, y); y += 10
+  doc.text('Descripcion detallada de cada estandar', margin, y); y += 10
 
   standards.forEach(std => {
     if (y > 240) { doc.addPage(); y = 20 }
-
-    // Nombre
     doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
-    doc.text(`${std.logo}  ${std.nombre}`, margin, y)
+    doc.text(`${std.nombre}`, margin, y)
     doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128)
-    doc.text(`${std.org} · ${std.año} · ${std.tipo}`, margin, y + 5)
+    doc.text(`${std.org} - ${std.año} - ${std.tipo}`, margin, y + 5)
     y += 10
-
-    // Descripción
     doc.setFontSize(8); doc.setTextColor(55, 65, 81)
     const descLines = doc.splitTextToSize(std.descripcion, W - margin * 2)
     doc.text(descLines, margin, y)
     y += descLines.length * 4 + 3
-
-    // Ventajas y limitaciones
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(29, 158, 117)
     doc.text('Ventajas:', margin, y); y += 4
     std.ventajas.forEach(v => {
       doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
       doc.text(`+ ${v}`, margin + 3, y); y += 4
     })
-
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(220, 38, 38)
     doc.text('Limitaciones:', margin + 80, y - std.ventajas.length * 4 - 4)
     std.limitaciones.forEach((l, i) => {
       doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
-      doc.text(`− ${l}`, margin + 83, y - std.ventajas.length * 4 + i * 4)
+      doc.text(`- ${l}`, margin + 83, y - std.ventajas.length * 4 + i * 4)
     })
-
-    // EcoMetriX
     doc.setFillColor(240, 253, 244)
     doc.roundedRect(margin, y, W - margin * 2, 8, 2, 2, 'F')
     doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(29, 158, 117)
-    doc.text(`EcoMetriX: `, margin + 2, y + 5)
+    doc.text('EcoMetriX: ', margin + 2, y + 5)
     doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
     doc.text(std.ecometrix, margin + 22, y + 5)
     y += 14
   })
 
-  // Footer
   const pages = doc.internal.getNumberOfPages()
   for (let i = 1; i <= pages; i++) {
     doc.setPage(i)
     doc.setFillColor(29, 158, 117)
     doc.rect(0, 203, W, 7, 'F')
     doc.setFontSize(7); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'normal')
-    doc.text('EcoMetriX · Comparativa de Estándares de Sostenibilidad · ecometrix-app-one.vercel.app', W / 2, 207.5, { align: 'center' })
+    doc.text('EcoMetriX - Comparativa de Estandares de Sostenibilidad - ecometrix-app-one.vercel.app', W / 2, 207.5, { align: 'center' })
     doc.text(`${i} / ${pages}`, W - margin, 207.5, { align: 'right' })
   }
 
@@ -237,6 +221,7 @@ function FeatureIcon({ value }) {
 }
 
 function StandardCard({ std, expanded, onToggle }) {
+  const { t } = useTranslation()
   const c = COLOR_MAP[std.color]
   return (
     <div className={`card cursor-pointer transition-all ${expanded ? 'ring-2 ring-brand-200' : ''}`} onClick={onToggle}>
@@ -259,7 +244,7 @@ function StandardCard({ std, expanded, onToggle }) {
           <p className="text-sm text-text-secondary leading-relaxed">{std.descripcion}</p>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Ventajas</p>
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">{t('standards.advantages')}</p>
               <ul className="space-y-1.5">
                 {std.ventajas.map(v => (
                   <li key={v} className="flex items-start gap-2">
@@ -270,7 +255,7 @@ function StandardCard({ std, expanded, onToggle }) {
               </ul>
             </div>
             <div>
-              <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Limitaciones</p>
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">{t('standards.limitations')}</p>
               <ul className="space-y-1.5">
                 {std.limitaciones.map(l => (
                   <li key={l} className="flex items-start gap-2">
@@ -282,7 +267,7 @@ function StandardCard({ std, expanded, onToggle }) {
             </div>
           </div>
           <div className={`rounded-xl p-3 ${c.header} border`}>
-            <p className="text-xs font-semibold mb-1">🌿 EcoMetriX + {std.nombre}</p>
+            <p className="text-xs font-semibold mb-1">🌿 {t('standards.ecometrixCovers')} — {std.nombre}</p>
             <p className="text-xs text-text-secondary">{std.ecometrix}</p>
           </div>
         </div>
@@ -293,6 +278,7 @@ function StandardCard({ std, expanded, onToggle }) {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Standards() {
+  const { t } = useTranslation()
   const [view, setView] = useState('cards')
   const [sizeFilter, setSizeFilter] = useState('all')
   const [expanded, setExpanded] = useState(null)
@@ -321,34 +307,34 @@ export default function Standards() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/csrd" className="btn-ghost text-sm py-1.5 px-3">Módulo CSRD</Link>
-            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Diagnóstico gratis</Link>
+            <Link to="/csrd" className="btn-ghost text-sm py-1.5 px-3">{t('csrd.badge')}</Link>
+            <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('landing.ctaPrimary')}</Link>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         <div className="text-center mb-10">
-          <span className="badge-green mb-3 inline-block">Guía de estándares</span>
+          <span className="badge-green mb-3 inline-block">{t('standards.badge')}</span>
           <h1 className="text-3xl font-bold text-text-primary mb-3">
-            ¿Qué estándar de sostenibilidad necesita tu empresa?
+            {t('standards.title')}
           </h1>
           <p className="text-text-secondary max-w-2xl mx-auto">
-            Compara GHG Protocol, ISO 14064, CSRD/ESRS, GRI y Science Based Targets. Filtra por tamaño de empresa y descarga la comparativa.
+            {t('standards.subtitle')}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-text-muted font-medium">Tamaño:</span>
+            <span className="text-sm text-text-muted font-medium">{t('standards.applicableTo')}:</span>
             <button onClick={() => setSizeFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${sizeFilter === 'all' ? 'bg-brand-50 text-brand-400 border border-brand-200' : 'bg-white border border-border text-text-secondary hover:bg-surface-tertiary'}`}>
-              Todos
+              {t('standards.compareAll')}
             </button>
             {SIZE_OPTIONS.map(s => (
               <button key={s.id} onClick={() => setSizeFilter(s.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${sizeFilter === s.id ? 'bg-brand-50 text-brand-400 border border-brand-200' : 'bg-white border border-border text-text-secondary hover:bg-surface-tertiary'}`}>
-                {s.label}
+                {t(s.labelKey)}
               </button>
             ))}
           </div>
@@ -382,7 +368,7 @@ export default function Standards() {
             <table className="w-full bg-white rounded-2xl border border-border overflow-hidden text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left p-4 text-text-muted font-medium text-xs uppercase tracking-wide w-40">Característica</th>
+                  <th className="text-left p-4 text-text-muted font-medium text-xs uppercase tracking-wide w-40">{t('standards.feature')}</th>
                   {filtered.map(std => (
                     <th key={std.id} className="p-4 text-center">
                       <span className="text-xl block mb-1">{std.logo}</span>
@@ -402,7 +388,7 @@ export default function Standards() {
                   </tr>
                 ))}
                 <tr className="border-t border-border bg-brand-50">
-                  <td className="p-4 text-xs font-semibold text-brand-400">EcoMetriX lo cubre</td>
+                  <td className="p-4 text-xs font-semibold text-brand-400">{t('standards.ecometrixCovers')}</td>
                   {filtered.map(std => (
                     <td key={std.id} className="p-4 text-center">
                       <span className="text-xs text-text-secondary leading-tight block">{std.ecometrix.split('—')[0]}</span>
@@ -414,36 +400,33 @@ export default function Standards() {
           </div>
         )}
 
-        {/* CTA Descargar PDF */}
+        {/* CTA PDF */}
         <div className="card border-brand-200 bg-brand-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
           <div>
-            <p className="font-semibold text-text-primary mb-1">¿Necesitas esta comparativa en PDF?</p>
+            <p className="font-semibold text-text-primary mb-1">{t('standards.downloadPDF')}</p>
             <p className="text-sm text-text-secondary">Descarga la guía completa para compartir con tu equipo o presentar a clientes.</p>
           </div>
-          <button
-            onClick={handleExportPDF}
-            disabled={pdfLoading}
-            className="btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-60"
-          >
-            {pdfLoading ? (
-              <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generando...</span></>
-            ) : (
-              <><span>📄</span><span>Descargar PDF</span></>
-            )}
+          <button onClick={handleExportPDF} disabled={pdfLoading}
+            className="btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-60">
+            {pdfLoading
+              ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>{t('common.loading')}</span></>
+              : <><span>📄</span><span>{t('standards.downloadPDF')}</span></>
+            }
           </button>
         </div>
 
+        {/* CTA bottom */}
         <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white text-center">
           <h3 className="text-xl font-bold mb-2">Empieza con GHG Protocol — gratis</h3>
           <p className="text-white/80 text-sm mb-5 max-w-md mx-auto">
             El primer paso hacia cualquier estándar es medir tu huella de carbono. EcoMetriX lo hace en 10 minutos.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/diagnostico" className="bg-white text-brand-400 font-semibold px-5 py-2.5 rounded-xl hover:bg-brand-50 transition-colors text-sm">
-              Iniciar diagnóstico gratis →
+            <Link to="/questionnaire" className="bg-white text-brand-400 font-semibold px-5 py-2.5 rounded-xl hover:bg-brand-50 transition-colors text-sm">
+              {t('landing.ctaPrimary')} →
             </Link>
-            <Link to="/precios" className="bg-white/20 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-white/30 transition-colors text-sm">
-              Ver planes
+            <Link to="/pricing" className="bg-white/20 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-white/30 transition-colors text-sm">
+              {t('pricing.badge')}
             </Link>
           </div>
         </div>
