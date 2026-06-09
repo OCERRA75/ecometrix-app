@@ -2,6 +2,7 @@
 // M17.1 — Módulo CSRD / ESRS con export PDF real
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const IconLeaf = () => (
@@ -161,55 +162,48 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
   const W = 210, margin = 18
   let y = 0
 
-  // Header
   doc.setFillColor(29, 158, 117)
   doc.rect(0, 0, W, 28, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(16); doc.setFont('helvetica', 'bold')
-  doc.text('EcoMetriX — Análisis CSRD / ESRS', margin, 12)
+  doc.text('EcoMetriX - Analisis CSRD / ESRS', margin, 12)
   doc.setFontSize(9); doc.setFont('helvetica', 'normal')
-  doc.text('Corporate Sustainability Reporting Directive — UE 2022/2464', margin, 20)
+  doc.text('Corporate Sustainability Reporting Directive - UE 2022/2464', margin, 20)
   doc.text(new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }), W - margin, 20, { align: 'right' })
 
   y = 38
-  // Empresa
   if (data?.empresa?.nombre) {
     doc.setTextColor(28, 25, 23)
     doc.setFontSize(13); doc.setFont('helvetica', 'bold')
     doc.text(data.empresa.nombre, margin, y)
     doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(87, 83, 78)
-    doc.text(`${data.empresa.sector || ''} · ${data.empresa.tamano || ''} · ${data.empresa.pais || ''}`, margin, y + 6)
+    doc.text(`${data.empresa.sector || ''} - ${data.empresa.tamano || ''} - ${data.empresa.pais || ''}`, margin, y + 6)
     y += 16
   }
 
-  // Score summary
   doc.setFillColor(240, 253, 244)
   doc.roundedRect(margin, y, W - margin * 2, 22, 3, 3, 'F')
   doc.setTextColor(29, 158, 117); doc.setFontSize(22); doc.setFont('helvetica', 'bold')
   doc.text(`${scoreCSRD}%`, margin + 8, y + 14)
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(87, 83, 78)
-  doc.text('Preparación CSRD', margin + 24, y + 10)
+  doc.text('Preparacion CSRD', margin + 24, y + 10)
   doc.setTextColor(29, 158, 117); doc.text(`${totalCumple} cumple`, margin + 70, y + 8)
   doc.setTextColor(180, 83, 9); doc.text(`${totalParciales} parcial`, margin + 100, y + 8)
   doc.setTextColor(185, 28, 28); doc.text(`${totalBrechas} brechas`, margin + 130, y + 8)
   y += 30
 
-  // Gap analysis por estándar
   doc.setTextColor(28, 25, 23); doc.setFontSize(11); doc.setFont('helvetica', 'bold')
-  doc.text('Gap Analysis — Requerimientos ESRS', margin, y); y += 8
+  doc.text('Gap Analysis - Requerimientos ESRS', margin, y); y += 8
 
   ESRS_REQUIREMENTS.forEach(s => {
     if (y > 260) { doc.addPage(); y = 20 }
-
     const cumplidos = s.requerimientos.filter(r => estados[r.id] === 'cumple').length
     const parciales = s.requerimientos.filter(r => estados[r.id] === 'parcial').length
     const pct = Math.round(((cumplidos + parciales * 0.5) / s.requerimientos.length) * 100)
-
-    // Header estándar
     doc.setFillColor(249, 250, 251)
     doc.rect(margin, y, W - margin * 2, 8, 'F')
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(28, 25, 23)
-    doc.text(`${s.standard} — ${s.titulo}`, margin + 2, y + 5.5)
+    doc.text(`${s.standard} - ${s.titulo}`, margin + 2, y + 5.5)
     doc.setFontSize(8); doc.setTextColor(29, 158, 117)
     doc.text(`${pct}%`, W - margin - 2, y + 5.5, { align: 'right' })
     if (s.obligatorio) {
@@ -217,7 +211,6 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
       doc.setFontSize(7); doc.setTextColor(185, 28, 28); doc.text('Obligatorio', W - margin - 29, y + 4.8)
     }
     y += 10
-
     s.requerimientos.forEach(r => {
       if (y > 272) { doc.addPage(); y = 20 }
       const estado = estados[r.id]
@@ -234,7 +227,6 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
     y += 4
   })
 
-  // Roadmap
   if (y > 220) { doc.addPage(); y = 20 }
   doc.setTextColor(28, 25, 23); doc.setFontSize(11); doc.setFont('helvetica', 'bold')
   doc.text('Roadmap hacia cumplimiento CSRD', margin, y); y += 8
@@ -242,13 +234,13 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
   ROADMAP_FASES.forEach(f => {
     if (y > 260) { doc.addPage(); y = 20 }
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(29, 158, 117)
-    doc.text(`${f.fase} — ${f.titulo}`, margin, y)
+    doc.text(`${f.fase} - ${f.titulo}`, margin, y)
     doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128)
     doc.text(f.plazo, W - margin, y, { align: 'right' })
     y += 5
     f.acciones.forEach(a => {
       if (y > 272) { doc.addPage(); y = 20 }
-      const lines = doc.splitTextToSize(`→ ${a}`, W - margin * 2 - 4)
+      const lines = doc.splitTextToSize(`-> ${a}`, W - margin * 2 - 4)
       doc.setTextColor(55, 65, 81)
       doc.text(lines, margin + 3, y)
       y += lines.length * 4.5
@@ -256,14 +248,13 @@ async function generarPDFGapAnalysis({ data, estados, scoreCSRD, totalCumple, to
     y += 5
   })
 
-  // Footer
   const pages = doc.internal.getNumberOfPages()
   for (let i = 1; i <= pages; i++) {
     doc.setPage(i)
     doc.setFillColor(29, 158, 117)
     doc.rect(0, 287, W, 10, 'F')
     doc.setFontSize(7); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'normal')
-    doc.text('EcoMetriX · GHG Protocol + ISO 14064 · ecometrix-app-one.vercel.app', W / 2, 293, { align: 'center' })
+    doc.text('EcoMetriX - GHG Protocol + ISO 14064 - ecometrix-app-one.vercel.app', W / 2, 293, { align: 'center' })
     doc.text(`${i} / ${pages}`, W - margin, 293, { align: 'right' })
   }
 
@@ -278,18 +269,20 @@ function StatusIcon({ estado }) {
   return <div className="w-5 h-5 rounded-full bg-red-50 border border-red-200 flex items-center justify-center"><IconX /></div>
 }
 
-function StatusBadge({ estado }) {
-  if (estado === 'cumple') return <span className="badge-green text-xs">Cumple</span>
-  if (estado === 'parcial') return <span className="bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2 py-0.5 text-xs font-medium">Parcial</span>
-  return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">Brecha</span>
+function StatusBadge({ estado, t }) {
+  if (estado === 'cumple')  return <span className="badge-green text-xs">{t('csrd.compliant')}</span>
+  if (estado === 'parcial') return <span className="bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2 py-0.5 text-xs font-medium">{t('csrd.partial')}</span>
+  return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">{t('csrd.notCompliant')}</span>
 }
 
 function StandardCard({ standard, titulo, obligatorio, requerimientos, estados }) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(standard === 'ESRS E1')
   const cumplidos = requerimientos.filter(r => estados[r.id] === 'cumple').length
   const parciales = requerimientos.filter(r => estados[r.id] === 'parcial').length
   const total = requerimientos.length
   const pct = Math.round(((cumplidos + parciales * 0.5) / total) * 100)
+
   return (
     <div className="card">
       <div className="flex items-start justify-between cursor-pointer" onClick={() => setExpanded(!expanded)}>
@@ -297,7 +290,7 @@ function StandardCard({ standard, titulo, obligatorio, requerimientos, estados }
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-bold text-text-primary">{standard}</span>
-              {obligatorio && <span className="bg-red-50 text-red-600 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">Obligatorio</span>}
+              {obligatorio && <span className="bg-red-50 text-red-600 border border-red-100 rounded-full px-2 py-0.5 text-xs font-medium">{t('csrd.mandatory')}</span>}
             </div>
             <p className="text-sm text-text-secondary">{titulo}</p>
           </div>
@@ -322,7 +315,7 @@ function StandardCard({ standard, titulo, obligatorio, requerimientos, estados }
                 <p className="text-sm text-text-primary">{r.texto}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="badge-gray text-xs">{r.categoria}</span>
-                  <StatusBadge estado={estados[r.id]} />
+                  <StatusBadge estado={estados[r.id]} t={t} />
                 </div>
               </div>
             </div>
@@ -369,6 +362,7 @@ function RoadmapItem({ fase, titulo, plazo, color, acciones }) {
 }
 
 function ESRSPillarsMap() {
+  const { t } = useTranslation()
   const [active, setActive] = useState(null)
   return (
     <div className="card mb-6">
@@ -380,7 +374,7 @@ function ESRSPillarsMap() {
             className={`text-left p-3 rounded-xl border-2 transition-all ${p.color} ${active === p.id ? 'shadow-md scale-[1.02]' : 'hover:scale-[1.01]'}`}>
             <div className={`w-2.5 h-2.5 rounded-full ${p.dot} mb-2`} />
             <p className="text-xs font-bold uppercase tracking-wide mb-1">{p.label}</p>
-            <p className="text-xs opacity-70">{p.standards.length} estándares</p>
+            <p className="text-xs opacity-70">{p.standards.length} {t('standards.badge').toLowerCase()}</p>
           </button>
         ))}
       </div>
@@ -400,6 +394,7 @@ function ESRSPillarsMap() {
 }
 
 function ManualChecklist() {
+  const { t } = useTranslation()
   const [checked, setChecked] = useState({})
   const toggle = (id) => setChecked(prev => ({ ...prev, [id]: !prev[id] }))
   const score = Math.round(
@@ -411,12 +406,12 @@ function ManualChecklist() {
     <div className="card mb-6 border-blue-200">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-semibold text-text-primary">Checklist de preparación CSRD</h2>
-          <p className="text-sm text-text-secondary">Marca lo que ya tienes implementado</p>
+          <h2 className="font-semibold text-text-primary">{t('csrd.gapAnalysis')}</h2>
+          <p className="text-sm text-text-secondary">{t('csrd.gapAnalysisDesc')}</p>
         </div>
         <div className="text-center">
           <p className="text-2xl font-bold text-brand-400">{score}%</p>
-          <p className="text-xs text-text-muted">preparación</p>
+          <p className="text-xs text-text-muted">{t('csrd.readinessScore')}</p>
         </div>
       </div>
       <div className="w-full h-2 bg-surface-tertiary rounded-full mb-5">
@@ -443,14 +438,20 @@ function ManualChecklist() {
 }
 
 function CTAUpgrade() {
+  const { t } = useTranslation()
   return (
     <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white mb-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">Plan Pro / Enterprise</p>
-          <h3 className="text-lg font-bold mb-2">Cumplimiento CSRD completo con EcoMetriX</h3>
+          <h3 className="text-lg font-bold mb-2">{t('csrd.title')} completo con EcoMetriX</h3>
           <ul className="space-y-1.5 mb-4">
-            {['Diagnósticos mensuales ilimitados con trazabilidad', 'Reporte CSRD/ESRS E1 listo para auditor externo', 'Export XBRL para presentación ante reguladores', 'Verificación externa con auditores certificados'].map(f => (
+            {[
+              'Diagnósticos mensuales ilimitados con trazabilidad',
+              'Reporte CSRD/ESRS E1 listo para auditor externo',
+              'Export XBRL para presentación ante reguladores',
+              'Verificación externa con auditores certificados'
+            ].map(f => (
               <li key={f} className="flex items-center gap-2 text-sm text-white/90">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 flex-shrink-0"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {f}
@@ -458,8 +459,8 @@ function CTAUpgrade() {
             ))}
           </ul>
           <div className="flex gap-2 flex-wrap">
-            <a href="/precios" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">Ver planes →</a>
-            <a href="mailto:oscar@ecometrix.co" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">Contactar ventas</a>
+            <a href="/pricing" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">{t('pricing.badge')} →</a>
+            <a href="mailto:oscar@ecometrix.co" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">{t('pricing.contactSales')}</a>
           </div>
         </div>
         <span className="text-5xl flex-shrink-0 hidden sm:block">🏆</span>
@@ -470,6 +471,7 @@ function CTAUpgrade() {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function CSRD() {
+  const { t } = useTranslation()
   const [data, setData] = useState(null)
   const [tab, setTab] = useState('gap')
   const [pdfLoading, setPdfLoading] = useState(false)
@@ -481,9 +483,9 @@ export default function CSRD() {
 
   const estados = data ? evaluarCumplimiento(data.calculo, data.respuestas) : {}
   const scoreCSRD = data ? calcularScore(estados) : 0
-  const totalBrechas = Object.values(estados).filter(e => e === 'no_cumple').length
+  const totalBrechas  = Object.values(estados).filter(e => e === 'no_cumple').length
   const totalParciales = Object.values(estados).filter(e => e === 'parcial').length
-  const totalCumple = Object.values(estados).filter(e => e === 'cumple').length
+  const totalCumple   = Object.values(estados).filter(e => e === 'cumple').length
 
   async function handleExportPDF() {
     setPdfLoading(true)
@@ -507,7 +509,7 @@ export default function CSRD() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">← Dashboard</Link>
-            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
+            <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('dashboard.newDiagnosis')}</Link>
           </div>
         </div>
       </header>
@@ -518,26 +520,26 @@ export default function CSRD() {
             <div className="flex items-center gap-3">
               <IconEU />
               <div>
-                <h1 className="text-lg font-bold text-text-primary">Módulo CSRD / ESRS</h1>
+                <h1 className="text-lg font-bold text-text-primary">{t('csrd.badge')}</h1>
                 <p className="text-sm text-text-secondary">
-                  {data ? `${data.empresa.nombre} · ` : ''}Corporate Sustainability Reporting Directive — UE 2022/2464
+                  {data ? `${data.empresa.nombre} · ` : ''}{t('csrd.subtitle')}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <p className="text-2xl font-bold text-brand-400">{scoreCSRD}%</p>
-                <p className="text-xs text-text-muted">Preparación CSRD</p>
+                <p className="text-xs text-text-muted">{t('csrd.readinessScore')}</p>
               </div>
               <div className="flex flex-col gap-1 text-xs">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-brand-300" />{totalCumple} cumple</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{totalParciales} parcial</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-brand-300" />{totalCumple} {t('csrd.compliant')}</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{totalParciales} {t('csrd.partial')}</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" />{totalBrechas} brecha</span>
               </div>
             </div>
           </div>
           <div className="flex gap-1">
-            {[['gap', 'Gap Analysis'], ['roadmap', 'Roadmap'], ['export', 'Exportar']].map(([id, label]) => (
+            {[['gap', t('csrd.gapAnalysis')], ['roadmap', t('csrd.roadmap')], ['export', t('csrd.downloadPDF')]].map(([id, label]) => (
               <button key={id} onClick={() => setTab(id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === id ? 'bg-brand-50 text-brand-400 border border-brand-200' : 'text-text-secondary hover:bg-surface-tertiary'}`}>
                 {label}
@@ -552,7 +554,7 @@ export default function CSRD() {
           <div className="card mb-6 border-amber-200 bg-amber-50">
             <p className="text-sm text-amber-700 font-medium mb-2">⚠ No hay diagnóstico activo</p>
             <p className="text-sm text-amber-600 mb-3">Completa primero el cuestionario de huella de carbono para ver tu análisis CSRD personalizado.</p>
-            <Link to="/diagnostico" className="btn-primary text-sm py-2 px-4">Iniciar diagnóstico</Link>
+            <Link to="/questionnaire" className="btn-primary text-sm py-2 px-4">{t('dashboard.newDiagnosis')}</Link>
           </div>
         )}
 
@@ -575,15 +577,15 @@ export default function CSRD() {
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="card text-center border-brand-200">
                 <p className="text-3xl font-bold text-brand-400 mb-1">{totalCumple}</p>
-                <p className="text-xs text-text-secondary">Requerimientos cumplidos</p>
+                <p className="text-xs text-text-secondary">{t('csrd.compliant')}</p>
               </div>
               <div className="card text-center border-amber-200">
                 <p className="text-3xl font-bold text-amber-600 mb-1">{totalParciales}</p>
-                <p className="text-xs text-text-secondary">Cumplimiento parcial</p>
+                <p className="text-xs text-text-secondary">{t('csrd.partial')}</p>
               </div>
               <div className="card text-center border-red-200">
                 <p className="text-3xl font-bold text-red-600 mb-1">{totalBrechas}</p>
-                <p className="text-xs text-text-secondary">Brechas identificadas</p>
+                <p className="text-xs text-text-secondary">{t('csrd.notCompliant')}</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -595,14 +597,14 @@ export default function CSRD() {
         {tab === 'roadmap' && (
           <div>
             <div className="card mb-6">
-              <h2 className="font-semibold text-text-primary mb-1">Roadmap hacia cumplimiento CSRD</h2>
-              <p className="text-sm text-text-secondary mb-4">Plan de acción personalizado. Estimado: 6–12 meses para cumplimiento básico de ESRS E1.</p>
+              <h2 className="font-semibold text-text-primary mb-1">{t('csrd.roadmap')}</h2>
+              <p className="text-sm text-text-secondary mb-4">{t('csrd.roadmapDesc')}</p>
               <div className="w-full bg-surface-tertiary rounded-full h-2 mb-2">
                 <div className="bg-brand-300 h-2 rounded-full" style={{ width: `${scoreCSRD}%` }} />
               </div>
               <div className="flex justify-between text-xs text-text-muted">
                 <span>Posición actual: {scoreCSRD}%</span>
-                <span>Meta: 100% ESRS E1 (obligatorio)</span>
+                <span>Meta: 100% ESRS E1 ({t('csrd.mandatory')})</span>
               </div>
             </div>
             <div>{ROADMAP_FASES.map(f => <RoadmapItem key={f.fase} {...f} />)}</div>
@@ -612,14 +614,11 @@ export default function CSRD() {
         {tab === 'export' && (
           <div className="space-y-4">
             <div className="card">
-              <h2 className="font-semibold text-text-primary mb-1">Exportar datos CSRD</h2>
+              <h2 className="font-semibold text-text-primary mb-1">{t('csrd.downloadPDF')}</h2>
               <p className="text-sm text-text-secondary mb-6">Prepara tu información para reportes formales y auditorías externas.</p>
               <div className="space-y-3">
-                {/* PDF Gap Analysis */}
-                <div
-                  onClick={handleExportPDF}
-                  className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-brand-200 hover:bg-brand-50 cursor-pointer transition-all"
-                >
+                <div onClick={handleExportPDF}
+                  className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-brand-200 hover:bg-brand-50 cursor-pointer transition-all">
                   <span className="text-2xl flex-shrink-0">📄</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -634,15 +633,13 @@ export default function CSRD() {
                     <span className="text-brand-400 text-sm font-medium flex-shrink-0">Exportar →</span>
                   )}
                 </div>
-
-                {/* XBRL — próximamente */}
                 <div className="flex items-start gap-4 p-4 rounded-xl border border-dashed border-border opacity-50">
                   <span className="text-2xl flex-shrink-0">🗂</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium text-text-primary">Export formato XBRL</span>
                       <span className="badge-gray text-xs">XBRL</span>
-                      <span className="bg-surface-tertiary text-text-muted rounded-full px-2 py-0.5 text-xs">Próximamente</span>
+                      <span className="bg-surface-tertiary text-text-muted rounded-full px-2 py-0.5 text-xs">{t('landing.standards.coming')}</span>
                     </div>
                     <p className="text-xs text-text-secondary">Formato estándar de la UE para reportes CSRD — requiere verificación externa</p>
                   </div>
