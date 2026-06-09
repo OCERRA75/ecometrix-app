@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard'
@@ -9,7 +9,7 @@ import {
   BarChart, Bar, Cell, Legend
 } from 'recharts'
 
-// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ICONS ────────────────────────────────────────────────────────────────────
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round" />
@@ -17,7 +17,7 @@ const IconLeaf = () => (
   </svg>
 )
 
-// â”€â”€â”€ SCORE GAUGE SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SCORE GAUGE SVG ──────────────────────────────────────────────────────────
 function ScoreGauge({ score, label, color = '#1D9E75', size = 120 }) {
   const r = 44
   const cx = 60
@@ -63,14 +63,14 @@ function ScoreGauge({ score, label, color = '#1D9E75', size = 120 }) {
   )
 }
 
-// â”€â”€â”€ SCORE BADGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SCORE BADGE ──────────────────────────────────────────────────────────────
 function ScoreBadge({ score }) {
   if (score >= 70) return <span className="badge-green">Bueno</span>
   if (score >= 40) return <span className="bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-0.5 text-xs font-medium">Moderado</span>
-  return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium">CrÃ­tico</span>
+  return <span className="bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium">Crítico</span>
 }
 
-// â”€â”€â”€ GREENWASHING DETECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── GREENWASHING DETECTOR ────────────────────────────────────────────────────
 function GreenwashingAlert({ score, respuestas }) {
   const flags = []
 
@@ -81,10 +81,10 @@ function GreenwashingAlert({ score, respuestas }) {
     const renovables = respuestas['a2_fuentes_renovables']
 
     if (motivacion === 'Diferenciarnos en el mercado' && metas === 'No, este es nuestro primer paso') {
-      flags.push('MotivaciÃ³n comercial sin historial de acciÃ³n sostenible verificable.')
+      flags.push('Motivación comercial sin historial de acción sostenible verificable.')
     }
     if (renovables && renovables.includes('solar') && score < 40) {
-      flags.push('InversiÃ³n en renovables pero huella de carbono aÃºn alta â€” comunicar con cautela.')
+      flags.push('Inversión en renovables pero huella de carbono aún alta — comunicar con cautela.')
     }
   }
 
@@ -97,17 +97,17 @@ function GreenwashingAlert({ score, respuestas }) {
 
   return (
     <div className="px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-      <p className="text-sm font-medium text-amber-700 mb-2">âš ï¸ Alertas de comunicaciÃ³n responsable</p>
+      <p className="text-sm font-medium text-amber-700 mb-2">⚠️ Alertas de comunicación responsable</p>
       {flags.map((f, i) => <p key={i} className="text-xs text-amber-600">{f}</p>)}
     </div>
   )
 }
 
-// â”€â”€â”€ TIMELINE CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── TIMELINE CHART ───────────────────────────────────────────────────────────
 function TimelineChart({ totalKgMes, planAccion }) {
-  // Genera proyecciÃ³n de 12 meses basada en el plan de acciÃ³n
+  // Genera proyección de 12 meses basada en el plan de acción
   const reduccionTotal = planAccion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) || 50
-  const reduccionMensual = reduccionTotal / 24 // distribuido en 2 aÃ±os
+  const reduccionMensual = reduccionTotal / 24 // distribuido en 2 años
 
   const data = Array.from({ length: 12 }, (_, i) => {
     const mes = new Date()
@@ -132,7 +132,7 @@ function TimelineChart({ totalKgMes, planAccion }) {
         <YAxis tick={{ fontSize: 11, fill: '#8BA898' }} />
         <Tooltip
           contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #D6E8E0' }}
-          formatter={(v, n) => [`${v?.toLocaleString()} kg`, n === 'proyectado' ? 'ProyecciÃ³n' : 'Real']}
+          formatter={(v, n) => [`${v?.toLocaleString()} kg`, n === 'proyectado' ? 'Proyección' : 'Real']}
         />
         <Area type="monotone" dataKey="proyectado" stroke="#1D9E75" strokeWidth={2}
           fill="url(#gradProyectado)" strokeDasharray="5 5" dot={false} />
@@ -143,17 +143,17 @@ function TimelineChart({ totalKgMes, planAccion }) {
   )
 }
 
-// â”€â”€â”€ BENCHMARK CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── BENCHMARK CHART ─────────────────────────────────────────────────────────
 function BenchmarkChart({ empresa, totalTonAnio }) {
   const benchmarks = {
     'Manufactura': { p25: 15, p50: 45, p75: 120 },
     'Retail / Comercio': { p25: 5, p50: 18, p75: 60 },
-    'LogÃ­stica / Transporte': { p25: 30, p50: 80, p75: 200 },
+    'Logística / Transporte': { p25: 30, p50: 80, p75: 200 },
     'Servicios profesionales': { p25: 2, p50: 8, p75: 25 },
     'Alimentos y bebidas': { p25: 20, p50: 55, p75: 150 },
-    'ConstrucciÃ³n': { p25: 25, p50: 70, p75: 180 },
-    'TecnologÃ­a / Software': { p25: 1, p50: 5, p75: 18 },
-    'Salud / FarmacÃ©utico': { p25: 8, p50: 22, p75: 65 },
+    'Construcción': { p25: 25, p50: 70, p75: 180 },
+    'Tecnología / Software': { p25: 1, p50: 5, p75: 18 },
+    'Salud / Farmacéutico': { p25: 8, p50: 22, p75: 65 },
     'Agropecuario': { p25: 40, p50: 110, p75: 300 },
     'Otro': { p25: 10, p50: 30, p75: 90 },
   }
@@ -175,7 +175,7 @@ function BenchmarkChart({ empresa, totalTonAnio }) {
         <YAxis tick={{ fontSize: 11, fill: '#8BA898' }} unit=" t" />
         <Tooltip
           contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #D6E8E0' }}
-          formatter={(v) => [`${v} ton COâ‚‚e/aÃ±o`]}
+          formatter={(v) => [`${v} ton CO₂e/año`]}
         />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((d, i) => <Cell key={i} fill={d.color} />)}
@@ -185,11 +185,11 @@ function BenchmarkChart({ empresa, totalTonAnio }) {
   )
 }
 
-// â”€â”€â”€ RADAR CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── RADAR CHART ──────────────────────────────────────────────────────────────
 function RadarSostenibilidad({ scores }) {
   const data = [
     { dimension: 'Carbono', score: scores.carbono },
-    { dimension: 'EnergÃ­a', score: scores.energia },
+    { dimension: 'Energía', score: scores.energia },
     { dimension: 'Circular', score: scores.circular },
     { dimension: 'Gobernanza', score: scores.gobernanza },
     { dimension: 'Social', score: scores.social },
@@ -206,7 +206,7 @@ function RadarSostenibilidad({ scores }) {
   )
 }
 
-// â”€â”€â”€ QUADRANT CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── QUADRANT CARD ────────────────────────────────────────────────────────────
 function QuadrantCard({ title, score, icon, description, actions, color }) {
   const [expanded, setExpanded] = useState(false)
   const colorMap = {
@@ -245,12 +245,12 @@ function QuadrantCard({ title, score, icon, description, actions, color }) {
           ))}
         </div>
       )}
-      <p className={`text-xs ${c.text} mt-2 font-medium`}>{expanded ? 'â–² Ver menos' : 'â–¼ Ver acciones'}</p>
+      <p className={`text-xs ${c.text} mt-2 font-medium`}>{expanded ? '▲ Ver menos' : '▼ Ver acciones'}</p>
     </div>
   )
 }
 
-// â”€â”€â”€ MAIN DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 export default function Dashboard360() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -261,13 +261,13 @@ export default function Dashboard360() {
 
   useEffect(() => {
     async function loadData() {
-      // 1. Intentar desde sessionStorage (diagnÃ³stico reciÃ©n hecho)
+      // 1. Intentar desde sessionStorage (diagnóstico recién hecho)
       const stored = sessionStorage.getItem('ecometrix_result')
 
       // 2. Buscar usuario autenticado
       const { data: { user } } = await supabase.auth.getUser()
 
-      // 3. Si hay sessionStorage y usuario autenticado, vincular diagnÃ³stico anÃ³nimo
+      // 3. Si hay sessionStorage y usuario autenticado, vincular diagnóstico anónimo
       if (stored && user) {
         const storedData = JSON.parse(stored)
         if (storedData.id && !storedData.user_id) {
@@ -295,7 +295,7 @@ export default function Dashboard360() {
 
         if (todos && todos.length > 0) {
           setHistorial(todos)
-          // Si no hay sessionStorage, cargar el mÃ¡s reciente
+          // Si no hay sessionStorage, cargar el más reciente
           if (!stored) {
             const { data: diag } = await supabase
               .from('diagnosticos')
@@ -351,17 +351,17 @@ export default function Dashboard360() {
         </div>
         <h2 className="text-2xl font-bold text-text-primary mb-3">Tu Dashboard de Sostenibilidad</h2>
         <p className="text-text-secondary mb-2 leading-relaxed">
-          AquÃ­ verÃ¡s tu perfil ESG completo: huella de carbono, eficiencia energÃ©tica, economÃ­a circular y gobernanza.
+          Aquí verás tu perfil ESG completo: huella de carbono, eficiencia energética, economía circular y gobernanza.
         </p>
         <p className="text-sm text-text-muted mb-8">
-          Completa tu diagnÃ³stico en menos de 10 minutos para activar el dashboard.
+          Completa tu diagnóstico en menos de 10 minutos para activar el dashboard.
         </p>
         <div className="grid grid-cols-2 gap-3 mb-8 text-left">
           {[
-            { icon: 'ðŸ“Š', label: 'Radar ESG 5 dimensiones' },
-            { icon: 'ðŸ”', label: 'Detector de greenwashing' },
-            { icon: 'ðŸ“ˆ', label: 'ProyecciÃ³n 12 meses' },
-            { icon: 'ðŸ…', label: 'Certificado verificable' },
+            { icon: '📊', label: 'Radar ESG 5 dimensiones' },
+            { icon: '🔍', label: 'Detector de greenwashing' },
+            { icon: '📈', label: 'Proyección 12 meses' },
+            { icon: '🏅', label: 'Certificado verificable' },
           ].map(({ icon, label }) => (
             <div key={label} className="flex items-center gap-2.5 bg-white border border-border rounded-xl px-3 py-2.5">
               <span className="text-lg">{icon}</span>
@@ -370,7 +370,7 @@ export default function Dashboard360() {
           ))}
         </div>
         <Link to="/diagnostico" className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-sm">
-          Iniciar diagnÃ³stico gratis â†’
+          Iniciar diagnóstico gratis →
         </Link>
       </div>
     </div>
@@ -378,7 +378,7 @@ export default function Dashboard360() {
 
   const { empresa, calculo, analisis } = data
 
-  // â”€â”€ Calcular scores por cuadrante â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Calcular scores por cuadrante ─────────────────────────────────────────
   const calcularScores = () => {
     const r = data.respuestas || {}
 
@@ -386,7 +386,7 @@ export default function Dashboard360() {
     const nivelMap = { Bajo: 80, Moderado: 50, Alto: 25 }
     const carbono = nivelMap[calculo.nivelImpacto] || 50
 
-    // Score energÃ­a (renovables, eficiencia)
+    // Score energía (renovables, eficiencia)
     let energia = 40
     const renovables = r['a2_fuentes_renovables']
     if (renovables === 'No') energia = 30
@@ -396,7 +396,7 @@ export default function Dashboard360() {
 
     // Score circular (procesos, sector)
     let circular = 45
-    if (empresa.sector === 'TecnologÃ­a / Software') circular = 70
+    if (empresa.sector === 'Tecnología / Software') circular = 70
     if (empresa.sector === 'Manufactura') circular = 35
     const procesos = r['a1_procesos_industriales']
     if (procesos === 'No aplica a nuestro negocio') circular += 10
@@ -404,7 +404,7 @@ export default function Dashboard360() {
     // Score gobernanza
     let gobernanza = 40
     const metas = r['a2_metas_sostenibilidad']
-    if (metas?.includes('polÃ­tica')) gobernanza = 65
+    if (metas?.includes('política')) gobernanza = 65
     if (metas?.includes('certificados')) gobernanza = 80
     if (metas?.includes('Reportamos')) gobernanza = 75
     if (metas === 'No, este es nuestro primer paso') gobernanza = 25
@@ -426,34 +426,34 @@ export default function Dashboard360() {
     {
       title: 'Huella de Carbono',
       score: scores.carbono,
-      icon: 'ðŸŒ',
+      icon: '🌍',
       color: 'green',
-      description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton COâ‚‚e/aÃ±o. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
-      actions: analisis?.plan_accion?.slice(0, 3).map(a => a.accion) || ['Medir emisiones regularmente', 'Reducir consumo energÃ©tico'],
+      description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton CO₂e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
+      actions: analisis?.plan_accion?.slice(0, 3).map(a => a.accion) || ['Medir emisiones regularmente', 'Reducir consumo energético'],
     },
     {
-      title: 'GestiÃ³n EnergÃ©tica',
+      title: 'Gestión Energética',
       score: scores.energia,
-      icon: 'âš¡',
+      icon: '⚡',
       color: 'amber',
-      description: 'Eficiencia en el uso de energÃ­a y adopciÃ³n de fuentes renovables en operaciones.',
-      actions: ['AuditorÃ­a energÃ©tica de instalaciones', 'Evaluar contrato de energÃ­a renovable', 'Instalar medidores inteligentes por Ã¡rea'],
+      description: 'Eficiencia en el uso de energía y adopción de fuentes renovables en operaciones.',
+      actions: ['Auditoría energética de instalaciones', 'Evaluar contrato de energía renovable', 'Instalar medidores inteligentes por área'],
     },
     {
-      title: 'EconomÃ­a Circular',
+      title: 'Economía Circular',
       score: scores.circular,
-      icon: 'â™»ï¸',
+      icon: '♻️',
       color: 'purple',
-      description: 'GestiÃ³n de residuos, reutilizaciÃ³n de materiales y diseÃ±o de procesos circulares.',
-      actions: ['Programa de separaciÃ³n y reciclaje', 'Reducir empaques plÃ¡sticos', 'PolÃ­tica de compras sostenibles'],
+      description: 'Gestión de residuos, reutilización de materiales y diseño de procesos circulares.',
+      actions: ['Programa de separación y reciclaje', 'Reducir empaques plásticos', 'Política de compras sostenibles'],
     },
     {
       title: 'Gobernanza ESG',
       score: scores.gobernanza,
-      icon: 'ðŸ“‹',
+      icon: '📋',
       color: 'blue',
-      description: 'PolÃ­ticas de sostenibilidad, Reportes formales y cumplimiento de estÃ¡ndares internacionales.',
-      actions: ['Documentar polÃ­tica de sostenibilidad', 'Definir metas anuales de reducciÃ³n', 'Preparar Reporte CSRD (si aplica)'],
+      description: 'Políticas de sostenibilidad, Reportes formales y cumplimiento de estándares internacionales.',
+      actions: ['Documentar política de sostenibilidad', 'Definir metas anuales de reducción', 'Preparar Reporte CSRD (si aplica)'],
     },
   ]
 
@@ -467,10 +467,10 @@ export default function Dashboard360() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">â† Reporte</Link>
-            <Link to="/plan" className="btn-secondary text-sm py-1.5 px-3">ðŸ“… Plan de reducciÃ³n</Link>
-            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">ðŸ‡ªðŸ‡º CSRD</Link>
-            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnÃ³stico</Link>
+            <Link to={`/reporte/${data.id}`} className="btn-ghost text-sm py-1.5 px-3">← Reporte</Link>
+            <Link to="/plan" className="btn-secondary text-sm py-1.5 px-3">📅 Plan de reducción</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
+            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">Nuevo diagnóstico</Link>
           </div>
         </div>
       </header>
@@ -479,8 +479,8 @@ export default function Dashboard360() {
       <div className="bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-lg font-bold text-text-primary">Dashboard Sostenibilidad 360Â°</h1>
-            <p className="text-sm text-text-secondary">{empresa.nombre} Â· {empresa.sector} Â· {empresa.pais}</p>
+            <h1 className="text-lg font-bold text-text-primary">Dashboard Sostenibilidad 360°</h1>
+            <p className="text-sm text-text-secondary">{empresa.nombre} · {empresa.sector} · {empresa.pais}</p>
           </div>
           <div className="flex items-center gap-4">
             {/* Selector de historial */}
@@ -492,7 +492,7 @@ export default function Dashboard360() {
               >
                 {historial.map((d, i) => (
                   <option key={d.id} value={d.id}>
-                    {i === 0 ? 'ðŸ“ ' : ''}{d.empresa?.nombre || 'DiagnÃ³stico'} Â· {new Date(d.created_at).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {i === 0 ? '📍 ' : ''}{d.empresa?.nombre || 'Diagnóstico'} · {new Date(d.created_at).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </option>
                 ))}
               </select>
@@ -534,18 +534,18 @@ export default function Dashboard360() {
 
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-1">Detector de Greenwashing</h3>
-            <p className="text-xs text-text-muted mb-4">AnÃ¡lisis de consistencia entre acciones y comunicaciones</p>
+            <p className="text-xs text-text-muted mb-4">Análisis de consistencia entre acciones y comunicaciones</p>
             <GreenwashingAlert score={scoreTotal} respuestas={data.respuestas} />
             <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-xs font-medium text-text-primary mb-2">Recomendaciones de comunicaciÃ³n</p>
+              <p className="text-xs font-medium text-text-primary mb-2">Recomendaciones de comunicación</p>
               <ul className="space-y-1.5">
                 {[
                   'Usa datos verificables en tus comunicaciones de sostenibilidad',
-                  'Reporta tanto logros como Ã¡reas de mejora para mayor credibilidad',
-                  'Actualiza tu diagnÃ³stico cada 6 meses para mostrar progreso real',
+                  'Reporta tanto logros como áreas de mejora para mayor credibilidad',
+                  'Actualiza tu diagnóstico cada 6 meses para mostrar progreso real',
                 ].map((r, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <span className="text-brand-300 mt-0.5 flex-shrink-0">â€¢</span>
+                    <span className="text-brand-300 mt-0.5 flex-shrink-0">•</span>
                     <span className="text-xs text-text-secondary">{r}</span>
                   </li>
                 ))}
@@ -554,17 +554,17 @@ export default function Dashboard360() {
           </div>
         </div>
 
-        {/* Timeline proyecciÃ³n */}
+        {/* Timeline proyección */}
         <div className="card">
-          <h3 className="font-semibold text-text-primary mb-1">ProyecciÃ³n de reducciÃ³n â€” 12 meses</h3>
-          <p className="text-xs text-text-muted mb-4">Basada en el plan de acciÃ³n recomendado (lÃ­nea punteada = proyecciÃ³n)</p>
+          <h3 className="font-semibold text-text-primary mb-1">Proyección de reducción — 12 meses</h3>
+          <p className="text-xs text-text-muted mb-4">Basada en el plan de acción recomendado (línea punteada = proyección)</p>
           <TimelineChart totalKgMes={calculo.totalKgMes} planAccion={analisis?.plan_accion} />
         </div>
 
         {/* Benchmark sectorial */}
         <div className="card">
           <h3 className="font-semibold text-text-primary mb-1">Benchmark sectorial</h3>
-          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton COâ‚‚e/aÃ±o)</p>
+          <p className="text-xs text-text-muted mb-4">Tu huella vs empresas del sector {empresa.sector} (ton CO₂e/año)</p>
           <BenchmarkChart empresa={empresa} totalTonAnio={calculo.totalTonAnio} />
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
             {[
@@ -586,20 +586,20 @@ export default function Dashboard360() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <p className="text-sm text-white/70 mb-1">Siguiente paso recomendado</p>
-              <h3 className="text-lg font-semibold mb-1">{analisis?.siguiente_paso || 'Iniciar auditorÃ­a energÃ©tica'}</h3>
-              <p className="text-sm text-white/70">Actualiza tu diagnÃ³stico en 3 meses para medir el progreso real.</p>
+              <h3 className="text-lg font-semibold mb-1">{analisis?.siguiente_paso || 'Iniciar auditoría energética'}</h3>
+              <p className="text-sm text-white/70">Actualiza tu diagnóstico en 3 meses para medir el progreso real.</p>
             </div>
             <div className="flex gap-3 flex-shrink-0">
               <Link to="/diagnostico" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-400 font-medium text-sm hover:bg-brand-50 transition-all">
-                Nuevo diagnÃ³stico
+                Nuevo diagnóstico
               </Link>
             </div>
           </div>
         </div>
 
-        {/* CertificaciÃ³n M15 */}
+        {/* Certificación M15 */}
         <section>
-          <h2 className="text-base font-semibold text-text-primary mb-4">ðŸ… Tu CertificaciÃ³n EcoMetriX</h2>
+          <h2 className="text-base font-semibold text-text-primary mb-4">🏅 Tu Certificación EcoMetriX</h2>
           <div className="max-w-2xl">
             <CertificationCard
               diagnosticoData={data}
