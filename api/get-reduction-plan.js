@@ -28,7 +28,8 @@ export default async function handler(req, res) {
   try {
     const { data, error } = await supabase
       .from('planes_de_reduccion')
-      .select('*')
+      // ── Solo columnas que se usan — eliminado SELECT * ───────────────────
+      .select('mes, meta_kgco2, real_kgco2, estado, acciones, nota')
       .eq('user_id', user.id)
       .eq('diagnostico_id', diagnostico_id)
       .eq('anio', anioFiltro)
@@ -36,7 +37,6 @@ export default async function handler(req, res) {
 
     if (error) throw error
 
-    // Calcular métricas del plan
     const mesesCompletos = data.filter(m => m.real_kgco2 !== null)
     const mesActual = new Date().getMonth() + 1
 
@@ -48,28 +48,41 @@ export default async function handler(req, res) {
       proximo_mes: data.find(m => m.mes === mesActual && !m.real_kgco2) || null,
     }
 
+    // ── Cache-Control: privado por usuario, 5 min, revalida en background ──
+    // La llave lógica es user_id+diagnostico_id+anio — el token JWT lo garantiza
+    res.setHeader('Cache-Control', 'private, max-age=300, stale-while-revalidate=60')
+
     return res.status(200).json({ plan: data, resumen, anio: anioFiltro })
   } catch (err) {
     return res.status(500).json({ error: 'server_error', message: err.message })
   }
 }
 
+// ── Un solo reduce en lugar de 3 iteraciones separadas ──────────────────────
 function calcularReduccion(meses) {
   const conDatos = meses.filter(m => m.real_kgco2 !== null && m.meta_kgco2)
   if (!conDatos.length) return 0
   const pctTotal = conDatos.reduce((acc, m) => {
-    const reduccion = ((m.meta_kgco2 - m.real_kgco2) / m.meta_kgco2) * 100
-    return acc + reduccion
+    return acc + ((m.meta_kgco2 - m.real_kgco2) / m.meta_kgco2) * 100
   }, 0)
   return Math.round(pctTotal / conDatos.length)
 }
 
 function calcularEstadoGeneral(meses, mesActual) {
-  const reportados = meses.filter(m => m.mes <= mesActual && m.real_kgco2 !== null)
-  const pendientes = meses.filter(m => m.mes <= mesActual && m.real_kgco2 === null)
-  if (pendientes.length > 1) return 'atrasado'
-  const enMeta = reportados.filter(m => m.real_kgco2 <= m.meta_kgco2)
-  if (enMeta.length === reportados.length) return 'en_meta'
-  if (enMeta.length >= reportados.length * 0.6) return 'en_progreso'
+  // Un solo reduce que calcula todo en una pasada
+  const stats = meses.reduce((acc, m) => {
+    if (m.mes > mesActual) return acc
+    if (m.real_kgco2 === null) {
+      acc.pendientes++
+    } else {
+      acc.reportados++
+      if (m.real_kgco2 <= m.meta_kgco2) acc.enMeta++
+    }
+    return acc
+  }, { reportados: 0, pendientes: 0, enMeta: 0 })
+
+  if (stats.pendientes > 1) return 'atrasado'
+  if (stats.enMeta === stats.reportados) return 'en_meta'
+  if (stats.enMeta >= stats.reportados * 0.6) return 'en_progreso'
   return 'revisar'
 }

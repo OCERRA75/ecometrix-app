@@ -1,4 +1,6 @@
-// netlify/functions/calculate.js
+// api/calculate.js — versión async
+// Cambio clave: responde inmediato con calculo GHG, encola análisis Claude
+
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
   electricidad: { Colombia: 0.126, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
@@ -24,7 +26,6 @@ function calcularEmisiones(empresa, respuestas) {
   let alcance1 = 0, alcance2 = 0, alcance3 = 0
   const detalles = [], detallesA3 = []
 
-  // ── ALCANCE 1 ──────────────────────────────────────────────────────────────
   const tipoComb = respuestas['a1_combustible_tipo']
   const cantComb = parseFloat(respuestas['a1_combustible_cantidad']) || 0
   if (tipoComb && tipoComb !== 'No usamos combustibles' && cantComb > 0) {
@@ -66,7 +67,6 @@ function calcularEmisiones(empresa, respuestas) {
     detalles.push({ categoria: 'Gases refrigerantes (HFCs)', kgCO2e: emision, fuente: 'Estimación por equipos', cantidad: refrig })
   }
 
-  // ── ALCANCE 2 ──────────────────────────────────────────────────────────────
   const factorElec = FACTORES.electricidad[empresa.pais] || FACTORES.electricidad.default
   const tieneKwh = respuestas['a2_electricidad_proveedor']
   let kwh = 0
@@ -86,7 +86,6 @@ function calcularEmisiones(empresa, respuestas) {
     detalles.push({ categoria: 'Consumo eléctrico', kgCO2e: emision, fuente: `Red eléctrica ${empresa.pais}`, cantidad: `${Math.round(kwh)} kWh/mes`, factorUsado: `${factorElec} kg CO2e/kWh` })
   }
 
-  // ── ALCANCE 3 ──────────────────────────────────────────────────────────────
   const gastoProveedores = parseFloat(respuestas['a3_compras_proveedores']) || 0
   const tipoCompra = respuestas['a3_compras_tipo'] || 'Mixto'
   if (gastoProveedores > 0) {
@@ -115,8 +114,7 @@ function calcularEmisiones(empresa, respuestas) {
 
   const viajes = respuestas['a3_viajes_negocio']
   if (viajes) {
-    const emisionAnual = FACTORES.viajes[viajes] || 0
-    const emisionMes = emisionAnual / 12
+    const emisionMes = (FACTORES.viajes[viajes] || 0) / 12
     alcance3 += emisionMes
     if (emisionMes > 0) detallesA3.push({ categoria: 'Viajes de negocios', kgCO2e: emisionMes, fuente: viajes })
   }
@@ -154,12 +152,30 @@ function calcularEmisiones(empresa, respuestas) {
   }
 }
 
-// ── Guardar en Supabase ────────────────────────────────────────────────────
-async function guardarDiagnostico(resultado) {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseKey || !resultado.user_id) return
+// ── Encolar trabajo en background via Supabase ────────────────────────────────
+async function encolarAnalisisIA(supabaseUrl, supabaseKey, payload) {
+  await fetch(`${supabaseUrl}/rest/v1/jobs_queue`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({
+      id: payload.diagnostico_id,           // idempotencia: misma id = no duplica
+      type: 'analisis_ia',
+      status: 'pending',
+      payload: JSON.stringify(payload),
+      attempts: 0,
+      created_at: new Date().toISOString(),
+    }),
+  })
+}
 
+// ── Guardar diagnóstico con análisis fallback inmediato ───────────────────────
+async function guardarDiagnostico(supabaseUrl, supabaseKey, resultado) {
+  if (!supabaseKey || !resultado.user_id) return
   try {
     await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
       method: 'POST',
@@ -174,14 +190,14 @@ async function guardarDiagnostico(resultado) {
         user_id: resultado.user_id,
         empresa: resultado.empresa,
         calculo: resultado.calculo,
-        analisis: resultado.analisis,
+        analisis: resultado.analisis,     // fallback ya incluido
         respuestas: resultado.respuestas,
+        analisis_status: 'pending',       // Claude aún no procesó
         created_at: resultado.timestamp,
       }),
     })
   } catch (e) {
     console.error('Supabase insert error:', e)
-    // No lanzar — el cálculo ya está listo, solo falla el guardado
   }
 }
 
@@ -195,51 +211,57 @@ export default async function handler(req, res) {
 
   try {
     const { empresa, respuestas, user_id } = req.body
+    const supabaseUrl = process.env.SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const diagnosticoId = `ecm_${Date.now()}`
+
+    // ── Paso 1: cálculo GHG local — rápido, sin red ──────────────────────
     const calculo = calcularEmisiones(empresa, respuestas)
-    let analisis = null
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (apiKey) {
-      const prompt = `Eres consultor experto en huella de carbono (GHG Protocol, ISO 14064).
-Empresa: ${empresa.nombre} | Sector: ${empresa.sector} | Tamaño: ${empresa.tamano} | País: ${empresa.pais}
-RESULTADOS: Alcance 1: ${calculo.alcance1} kg CO2e/mes | Alcance 2: ${calculo.alcance2} kg CO2e/mes | Alcance 3: ${calculo.alcance3} kg CO2e/mes | TOTAL: ${calculo.totalTonAnio} ton CO2e/año | Nivel: ${calculo.nivelImpacto}
-Genera JSON exacto:
-{"resumen_ejecutivo":"2-3 oraciones","principales_fuentes":["f1","f2","f3"],"benchmark":"comparación sectorial","plan_accion":[{"accion":"desc","reduccion_pct":15,"dificultad":"Fácil","plazo":"1-3 meses"},{"accion":"desc","reduccion_pct":20,"dificultad":"Media","plazo":"3-6 meses"},{"accion":"desc","reduccion_pct":25,"dificultad":"Media","plazo":"6-12 meses"},{"accion":"desc","reduccion_pct":10,"dificultad":"Fácil","plazo":"1-3 meses"},{"accion":"desc","reduccion_pct":30,"dificultad":"Difícil","plazo":"12-24 meses"}],"siguiente_paso":"recomendación"}`
-      try {
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }),
-        })
-        const aiData = await resp.json()
-        const text = aiData.content?.[0]?.text || ''
-        const jsonMatch = text.match(/\{[\s\S]*\}/)
-        if (jsonMatch) analisis = JSON.parse(jsonMatch[0])
-      } catch(e) { console.error('Claude API error:', e) }
+
+    // ── Paso 2: análisis fallback inmediato (sin IA) ──────────────────────
+    const analisisFallback = {
+      resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO₂e/año, con nivel de impacto ${calculo.nivelImpacto} para el sector ${empresa.sector}. El análisis detallado con IA se está generando.`,
+      principales_fuentes: calculo.detalles.slice(0, 3).map(d => d.categoria),
+      benchmark: `Las empresas del sector ${empresa.sector} de tamaño similar tienen huella promedio entre 5 y 50 ton CO₂e/año.`,
+      plan_accion: [
+        { accion: 'Auditoría energética de instalaciones', reduccion_pct: 15, dificultad: 'Fácil', plazo: '1-3 meses' },
+        { accion: 'Migración a energías renovables', reduccion_pct: 40, dificultad: 'Media', plazo: '3-6 meses' },
+        { accion: 'Optimización de cadena de suministro', reduccion_pct: 20, dificultad: 'Media', plazo: '6-12 meses' },
+        { accion: 'Política de viajes sostenibles', reduccion_pct: 10, dificultad: 'Fácil', plazo: '1-3 meses' },
+        { accion: 'Programa de economía circular', reduccion_pct: 15, dificultad: 'Media', plazo: '6-12 meses' },
+      ],
+      siguiente_paso: 'Iniciar auditoría energética para identificar las mayores oportunidades de reducción.',
     }
 
     const resultado = {
-      id: `ecm_${Date.now()}`,
+      id: diagnosticoId,
       user_id: user_id || null,
       empresa, calculo, respuestas,
-      analisis: analisis || {
-        resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO2e/año (Alcances 1+2+3), con nivel de impacto ${calculo.nivelImpacto} para su sector.`,
-        principales_fuentes: calculo.detalles.slice(0, 3).map(d => d.categoria),
-        benchmark: `Las empresas del sector ${empresa.sector} de tamaño similar tienen huella promedio entre 5 y 50 ton CO2e/año.`,
-        plan_accion: [
-          { accion: 'Auditoría energética de instalaciones', reduccion_pct: 15, dificultad: 'Fácil', plazo: '1-3 meses' },
-          { accion: 'Migración a energías renovables', reduccion_pct: 40, dificultad: 'Media', plazo: '3-6 meses' },
-          { accion: 'Optimización de cadena de suministro', reduccion_pct: 20, dificultad: 'Media', plazo: '6-12 meses' },
-          { accion: 'Política de viajes sostenibles', reduccion_pct: 10, dificultad: 'Fácil', plazo: '1-3 meses' },
-          { accion: 'Programa de economía circular', reduccion_pct: 15, dificultad: 'Media', plazo: '6-12 meses' },
-        ],
-        siguiente_paso: 'Iniciar auditoría energética para identificar las mayores oportunidades de reducción.',
-      },
+      analisis: analisisFallback,
+      analisis_status: 'pending',   // el frontend usa esto para saber si Claude ya procesó
       timestamp: new Date().toISOString(),
     }
 
-    await guardarDiagnostico(resultado)
+    // ── Paso 3: guardar en Supabase (no bloquea la respuesta) ─────────────
+    // No await — fire and forget con manejo de error interno
+    guardarDiagnostico(supabaseUrl, supabaseKey, resultado).catch(e =>
+      console.error('Background save failed:', e)
+    )
 
+    // ── Paso 4: encolar análisis IA (idempotente por diagnosticoId) ───────
+    if (process.env.ANTHROPIC_API_KEY && supabaseKey) {
+      encolarAnalisisIA(supabaseUrl, supabaseKey, {
+        diagnostico_id: diagnosticoId,
+        empresa,
+        calculo,
+        respuestas,
+        user_id: user_id || null,
+      }).catch(e => console.error('Enqueue failed:', e))
+    }
+
+    // ── Paso 5: respuesta inmediata — no espera Claude ────────────────────
     return res.status(200).json(resultado)
+
   } catch (err) {
     console.error('Calculate error:', err)
     return res.status(500).json({ error: err.message })

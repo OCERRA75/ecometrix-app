@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // service role para bypasear RLS
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 export default async function handler(req, res) {
@@ -17,7 +17,34 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields: empresa, calculo' })
   }
 
-  // ── Calcular score y breakdown ──────────────────────────────────────────────
+  // ── CACHE: buscar certificación existente antes de recalcular ────────────
+  if (diagnostico_id) {
+    const { data: cached } = await supabase
+      .from('certificaciones')
+      .select('score, level, level_name, breakdown, badges_earned, verification_code, issued_at, empresa_nombre')
+      .eq('diagnostico_id', diagnostico_id)
+      .single()
+
+    if (cached) {
+      // Cache hit — devolver sin recalcular
+      return res.status(200).json({
+        score: cached.score,
+        level: cached.level,
+        level_name: cached.level_name,
+        breakdown: cached.breakdown,
+        badges_earned: cached.badges_earned,
+        new_badges: cached.badges_earned.map(b => b.badge_key),
+        verification_code: cached.verification_code,
+        certification: {
+          empresa_nombre: cached.empresa_nombre,
+          issued_at: cached.issued_at,
+        },
+        _cache: 'hit', // header de diagnóstico — remover en producción si se prefiere
+      })
+    }
+  }
+
+  // ── CACHE MISS: calcular score ───────────────────────────────────────────
   const breakdown = {
     alcances_1_2:
       calculo.alcance1 > 0 && calculo.alcance2 > 0 ? 30
@@ -55,14 +82,14 @@ export default async function handler(req, res) {
   const certId = `cert_${diagnostico_id || Date.now()}`
   const issuedAt = new Date().toISOString()
 
-  // ── Persistir en Supabase (upsert por diagnostico_id) ───────────────────────
+  // ── Persistir (esto es el "escribir en caché") ───────────────────────────
   try {
     const { error: dbError } = await supabase
       .from('certificaciones')
       .upsert({
         id: certId,
         diagnostico_id: diagnostico_id || null,
-        user_id: null, // anónimo por ahora
+        user_id: null,
         empresa_nombre: empresa.nombre,
         score,
         level,
@@ -76,9 +103,9 @@ export default async function handler(req, res) {
     if (dbError) console.warn('Supabase cert save failed:', dbError)
   } catch (err) {
     console.warn('Supabase cert error:', err)
+    // Fallback: continuar aunque no se guarde — el cálculo ya está listo
   }
 
-  // ── Responder al cliente ────────────────────────────────────────────────────
   return res.status(200).json({
     score,
     level,
@@ -91,5 +118,6 @@ export default async function handler(req, res) {
       empresa_nombre: empresa.nombre,
       issued_at: issuedAt,
     },
+    _cache: 'miss',
   })
 }
