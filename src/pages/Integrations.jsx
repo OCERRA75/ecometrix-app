@@ -352,7 +352,7 @@ function CSVImporterCard({ connector, onSuccess }) {
                   <select value={mapping[field.key] || ''}
                     onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
                     className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
-                    <option value="">Columna del archivo...</option>
+                    <option value="">{t('integrations.selectColumn')}</option>
                     {headers.map(h => <option key={h} value={h}>{h}</option>)}
                   </select>
                 )}
@@ -426,7 +426,7 @@ function CSVImporterCard({ connector, onSuccess }) {
           <div className="flex gap-2">
             <button onClick={() => { setStep('upload'); setFile(null); setHeaders([]); setRows([]); setResult(null) }}
               className="flex-1 py-2 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors">
-              Importar otro archivo
+              {t('integrations.importAnother')}
             </button>
             <Link to="/questionnaire" className="flex-1 py-2 rounded-xl bg-brand-300 text-white text-xs font-semibold text-center hover:bg-brand-400 transition-colors">
               {t('dashboard.newDiagnosis')} →
@@ -467,7 +467,7 @@ export default function Integrations() {
                 {connectedCount} {t('integrations.connected')}
               </span>
             )}
-            <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">← Dashboard</Link>
+            <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">{t('csrd.backDashboard')}</Link>
             <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('dashboard.newDiagnosis')}</Link>
           </div>
         </div>
@@ -485,12 +485,12 @@ export default function Integrations() {
 
         {/* Cómo funciona */}
         <div className="card mb-8 border-brand-200 bg-brand-50">
-          <h2 className="font-semibold text-text-primary mb-3">¿Cómo funciona?</h2>
+          <h2 className="font-semibold text-text-primary mb-3">{t('manual.comoFunciona.title')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { n: '1', title: t('integrations.connectApi'), desc: 'Ingresa tus credenciales API o sube tu archivo CSV exportado', icon: '🔗' },
-              { n: '2', title: t('integrations.mapColumns'), desc: 'EcoMetriX clasifica cada gasto según los alcances GHG Protocol', icon: '🗂' },
-              { n: '3', title: t('integrations.importData'), desc: 'Los datos importados se usan directamente en el cálculo de huella', icon: '📊' },
+              { n: '1', title: t('integrations.connectApi'), desc: t('integrations.howStep1'), icon: '🔗' },
+              { n: '2', title: t('integrations.mapColumns'), desc: t('integrations.howStep2'), icon: '🗂' },
+              { n: '3', title: t('integrations.importData'), desc: t('integrations.howStep3'), icon: '📊' },
             ].map(step => (
               <div key={step.n} className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-brand-300 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">{step.n}</div>
@@ -520,14 +520,14 @@ export default function Integrations() {
         <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">¿Tienes otro ERP?</p>
-              <h3 className="text-lg font-bold mb-2">Solicita una integración personalizada</h3>
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">{t('integrations.customErpTitle')}</p>
+              <h3 className="text-lg font-bold mb-2">{t('integrations.customErpHeadline')}</h3>
               <p className="text-white/80 text-sm mb-4">
-                Si usas WORLD OFFICE, SAP Business One, Contpaqi u otro sistema, podemos desarrollar la integración para tu empresa.
+                {t('integrations.customErpDesc')}
               </p>
               <a href="mailto:oscar@ecometrix.co?subject=Integración ERP personalizada"
                 className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors inline-block">
-                Solicitar integración →
+                {t('integrations.customErpCta')}
               </a>
             </div>
             <span className="text-5xl flex-shrink-0 hidden sm:block">🔌</span>
