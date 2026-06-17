@@ -366,8 +366,8 @@ function ESRSPillarsMap() {
   const [active, setActive] = useState(null)
   return (
     <div className="card mb-6">
-      <h2 className="font-semibold text-text-primary mb-1">Marco ESRS — European Sustainability Reporting Standards</h2>
-      <p className="text-sm text-text-secondary mb-4">Haz clic en cada pilar para ver los estándares que incluye. Los marcados con ★ son obligatorios.</p>
+      <h2 className="font-semibold text-text-primary mb-1">{t('csrd.esrsFrameworkTitle')}</h2>
+      <p className="text-sm text-text-secondary mb-4">{t('csrd.esrsFrameworkDesc')}</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {ESRS_PILLARS.map(p => (
           <button key={p.id} onClick={() => setActive(active === p.id ? null : p.id)}
@@ -447,10 +447,10 @@ function CTAUpgrade() {
           <h3 className="text-lg font-bold mb-2">{t('csrd.title')} completo con EcoMetriX</h3>
           <ul className="space-y-1.5 mb-4">
             {[
-              'Diagnósticos mensuales ilimitados con trazabilidad',
-              'Reporte CSRD/ESRS E1 listo para auditor externo',
-              'Export XBRL para presentación ante reguladores',
-              'Verificación externa con auditores certificados'
+              t('csrd.ctaFeature1'),
+              t('csrd.ctaFeature2'),
+              t('csrd.ctaFeature3'),
+              t('csrd.ctaFeature4'),
             ].map(f => (
               <li key={f} className="flex items-center gap-2 text-sm text-white/90">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 flex-shrink-0"><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -508,7 +508,7 @@ export default function CSRD() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">← Dashboard</Link>
+            <Link to="/dashboard" className="btn-ghost text-sm py-1.5 px-3">{t('csrd.backDashboard')}</Link>
             <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('dashboard.newDiagnosis')}</Link>
           </div>
         </div>
@@ -534,7 +534,7 @@ export default function CSRD() {
               <div className="flex flex-col gap-1 text-xs">
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-brand-300" />{totalCumple} {t('csrd.compliant')}</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{totalParciales} {t('csrd.partial')}</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" />{totalBrechas} brecha</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" />{totalBrechas} {t('csrd.gap')}</span>
               </div>
             </div>
           </div>
@@ -564,11 +564,9 @@ export default function CSRD() {
               <div className="flex items-start gap-3">
                 <span className="text-2xl flex-shrink-0">🇪🇺</span>
                 <div>
-                  <p className="text-sm font-semibold text-blue-800 mb-1">¿Qué es la CSRD?</p>
-                  <p className="text-sm text-blue-700 leading-relaxed">
-                    La <strong>Corporate Sustainability Reporting Directive</strong> (UE 2022/2464) obliga a empresas europeas y filiales de multinacionales a reportar sobre sostenibilidad usando los estándares ESRS. Las PYMEs que son proveedoras de grandes empresas europeas ya reciben presión para cumplir con ESRS E1.
-                  </p>
-                  <p className="text-sm text-blue-700 mt-2"><strong>Colombia:</strong> No hay obligatoriedad aún, pero clientes europeos cada vez más la exigen como requisito de proveeduría.</p>
+                  <p className="text-sm font-semibold text-blue-800 mb-1">{t('csrd.whatIsTitle')}</p>
+                  <p className="text-sm text-blue-700 leading-relaxed">{t('csrd.whatIsBody')}</p>
+                  <p className="text-sm text-blue-700 mt-2"><strong>Colombia:</strong> {t('csrd.whatIsColombia')}</p>
                 </div>
               </div>
             </div>
@@ -603,8 +601,8 @@ export default function CSRD() {
                 <div className="bg-brand-300 h-2 rounded-full" style={{ width: `${scoreCSRD}%` }} />
               </div>
               <div className="flex justify-between text-xs text-text-muted">
-                <span>Posición actual: {scoreCSRD}%</span>
-                <span>Meta: 100% ESRS E1 ({t('csrd.mandatory')})</span>
+                <span>{t('csrd.currentPosition', { score: scoreCSRD })}</span>
+                <span>{t('csrd.roadmapGoal', { mandatory: t('csrd.mandatory') })}</span>
               </div>
             </div>
             <div>{ROADMAP_FASES.map(f => <RoadmapItem key={f.fase} {...f} />)}</div>
@@ -615,41 +613,41 @@ export default function CSRD() {
           <div className="space-y-4">
             <div className="card">
               <h2 className="font-semibold text-text-primary mb-1">{t('csrd.downloadPDF')}</h2>
-              <p className="text-sm text-text-secondary mb-6">Prepara tu información para reportes formales y auditorías externas.</p>
+              <p className="text-sm text-text-secondary mb-6">{t('csrd.exportSubtitle')}</p>
               <div className="space-y-3">
                 <div onClick={handleExportPDF}
                   className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-brand-200 hover:bg-brand-50 cursor-pointer transition-all">
                   <span className="text-2xl flex-shrink-0">📄</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-text-primary">Reporte de brechas ESRS</span>
+                      <span className="text-sm font-medium text-text-primary">{t('csrd.exportGapLabel')}</span>
                       <span className="badge-gray text-xs">PDF</span>
                     </div>
-                    <p className="text-xs text-text-secondary">Gap analysis completo + roadmap personalizado para presentar a auditores o clientes</p>
+                    <p className="text-xs text-text-secondary">{t('csrd.exportGapDesc')}</p>
                   </div>
                   {pdfLoading ? (
                     <span className="w-4 h-4 border-2 border-brand-300 border-t-transparent rounded-full animate-spin flex-shrink-0 mt-1" />
                   ) : (
-                    <span className="text-brand-400 text-sm font-medium flex-shrink-0">Exportar →</span>
+                    <span className="text-brand-400 text-sm font-medium flex-shrink-0">{t('csrd.exportAction')}</span>
                   )}
                 </div>
                 <div className="flex items-start gap-4 p-4 rounded-xl border border-dashed border-border opacity-50">
                   <span className="text-2xl flex-shrink-0">🗂</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-text-primary">Export formato XBRL</span>
+                      <span className="text-sm font-medium text-text-primary">{t('csrd.exportXbrlLabel')}</span>
                       <span className="badge-gray text-xs">XBRL</span>
                       <span className="bg-surface-tertiary text-text-muted rounded-full px-2 py-0.5 text-xs">{t('landing.standards.coming')}</span>
                     </div>
-                    <p className="text-xs text-text-secondary">Formato estándar de la UE para reportes CSRD — requiere verificación externa</p>
+                    <p className="text-xs text-text-secondary">{t('csrd.exportXbrlDesc')}</p>
                   </div>
                 </div>
               </div>
             </div>
             <div className="card border-dashed">
-              <p className="text-sm font-medium text-text-primary mb-2">Nota metodológica</p>
+              <p className="text-sm font-medium text-text-primary mb-2">{t('csrd.methodNote')}</p>
               <p className="text-xs text-text-secondary leading-relaxed">
-                Este análisis CSRD es una evaluación preliminar basada en los datos de tu diagnóstico de huella de carbono. Para cumplimiento formal con la CSRD, se requiere verificación por un auditor externo acreditado (ISO 14064-3 o equivalente). EcoMetriX puede conectarte con verificadores acreditados — <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline">oscar@ecometrix.co</a>
+                {t('csrd.methodNoteBody')} <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline">oscar@ecometrix.co</a>
               </p>
             </div>
           </div>
