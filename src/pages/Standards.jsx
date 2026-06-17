@@ -341,11 +341,11 @@ export default function Standards() {
           <div className="flex items-center gap-1 bg-white border border-border rounded-xl p-1">
             <button onClick={() => setView('cards')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === 'cards' ? 'bg-brand-50 text-brand-400' : 'text-text-secondary hover:bg-surface-tertiary'}`}>
-              Tarjetas
+              {t('standards.detailedDesc')}
             </button>
             <button onClick={() => setView('table')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === 'table' ? 'bg-brand-50 text-brand-400' : 'text-text-secondary hover:bg-surface-tertiary'}`}>
-              Tabla
+              {t('standards.compareAll')}
             </button>
           </div>
         </div>
@@ -357,7 +357,7 @@ export default function Standards() {
             ))}
             {filtered.length === 0 && (
               <div className="card text-center py-10">
-                <p className="text-text-muted text-sm">No hay estándares aplicables para este tamaño de empresa.</p>
+                <p className="text-text-muted text-sm">{t('standards.applicableTo')}</p>
               </div>
             )}
           </div>
@@ -404,7 +404,7 @@ export default function Standards() {
         <div className="card border-brand-200 bg-brand-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
           <div>
             <p className="font-semibold text-text-primary mb-1">{t('standards.downloadPDF')}</p>
-            <p className="text-sm text-text-secondary">Descarga la guía completa para compartir con tu equipo o presentar a clientes.</p>
+            <p className="text-sm text-text-secondary">{t('standards.detailedDesc')}</p>
           </div>
           <button onClick={handleExportPDF} disabled={pdfLoading}
             className="btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-60">
@@ -417,9 +417,9 @@ export default function Standards() {
 
         {/* CTA bottom */}
         <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white text-center">
-          <h3 className="text-xl font-bold mb-2">Empieza con GHG Protocol — gratis</h3>
+          <h3 className="text-xl font-bold mb-2">{t('landing.steps.s1Title')} — {t('pricing.startFree')}</h3>
           <p className="text-white/80 text-sm mb-5 max-w-md mx-auto">
-            El primer paso hacia cualquier estándar es medir tu huella de carbono. EcoMetriX lo hace en 10 minutos.
+            {t('landing.subheadline')}
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link to="/questionnaire" className="bg-white text-brand-400 font-semibold px-5 py-2.5 rounded-xl hover:bg-brand-50 transition-colors text-sm">
