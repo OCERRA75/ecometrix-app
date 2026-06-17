@@ -247,7 +247,7 @@ export default function Manual() {
               ))}
             </nav>
             <div className="mt-8 p-4 rounded-2xl bg-[#1D9E75] text-white">
-              <p className="text-sm font-bold mb-1">¿Listo para empezar?</p>
+              <p className="text-sm font-bold mb-1">{t('manual.ctaReadyTitle')}</p>
               <p className="text-xs text-white/80 mb-3">{t('manual.subtitle')}</p>
               <Link to="/questionnaire" className="block text-center bg-white text-[#1D9E75] text-xs font-bold py-2 rounded-lg hover:bg-[#F0FDF4] transition-colors">
                 {t('landing.ctaPrimary')} →
@@ -265,7 +265,7 @@ export default function Manual() {
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
             <div className="relative">
               <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">{t('manual.badge')} v1.0</span>
-              <h1 className="text-3xl font-bold mb-3">Todo lo que necesitas saber sobre EcoMetriX</h1>
+              <h1 className="text-3xl font-bold mb-3">{t('manual.heroTitle')}</h1>
               <p className="text-white/80 text-sm max-w-lg leading-relaxed">{t('manual.subtitle')}</p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {['GHG Protocol', 'ISO 14064', 'IPCC AR6', 'CSRD/ESRS'].map(s => (
@@ -305,7 +305,7 @@ export default function Manual() {
                 detail="El cuestionario se adapta según el sector de tu empresa para hacer preguntas relevantes. Una empresa de tecnología no necesita responder sobre maquinaria industrial; una empresa de logística tiene preguntas específicas sobre flota vehicular." />
               <StepCard n="2" title={t('manual.comoFunciona.step2')} desc={t('manual.comoFunciona.step2Desc')}
                 detail="Los factores del IPCC AR6 (2021) son el referente científico más actualizado. Por ejemplo: 1 kWh en Colombia = 0.126 kg CO₂e según el factor de la red eléctrica nacional (UPME 2023)." />
-              <StepCard n="3" title="Análisis con inteligencia artificial" desc="La plataforma genera resumen ejecutivo, benchmark sectorial y plan de reducción personalizado."
+              <StepCard n="3" title={t('manual.comoFunciona.step3ai')} desc={t('manual.comoFunciona.step3aiDesc')}
                 detail="La IA analiza tus resultados y genera recomendaciones priorizadas por impacto y facilidad. El plan de reducción incluye 5 acciones concretas con estimación del porcentaje de reducción potencial." />
               <StepCard n="4" title={t('manual.comoFunciona.step3')} desc={t('manual.comoFunciona.step3Desc')}
                 detail="El reporte queda en una URL permanente que puedes compartir con socios, clientes o inversionistas. El certificado PDF tiene diseño tipo diploma con código de verificación único." />
@@ -481,7 +481,7 @@ export default function Manual() {
                     ))}
                   </ul>
                   <a href={link} className={`block text-center text-xs font-bold py-2.5 rounded-xl transition-colors ${btn}`}>
-                    Activar {nombre} →
+                    {t('manual.activatePlan', { nombre })}
                   </a>
                 </div>
               ))}
@@ -496,8 +496,8 @@ export default function Manual() {
               <FAQItem q={t('manual.faqItems.q2')} a={t('manual.faqItems.a2')} />
               <FAQItem q={t('manual.faqItems.q3')} a={t('manual.faqItems.a3')} />
               <FAQItem q={t('manual.faqItems.q4')} a={t('manual.faqItems.a4')} />
-              <FAQItem q="¿Mis datos son confidenciales?" a="Sí. Los datos se almacenan en Supabase con infraestructura cifrada. No compartimos datos con terceros. El certificado público solo muestra nombre de empresa, score y nivel — nunca los datos de consumo." />
-              <FAQItem q="¿Funciona para empresas fuera de Colombia?" a="Sí. EcoMetriX está disponible en español, inglés, portugués y francés. Los factores IPCC AR6 son de aplicación global." />
+              <FAQItem q={t('manual.faqItems.q5')} a={t('manual.faqItems.a5')} />
+              <FAQItem q={t('manual.faqItems.q6')} a={t('manual.faqItems.a6')} />
             </div>
           </section>
 
@@ -505,7 +505,7 @@ export default function Manual() {
           <div className="rounded-3xl bg-[#1D9E75] p-8 text-white text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
             <div className="relative">
-              <h2 className="text-2xl font-bold mb-2">¿Listo para medir tu impacto?</h2>
+              <h2 className="text-2xl font-bold mb-2">{t('manual.ctaFinalTitle')}</h2>
               <p className="text-white/80 text-sm mb-6 max-w-md mx-auto">{t('landing.cta.desc')}</p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Link to="/questionnaire" className="bg-white text-[#1D9E75] font-bold text-sm px-6 py-3 rounded-xl hover:bg-[#F0FDF4] transition-colors">

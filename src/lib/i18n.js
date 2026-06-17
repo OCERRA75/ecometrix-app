@@ -447,6 +447,10 @@ const resources = {
         subtitle: 'Guía completa para medir y gestionar la huella de carbono de tu empresa',
         badge: 'Manual',
         downloadPDF: 'Descargar manual PDF',
+        ctaReadyTitle: '¿Listo para empezar?',
+        heroTitle: 'Todo lo que necesitas saber sobre EcoMetriX',
+        activatePlan: 'Activar {{nombre}} →',
+        ctaFinalTitle: '¿Listo para medir tu impacto?',
         sections: {
           queEs: '¿Qué es EcoMetriX?',
           comoFunciona: 'Cómo funciona',
@@ -472,6 +476,8 @@ const resources = {
           step2Desc: 'Algoritmo GHG Protocol + IPCC AR6 procesa tus datos y calcula los 3 alcances.',
           step3: 'Recibe tu reporte',
           step3Desc: 'PDF profesional con benchmark, plan de reducción y ruta hacia certificación.',
+          step3ai: 'Análisis con inteligencia artificial',
+          step3aiDesc: 'La plataforma genera resumen ejecutivo, benchmark sectorial y plan de reducción personalizado.',
         },
         faqItems: {
           q1: '¿Cuánto tiempo toma el diagnóstico?',
@@ -482,6 +488,10 @@ const resources = {
           a3: 'Recomendamos mensual para el plan Pro y anual como mínimo para el Free.',
           q4: '¿El reporte es válido para licitaciones o auditorías?',
           a4: 'El reporte sigue metodología GHG Protocol. Para certificación formal se requiere verificación externa.',
+          q5: '¿Mis datos son confidenciales?',
+          a5: 'Sí. Los datos se almacenan en Supabase con infraestructura cifrada. No compartimos datos con terceros. El certificado público solo muestra nombre de empresa, score y nivel — nunca los datos de consumo.',
+          q6: '¿Funciona para empresas fuera de Colombia?',
+          a6: 'Sí. EcoMetriX está disponible en español, inglés, portugués y francés. Los factores IPCC AR6 son de aplicación global.',
         },
       },
     }
@@ -931,6 +941,10 @@ const resources = {
         subtitle: 'Complete guide to measuring and managing your company carbon footprint',
         badge: 'Manual',
         downloadPDF: 'Download PDF manual',
+        ctaReadyTitle: 'Ready to get started?',
+        heroTitle: 'Everything you need to know about EcoMetriX',
+        activatePlan: 'Activate {{nombre}} →',
+        ctaFinalTitle: 'Ready to measure your impact?',
         sections: {
           queEs: 'What is EcoMetriX?',
           comoFunciona: 'How it works',
@@ -956,6 +970,8 @@ const resources = {
           step2Desc: 'GHG Protocol + IPCC AR6 algorithm processes your data and calculates all 3 scopes.',
           step3: 'Receive your report',
           step3Desc: 'Professional PDF with benchmark, reduction plan and path to certification.',
+          step3ai: 'AI-powered analysis',
+          step3aiDesc: 'The platform generates an executive summary, sector benchmark and personalized reduction plan.',
         },
         faqItems: {
           q1: 'How long does the diagnosis take?',
@@ -966,6 +982,10 @@ const resources = {
           a3: 'We recommend monthly for the Pro plan and at least annually for Free.',
           q4: 'Is the report valid for tenders or audits?',
           a4: 'The report follows GHG Protocol methodology. Formal certification requires external verification.',
+          q5: 'Is my data confidential?',
+          a5: 'Yes. Data is stored in Supabase with encrypted infrastructure. We do not share data with third parties. The public certificate only shows company name, score and level — never consumption data.',
+          q6: 'Does it work for companies outside Colombia?',
+          a6: 'Yes. EcoMetriX is available in Spanish, English, Portuguese and French. IPCC AR6 factors apply globally.',
         },
       },
     }
@@ -1415,6 +1435,10 @@ const resources = {
         subtitle: 'Guia completo para medir e gerenciar a pegada de carbono da sua empresa',
         badge: 'Manual',
         downloadPDF: 'Baixar manual PDF',
+        ctaReadyTitle: 'Pronto para começar?',
+        heroTitle: 'Tudo o que você precisa saber sobre EcoMetriX',
+        activatePlan: 'Ativar {{nombre}} →',
+        ctaFinalTitle: 'Pronto para medir seu impacto?',
         sections: {
           queEs: 'O que é EcoMetriX?',
           comoFunciona: 'Como funciona',
@@ -1440,6 +1464,8 @@ const resources = {
           step2Desc: 'Algoritmo GHG Protocol + IPCC AR6 processa seus dados e calcula os 3 escopos.',
           step3: 'Receba seu relatório',
           step3Desc: 'PDF profissional com benchmark, plano de redução e caminho para certificação.',
+          step3ai: 'Análise com inteligência artificial',
+          step3aiDesc: 'A plataforma gera resumo executivo, benchmark setorial e plano de redução personalizado.',
         },
         faqItems: {
           q1: 'Quanto tempo leva o diagnóstico?',
@@ -1450,6 +1476,10 @@ const resources = {
           a3: 'Recomendamos mensal para o plano Pro e anual como mínimo para o Free.',
           q4: 'O relatório é válido para licitações ou auditorias?',
           a4: 'O relatório segue metodologia GHG Protocol. Para certificação formal é necessária verificação externa.',
+          q5: 'Meus dados são confidenciais?',
+          a5: 'Sim. Os dados são armazenados no Supabase com infraestrutura criptografada. Não compartilhamos dados com terceiros. O certificado público mostra apenas nome da empresa, score e nível — nunca dados de consumo.',
+          q6: 'Funciona para empresas fora da Colômbia?',
+          a6: 'Sim. EcoMetriX está disponível em espanhol, inglês, português e francês. Os fatores IPCC AR6 têm aplicação global.',
         },
       },
     }
@@ -1899,6 +1929,10 @@ const resources = {
         subtitle: "Guide complet pour mesurer et gérer l'empreinte carbone de votre entreprise",
         badge: 'Manuel',
         downloadPDF: 'Télécharger le manuel PDF',
+        ctaReadyTitle: 'Prêt à commencer ?',
+        heroTitle: 'Tout ce que vous devez savoir sur EcoMetriX',
+        activatePlan: 'Activer {{nombre}} →',
+        ctaFinalTitle: 'Prêt à mesurer votre impact ?',
         sections: {
           queEs: "Qu'est-ce qu'EcoMetriX ?",
           comoFunciona: 'Comment ça marche',
@@ -1924,6 +1958,8 @@ const resources = {
           step2Desc: "L'algorithme GHG Protocol + IPCC AR6 traite vos données et calcule les 3 portées.",
           step3: 'Recevez votre rapport',
           step3Desc: 'PDF professionnel avec benchmark, plan de réduction et chemin vers la certification.',
+          step3ai: "Analyse avec l'intelligence artificielle",
+          step3aiDesc: 'La plateforme génère un résumé exécutif, un benchmark sectoriel et un plan de réduction personnalisé.',
         },
         faqItems: {
           q1: 'Combien de temps prend le diagnostic ?',
@@ -1934,6 +1970,10 @@ const resources = {
           a3: 'Nous recommandons mensuel pour le plan Pro et annuel au minimum pour le Free.',
           q4: "Le rapport est-il valide pour les appels d'offres ou audits ?",
           a4: 'Le rapport suit la méthodologie GHG Protocol. La certification formelle nécessite une vérification externe.',
+          q5: 'Mes données sont-elles confidentielles ?',
+          a5: "Oui. Les données sont stockées dans Supabase avec une infrastructure chiffrée. Nous ne partageons pas les données avec des tiers. Le certificat public affiche uniquement le nom de l'entreprise, le score et le niveau — jamais les données de consommation.",
+          q6: 'Fonctionne-t-il pour les entreprises hors de Colombie ?',
+          a6: "Oui. EcoMetriX est disponible en espagnol, anglais, portugais et français. Les facteurs IPCC AR6 s'appliquent mondialement.",
         },
       },
     }
