@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/hooks/useAuth.jsx'
 import PlanGuard from '@/components/PlanGuard.jsx'
 import Landing from '@/pages/Landing.jsx'
@@ -17,6 +17,7 @@ import Integrations from '@/pages/Integrations.jsx'
 import Manual from '@/pages/Manual.jsx'
 import ReductionPlan from '@/pages/ReductionPlan.jsx'
 import Admin from '@/pages/Admin.jsx'
+import SBTi from '@/pages/SBTi.jsx'
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/verificar/:codigo"   element={<Verify />} />
           <Route path="/manual"              element={<Manual />} />
           <Route path="/admin"               element={<Admin />} />
+          <Route path="/sbti"                element={<SBTi />} />
           <Route path="/plan"                element={<PlanGuard requiereNivel={1}><ReductionPlan /></PlanGuard>} />
           <Route path="/csrd"                element={<PlanGuard requiereNivel={2}><CSRD /></PlanGuard>} />
           <Route path="/integraciones"       element={<PlanGuard requiereNivel={2}><Integrations /></PlanGuard>} />
