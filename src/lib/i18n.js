@@ -441,6 +441,7 @@ const resources = {
         columnUnit: 'Unidad',
         columnQty: 'Cantidad',
         columnSupplier: 'Proveedor',
+        columnUnit: 'Unidad',
       },
       manual: {
         title: 'Manual de Usuario',
@@ -935,6 +936,7 @@ const resources = {
         columnUnit: 'Unit',
         columnQty: 'Quantity',
         columnSupplier: 'Supplier',
+        columnUnit: 'Unit',
       },
       manual: {
         title: 'User Manual',
@@ -1429,6 +1431,7 @@ const resources = {
         columnUnit: 'Unidade',
         columnQty: 'Quantidade',
         columnSupplier: 'Fornecedor',
+        columnUnit: 'Unidade',
       },
       manual: {
         title: 'Manual do Usuário',
@@ -1923,6 +1926,7 @@ const resources = {
         columnUnit: 'Unité',
         columnQty: 'Quantité',
         columnSupplier: 'Fournisseur',
+        columnUnit: 'Unité',
       },
       manual: {
         title: "Manuel d'utilisation",

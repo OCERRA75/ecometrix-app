@@ -221,6 +221,7 @@ function CSVImporterCard({ connector, onSuccess }) {
   const c = COLOR_MAP[connector.color]
   const fileRef = useRef(null)
   const [file, setFile] = useState(null)
+  const [csvText, setCsvText] = useState('')
   const [rows, setRows] = useState([])
   const [mapping, setMapping] = useState({})
   const [step, setStep] = useState('upload')
@@ -236,33 +237,59 @@ function CSVImporterCard({ connector, onSuccess }) {
     const reader = new FileReader()
     reader.onload = (ev) => {
       const text = ev.target.result
+      setCsvText(text)
       const lines = text.split('\n').filter(l => l.trim())
       if (lines.length < 2) { setError('El archivo debe tener al menos una fila de datos'); return }
-      const hdrs = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
-      const data = lines.slice(1, 6).map(l => l.split(',').map(v => v.trim().replace(/"/g, '')))
+      // Auto-detectar delimitador: punto y coma o coma
+      const firstLine = lines[0]
+      const delimiter = firstLine.includes(';') ? ';' : ','
+      const hdrs = firstLine.split(delimiter).map(h => h.trim().replace(/^["\']|["\']$/g, ''))
+      const data = lines.slice(1, 6).map(l => l.split(delimiter).map(v => v.trim().replace(/^["\']|["\']$/g, '')))
       setHeaders(hdrs)
       setRows(data)
+      // Auto-mapear columnas inteligentemente
+      const autoMap = {}
+      const patterns = {
+        fecha:       ['fecha', 'date', 'f_emision', 'fec'],
+        descripcion: ['descripcion', 'descripción', 'concepto', 'detalle', 'glosa', 'nombre'],
+        valor_cop:   ['valor', 'total', 'monto', 'importe', 'debito', 'débito'],
+        cantidad:    ['cantidad', 'qty', 'consumo', 'volumen'],
+        unidad:      ['unidad', 'unit', 'ud', 'medida'],
+        proveedor:   ['proveedor', 'vendor', 'empresa', 'tercero', 'beneficiario'],
+      }
+      hdrs.forEach(h => {
+        const hl = h.toLowerCase()
+        for (const [field, kws] of Object.entries(patterns)) {
+          if (!autoMap[field] && kws.some(kw => hl.includes(kw))) autoMap[field] = h
+        }
+      })
+      setMapping(autoMap)
       setStep('map')
       setError(null)
     }
     reader.readAsText(f)
   }
 
-  const requiredMappings = ['fecha', 'descripcion', 'categoria_ghg', 'valor_cop']
+  const requiredMappings = ['fecha', 'descripcion', 'valor_cop']
 
   async function handleImport() {
     if (requiredMappings.some(r => !mapping[r])) {
-      setError('Debes mapear al menos: fecha, descripción, categoría GHG y valor COP')
+      setError('Debes mapear al menos: fecha, descripción y valor COP')
       return
     }
     setStatus('importing')
     setError(null)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('mapping', JSON.stringify(mapping))
-      formData.append('connector_id', connector.id)
-      const res = await fetch('/api/csv-import', { method: 'POST', body: formData })
+      // Enviar csv_text + column_mapping como JSON (lo que espera el backend)
+      const res = await fetch('/api/csv-import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          csv_text: csvText,
+          column_mapping: mapping,
+          connector_id: connector.id,
+        }),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
       setResult(data)
@@ -330,32 +357,21 @@ function CSVImporterCard({ connector, onSuccess }) {
             {[
               { key: 'fecha',         label: t('integrations.columnDate'),     required: true },
               { key: 'descripcion',   label: t('integrations.columnDesc'),     required: true },
-              { key: 'categoria_ghg', label: t('integrations.category'),       required: true, isCategory: true },
               { key: 'valor_cop',     label: t('integrations.columnValue'),    required: true },
               { key: 'cantidad',      label: t('integrations.columnQty'),      required: false },
+              { key: 'unidad',        label: t('integrations.columnUnit'),     required: false },
               { key: 'proveedor',     label: t('integrations.columnSupplier'), required: false },
             ].map(field => (
               <div key={field.key} className="flex items-center gap-2">
                 <span className={`text-xs w-36 flex-shrink-0 ${field.required ? 'font-medium text-text-primary' : 'text-text-muted'}`}>
                   {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
                 </span>
-                {field.isCategory ? (
-                  <select value={mapping[field.key] || ''}
-                    onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
-                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
-                    <option value="">{t('integrations.selectCategory')}</option>
-                    {GHG_CATEGORIES.map(cat => (
-                      <option key={cat.value} value={cat.value}>{cat.label} (Alcance {cat.alcance})</option>
-                    ))}
-                  </select>
-                ) : (
-                  <select value={mapping[field.key] || ''}
-                    onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
-                    className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
-                    <option value="">{t('integrations.selectColumn')}</option>
-                    {headers.map(h => <option key={h} value={h}>{h}</option>)}
-                  </select>
-                )}
+                <select value={mapping[field.key] || ''}
+                  onChange={e => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
+                  className="flex-1 px-2 py-1.5 rounded-lg border border-border bg-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-300">
+                  <option value="">{t('integrations.selectColumn')}</option>
+                  {headers.map(h => <option key={h} value={h}>{h}</option>)}
+                </select>
               </div>
             ))}
           </div>
@@ -403,7 +419,7 @@ function CSVImporterCard({ connector, onSuccess }) {
             </div>
             <p className="text-sm font-semibold text-brand-400">{t('integrations.importSuccess')}</p>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center p-2 bg-surface-secondary rounded-lg">
               <p className="text-xl font-bold text-text-primary">{result.total_registros}</p>
               <p className="text-xs text-text-muted">{t('integrations.rowsImported')}</p>
@@ -411,6 +427,10 @@ function CSVImporterCard({ connector, onSuccess }) {
             <div className="text-center p-2 bg-surface-secondary rounded-lg">
               <p className="text-xl font-bold text-brand-400">{result.total_cop?.toLocaleString()}</p>
               <p className="text-xs text-text-muted">COP total</p>
+            </div>
+            <div className="text-center p-2 bg-brand-50 border border-brand-100 rounded-lg">
+              <p className="text-xl font-bold text-brand-400">{result.total_kg_co2e?.toFixed(1)}</p>
+              <p className="text-xs text-text-muted">kg CO₂e</p>
             </div>
           </div>
           {result.categorias && (
