@@ -1,5 +1,5 @@
-// api/calculate.js — versión async
-// Cambio clave: responde inmediato con calculo GHG, encola análisis Claude
+// api/calculate.js — con rate limiting (reemplaza el existente)
+import { checkRateLimit, checkOrigin } from './middleware/rateLimit.js'
 
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
@@ -152,73 +152,52 @@ function calcularEmisiones(empresa, respuestas) {
   }
 }
 
-// ── Encolar trabajo en background via Supabase ────────────────────────────────
 async function encolarAnalisisIA(supabaseUrl, supabaseKey, payload) {
   await fetch(`${supabaseUrl}/rest/v1/jobs_queue`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Prefer': 'return=minimal',
-    },
-    body: JSON.stringify({
-      id: payload.diagnostico_id,           // idempotencia: misma id = no duplica
-      type: 'analisis_ia',
-      status: 'pending',
-      payload: JSON.stringify(payload),
-      attempts: 0,
-      created_at: new Date().toISOString(),
-    }),
+    headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ id: payload.diagnostico_id, type: 'analisis_ia', status: 'pending', payload: JSON.stringify(payload), attempts: 0, created_at: new Date().toISOString() }),
   })
 }
 
-// ── Guardar diagnóstico con análisis fallback inmediato ───────────────────────
 async function guardarDiagnostico(supabaseUrl, supabaseKey, resultado) {
   if (!supabaseKey || !resultado.user_id) return
   try {
     await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({
-        id: resultado.id,
-        user_id: resultado.user_id,
-        empresa: resultado.empresa,
-        calculo: resultado.calculo,
-        analisis: resultado.analisis,     // fallback ya incluido
-        respuestas: resultado.respuestas,
-        analisis_status: 'pending',       // Claude aún no procesó
-        created_at: resultado.timestamp,
-      }),
+      headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ id: resultado.id, user_id: resultado.user_id, empresa: resultado.empresa, calculo: resultado.calculo, analisis: resultado.analisis, respuestas: resultado.respuestas, analisis_status: 'pending', created_at: resultado.timestamp }),
     })
-  } catch (e) {
-    console.error('Supabase insert error:', e)
-  }
+  } catch (e) { console.error('Supabase insert error:', e) }
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://ecometrix-app-one.vercel.app')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  // ── Seguridad ─────────────────────────────────────────────────────────────
+  if (!checkOrigin(req, res)) return
+  const allowed = await checkRateLimit(req, res, '/api/calculate')
+  if (!allowed) return
+
   try {
     const { empresa, respuestas, user_id } = req.body
+
+    // Validación básica anti-bot
+    if (!empresa?.nombre || !empresa?.sector || !respuestas) {
+      return res.status(400).json({ error: 'Datos incompletos' })
+    }
+
     const supabaseUrl = process.env.SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const diagnosticoId = `ecm_${Date.now()}`
 
-    // ── Paso 1: cálculo GHG local — rápido, sin red ──────────────────────
     const calculo = calcularEmisiones(empresa, respuestas)
 
-    // ── Paso 2: análisis fallback inmediato (sin IA) ──────────────────────
     const analisisFallback = {
       resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO₂e/año, con nivel de impacto ${calculo.nivelImpacto} para el sector ${empresa.sector}. El análisis detallado con IA se está generando.`,
       principales_fuentes: calculo.detalles.slice(0, 3).map(d => d.categoria),
@@ -233,35 +212,15 @@ export default async function handler(req, res) {
       siguiente_paso: 'Iniciar auditoría energética para identificar las mayores oportunidades de reducción.',
     }
 
-    const resultado = {
-      id: diagnosticoId,
-      user_id: user_id || null,
-      empresa, calculo, respuestas,
-      analisis: analisisFallback,
-      analisis_status: 'pending',   // el frontend usa esto para saber si Claude ya procesó
-      timestamp: new Date().toISOString(),
-    }
+    const resultado = { id: diagnosticoId, user_id: user_id || null, empresa, calculo, respuestas, analisis: analisisFallback, analisis_status: 'pending', timestamp: new Date().toISOString() }
 
-    // ── Paso 3: guardar en Supabase (no bloquea la respuesta) ─────────────
-    // No await — fire and forget con manejo de error interno
-    guardarDiagnostico(supabaseUrl, supabaseKey, resultado).catch(e =>
-      console.error('Background save failed:', e)
-    )
+    guardarDiagnostico(supabaseUrl, supabaseKey, resultado).catch(e => console.error('Background save failed:', e))
 
-    // ── Paso 4: encolar análisis IA (idempotente por diagnosticoId) ───────
     if (process.env.ANTHROPIC_API_KEY && supabaseKey) {
-      encolarAnalisisIA(supabaseUrl, supabaseKey, {
-        diagnostico_id: diagnosticoId,
-        empresa,
-        calculo,
-        respuestas,
-        user_id: user_id || null,
-      }).catch(e => console.error('Enqueue failed:', e))
+      encolarAnalisisIA(supabaseUrl, supabaseKey, { diagnostico_id: diagnosticoId, empresa, calculo, respuestas, user_id: user_id || null }).catch(e => console.error('Enqueue failed:', e))
     }
 
-    // ── Paso 5: respuesta inmediata — no espera Claude ────────────────────
     return res.status(200).json(resultado)
-
   } catch (err) {
     console.error('Calculate error:', err)
     return res.status(500).json({ error: err.message })
