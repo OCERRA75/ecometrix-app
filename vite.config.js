@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => ({
     // 1. NUNCA generar source maps en producción — revelan código original
     sourcemap: false,
 
+    // Suprimir warning de chunks grandes (jspdf es 1.1MB por diseño)
+    chunkSizeWarningLimit: 1500,
+
     // 2. Minificación agresiva con esbuild (incluido en Vite)
     minify: 'esbuild',
 
