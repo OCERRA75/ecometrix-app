@@ -1,6 +1,7 @@
-// api/create-payment.js — Vercel Serverless Function
+// api/create-payment.js
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import { checkOrigin } from './middleware/rateLimit.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -10,29 +11,32 @@ const supabase = createClient(
 const PLANES = {
   basico: {
     nombre: 'Plan Básico',
-    precio_cop: 7900000, // $79.000 COP en centavos
-    descripcion: 'Diagnósticos ilimitados, reporte PDF, certificación básica',
+    precio_cop: 7900000,   // $79.000 COP en centavos
+    nivel: 1,
   },
   pro: {
     nombre: 'Plan Pro',
-    precio_cop: 19900000, // $199.000 COP en centavos
-    descripcion: 'Todo lo del Básico + Plan de reducción, CSRD, API acceso',
+    precio_cop: 19900000,  // $199.000 COP en centavos
+    nivel: 2,
   },
   enterprise: {
     nombre: 'Plan Enterprise',
-    precio_cop: 49900000, // $499.000 COP en centavos
-    descripcion: 'Todo lo del Pro + soporte prioritario, múltiples usuarios',
+    precio_cop: 49900000,  // $499.000 COP en centavos
+    nivel: 3,
   },
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://ecometrix-app-one.vercel.app')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  if (!checkOrigin(req, res)) return
+
+  // Autenticar usuario
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (!token) return res.status(401).json({ error: 'Token requerido' })
 
@@ -44,21 +48,40 @@ export default async function handler(req, res) {
   if (!plan) return res.status(400).json({ error: 'Plan no válido' })
 
   try {
-    // Referencia única para esta transacción
-    const referencia = `ecm_${user.id.slice(0,8)}_${plan_id}_${Date.now()}`
+    // Verificar si ya tiene un plan igual o superior
+    const { data: perfil } = await supabase
+      .from('profiles')
+      .select('plan, role')
+      .eq('id', user.id)
+      .single()
 
-    // Generar firma de integridad para Wompi
+    if (perfil?.role === 'superadmin') {
+      return res.status(400).json({ error: 'Cuenta superadmin — no requiere pago' })
+    }
+
+    const NIVEL_PLAN = { free: 0, basico: 1, pro: 2, enterprise: 3 }
+    if ((NIVEL_PLAN[perfil?.plan] || 0) >= plan.nivel) {
+      return res.status(400).json({ error: `Ya tienes ${perfil.plan} o superior` })
+    }
+
+    // Referencia única
+    const referencia = `ecm_${user.id.slice(0, 8)}_${plan_id}_${Date.now()}`
+
+    // Firma de integridad Wompi
     const cadena = `${referencia}${plan.precio_cop}COP${process.env.WOMPI_INTEGRITY_SECRET}`
     const firma = crypto.createHash('sha256').update(cadena).digest('hex')
 
-    // Guardar intento de pago en Supabase
-    await supabase.from('pagos').insert({
+    // Guardar intento de pago
+    const { error: insertError } = await supabase.from('pagos').insert({
       user_id: user.id,
       referencia,
       plan_id,
       monto_cop: plan.precio_cop,
       estado: 'pendiente',
+      created_at: new Date().toISOString(),
     })
+
+    if (insertError) throw insertError
 
     return res.status(200).json({
       ok: true,
@@ -69,6 +92,7 @@ export default async function handler(req, res) {
       public_key: process.env.WOMPI_PUBLIC_KEY,
     })
   } catch (err) {
+    console.error('create-payment error:', err)
     return res.status(500).json({ error: 'server_error', message: err.message })
   }
 }
