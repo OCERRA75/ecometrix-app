@@ -1917,7 +1917,7 @@ const resources = {
         howStep3: 'Les donnÃ©es importÃ©es sont utilisÃ©es directement dans le calcul de l\'empreinte carbone',
         customErpTitle: 'Vous utilisez un autre ERP ?',
         customErpHeadline: 'Demandez une intÃ©gration personnalisÃ©e',
-        customErpDesc: 'Si vous utilisez WORLD OFFICE, SAP Business One, Contpaqi ou un autre systÃ¨me, nous pouvons dÃ©velopper l'intÃ©gration pour votre entreprise.',
+        customErpDesc: 'Si vous utilisez WORLD OFFICE, SAP Business One ou un autre systeme, nous pouvons developper l\\'integration pour votre entreprise.',
         customErpCta: 'Demander l'intÃ©gration â†’',
         columnDate: 'Date',
         columnDesc: 'Description',
