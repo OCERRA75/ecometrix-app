@@ -1914,7 +1914,7 @@ const resources = {
         importAnother: 'Importer un autre fichier',
         howStep1: 'Entrez vos identifiants API ou téléchargez votre fichier CSV exporté',
         howStep2: 'EcoMetriX classe chaque dépense selon les portées du GHG Protocol',
-        howStep3: 'Les données importées sont utilisées directement dans le calcul de l'empreinte carbone',
+        howStep3: 'Les données importées sont utilisées directement dans le calcul de l\'empreinte carbone',
         customErpTitle: 'Vous utilisez un autre ERP ?',
         customErpHeadline: 'Demandez une intégration personnalisée',
         customErpDesc: 'Si vous utilisez WORLD OFFICE, SAP Business One, Contpaqi ou un autre système, nous pouvons développer l'intégration pour votre entreprise.',
