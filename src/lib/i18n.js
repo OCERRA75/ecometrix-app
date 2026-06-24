@@ -2001,3 +2001,4 @@ export const LANGUAGES = [
   { code: 'pt', label: 'Português', flag: '🇧🇷' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
 ]
+// build: 2026-06-23T19:58:22.253022
