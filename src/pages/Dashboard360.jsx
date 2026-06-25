@@ -261,31 +261,12 @@ export default function Dashboard360() {
 
   useEffect(() => {
     async function loadData() {
-      // 1. Intentar desde sessionStorage (diagnóstico recién hecho)
-      const stored = sessionStorage.getItem('ecometrix_result')
-
-      // 2. Buscar usuario autenticado
+      // 1. Obtener usuario autenticado
       const { data: { user } } = await supabase.auth.getUser()
+      setUserId(user?.id || null)
 
-      // 3. Si hay sessionStorage y usuario autenticado, vincular diagnóstico anónimo
-      if (stored && user) {
-        const storedData = JSON.parse(stored)
-        if (storedData.id && !storedData.user_id) {
-          await supabase
-            .from('diagnosticos')
-            .update({ user_id: user.id })
-            .eq('id', storedData.id)
-            .is('user_id', null)
-          storedData.user_id = user.id
-          sessionStorage.setItem('ecometrix_result', JSON.stringify(storedData))
-        }
-        setData(storedData)
-        setUserId(user?.id || null)
-      }
-
-      // 4. Cargar historial si hay usuario autenticado
       if (user) {
-        setUserId(user.id)
+        // 2. Cargar historial de diagnósticos del usuario
         const { data: todos } = await supabase
           .from('diagnosticos')
           .select('id, empresa, calculo, created_at')
@@ -295,22 +276,54 @@ export default function Dashboard360() {
 
         if (todos && todos.length > 0) {
           setHistorial(todos)
-          // Si no hay sessionStorage, cargar el más reciente
-          if (!stored) {
+
+          // 3. Verificar si sessionStorage tiene un diagnóstico válido de este usuario
+          const stored = sessionStorage.getItem('ecometrix_result')
+          const storedData = stored ? JSON.parse(stored) : null
+          const storedEsValido = storedData &&
+            (storedData.user_id === user.id || todos.some(d => d.id === storedData.id))
+
+          if (storedEsValido) {
+            // Vincular si era anónimo
+            if (storedData.id && !storedData.user_id) {
+              await supabase
+                .from('diagnosticos')
+                .update({ user_id: user.id })
+                .eq('id', storedData.id)
+                .is('user_id', null)
+              storedData.user_id = user.id
+              sessionStorage.setItem('ecometrix_result', JSON.stringify(storedData))
+            }
+            setData(storedData)
+          } else {
+            // 4. sessionStorage vacío o de otro usuario → cargar el más reciente desde Supabase
             const { data: diag } = await supabase
               .from('diagnosticos')
               .select('id, empresa, calculo, analisis, respuestas')
               .eq('id', todos[0].id)
               .single()
             if (diag) {
-              const result = { id: diag.id, empresa: diag.empresa, calculo: diag.calculo, analisis: diag.analisis, respuestas: diag.respuestas }
+              const result = {
+                id: diag.id,
+                empresa: diag.empresa,
+                calculo: diag.calculo,
+                analisis: diag.analisis,
+                respuestas: diag.respuestas,
+                user_id: user.id,
+              }
               setData(result)
               sessionStorage.setItem('ecometrix_result', JSON.stringify(result))
             }
           }
+        } else {
+          // Usuario sin diagnósticos aún — revisar sessionStorage
+          const stored = sessionStorage.getItem('ecometrix_result')
+          if (stored) setData(JSON.parse(stored))
         }
-      } else if (stored) {
-        setData(JSON.parse(stored))
+      } else {
+        // Sin sesión — solo sessionStorage
+        const stored = sessionStorage.getItem('ecometrix_result')
+        if (stored) setData(JSON.parse(stored))
       }
 
       setLoading(false)
