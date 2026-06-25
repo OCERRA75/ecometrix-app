@@ -1,12 +1,11 @@
 {
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ],
   "crons": [
-    {
-      "path": "/api/process-ia-queue",
-      "schedule": "* * * * *"
-    },
     {
       "path": "/api/send-monthly-reminder",
       "schedule": "0 14 1 * *"
