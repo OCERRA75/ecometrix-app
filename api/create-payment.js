@@ -1,7 +1,7 @@
 // api/create-payment.js
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
-import { checkOrigin } from './middleware/rateLimit.js'
+import { checkOrigin } from '../src/lib/rateLimit.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL,

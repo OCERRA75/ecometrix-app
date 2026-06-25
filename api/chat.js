@@ -1,5 +1,5 @@
 // api/chat.js — con rate limiting y verificación de origen
-import { checkRateLimit, checkOrigin } from './middleware/rateLimit.js'
+import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://ecometrix-app-one.vercel.app')

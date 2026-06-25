@@ -1,5 +1,5 @@
 // api/calculate.js — con rate limiting (reemplaza el existente)
-import { checkRateLimit, checkOrigin } from './middleware/rateLimit.js'
+import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
 
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
