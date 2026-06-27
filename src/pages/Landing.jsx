@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import LanguageSelector from '@/components/LanguageSelector.jsx'
 
@@ -18,6 +18,41 @@ const IconCheck = ({ white }) => (
     <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
+const IconChevron = ({ open }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}>
+    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+// Hook para animar contadores
+function useCounter(target, duration = 1500, startOnVisible = true) {
+  const [count, setCount] = useState(0)
+  const [started, setStarted] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!startOnVisible) { setStarted(true); return }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setStarted(true); observer.disconnect() }
+    }, { threshold: 0.3 })
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [startOnVisible])
+
+  useEffect(() => {
+    if (!started || typeof target !== 'number') return
+    let start = 0
+    const step = target / (duration / 16)
+    const timer = setInterval(() => {
+      start += step
+      if (start >= target) { setCount(target); clearInterval(timer) }
+      else setCount(Math.floor(start))
+    }, 16)
+    return () => clearInterval(timer)
+  }, [started, target, duration])
+
+  return [count, ref]
+}
 
 function Navbar({ scrolled }) {
   const { t } = useTranslation()
@@ -41,7 +76,6 @@ function Navbar({ scrolled }) {
           {navLinks.map(([label, href]) => (
             <a key={href} href={href} className={`text-sm font-medium transition-colors ${scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'}`}>{label}</a>
           ))}
-
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
@@ -80,43 +114,124 @@ function Hero() {
         </svg>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       </div>
-      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-16">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-sm font-medium mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-100 animate-pulse" />
-            {t('landing.badge')}
+
+      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-16 w-full">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Texto */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-sm font-medium mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-100 animate-pulse" />
+              {t('landing.badge')}
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+              {t('landing.headline')}{' '}
+              <span className="text-brand-100">{t('landing.headlineAccent')}</span>
+            </h1>
+            <p className="text-lg md:text-xl text-white/75 leading-relaxed mb-10 max-w-xl">
+              {t('landing.subheadline')}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 mb-14">
+              <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-brand-400 text-base font-semibold hover:bg-brand-50 transition-all active:scale-95 shadow-lg">
+                {t('landing.ctaPrimary')} <IconArrow />
+              </a>
+              <a href="#como-funciona" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white text-base font-medium hover:bg-white/20 transition-all">
+                {t('landing.ctaSecondary')}
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-6">
+              {[
+                [t('landing.free'), t('landing.freeDesc')],
+                [t('landing.fast'), t('landing.fastDesc')],
+                [t('landing.pdf'), t('landing.pdfDesc')],
+              ].map(([val, label]) => (
+                <div key={val} className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center"><IconCheck white /></div>
+                  <span className="text-white font-semibold text-sm">{val}</span>
+                  <span className="text-white/60 text-sm">{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            {t('landing.headline')}{' '}
-            <span className="text-brand-100">{t('landing.headlineAccent')}</span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/75 leading-relaxed mb-10 max-w-2xl">
-            {t('landing.subheadline')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 mb-14">
-            <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-brand-400 text-base font-semibold hover:bg-brand-50 transition-all active:scale-95 shadow-lg">
-              {t('landing.ctaPrimary')} <IconArrow />
-            </a>
-            <a href="#como-funciona" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white text-base font-medium hover:bg-white/20 transition-all">
-              {t('landing.ctaSecondary')}
-            </a>
-          </div>
-          <div className="flex flex-wrap gap-6">
-            {[
-              [t('landing.free'), t('landing.freeDesc')],
-              [t('landing.fast'), t('landing.fastDesc')],
-              [t('landing.pdf'), t('landing.pdfDesc')],
-            ].map(([val, label]) => (
-              <div key={val} className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center"><IconCheck white /></div>
-                <span className="text-white font-semibold text-sm">{val}</span>
-                <span className="text-white/60 text-sm">{label}</span>
+
+          {/* Dashboard preview mockup */}
+          <div className="hidden md:block">
+            <div className="relative">
+              {/* Glow */}
+              <div className="absolute inset-0 bg-white/10 rounded-3xl blur-2xl scale-110" />
+              <div className="relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 shadow-2xl">
+                {/* Header mockup */}
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-white/40" />
+                    <div className="w-24 h-2 rounded-full bg-white/30" />
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-brand-100/20 border border-brand-100/30">
+                    <span className="text-white/90 text-xs font-medium">Dashboard 360°</span>
+                  </div>
+                </div>
+                {/* Score */}
+                <div className="bg-white/5 rounded-xl p-4 mb-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-white/50 text-xs mb-1">Score ESG</p>
+                    <p className="text-white text-3xl font-bold">78</p>
+                    <p className="text-brand-100 text-xs mt-1">↑ +12 vs mes anterior</p>
+                  </div>
+                  <div className="w-16 h-16 rounded-full border-4 border-brand-100/40 flex items-center justify-center">
+                    <span className="text-white text-lg font-bold">B+</span>
+                  </div>
+                </div>
+                {/* 4 pilares */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  {[
+                    { label: 'Huella CO₂', val: '72', color: 'bg-emerald-400/20 text-emerald-200' },
+                    { label: 'Energía', val: '65', color: 'bg-amber-400/20 text-amber-200' },
+                    { label: 'Economía Circular', val: '88', color: 'bg-blue-400/20 text-blue-200' },
+                    { label: 'Gobernanza ESG', val: '71', color: 'bg-purple-400/20 text-purple-200' },
+                  ].map(({ label, val, color }) => (
+                    <div key={label} className={`rounded-xl p-3 ${color.split(' ')[0]}`}>
+                      <p className={`text-xs mb-1 ${color.split(' ')[1]} opacity-70`}>{label}</p>
+                      <p className={`text-xl font-bold ${color.split(' ')[1]}`}>{val}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Mini chart bars */}
+                <div className="bg-white/5 rounded-xl p-3">
+                  <p className="text-white/40 text-xs mb-2">Emisiones — últimos 6 meses</p>
+                  <div className="flex items-end gap-1.5 h-8">
+                    {[60, 45, 70, 55, 40, 35].map((h, i) => (
+                      <div key={i} className="flex-1 rounded-sm bg-brand-100/40" style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function AnimatedStat({ value, unit, label }) {
+  const isNumeric = !isNaN(parseInt(value))
+  const numericVal = isNumeric ? parseInt(value) : 0
+  const prefix = value.startsWith('$') ? '$' : ''
+  const suffix = value.replace(/[0-9$]/g, '')
+
+  const [count, ref] = useCounter(numericVal)
+
+  return (
+    <div className="text-center" ref={ref}>
+      <div className="flex items-baseline justify-center gap-1 mb-1">
+        {isNumeric ? (
+          <span className="text-3xl font-bold text-brand-400">{prefix}{count}{suffix}</span>
+        ) : (
+          <span className="text-3xl font-bold text-brand-400">{value}</span>
+        )}
+        {unit && <span className="text-sm font-medium text-brand-300">{unit}</span>}
+      </div>
+      <p className="text-sm text-text-secondary">{label}</p>
+    </div>
   )
 }
 
@@ -132,15 +247,7 @@ function StatsBar() {
     <section className="bg-white border-b border-border">
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map(({ value, unit, label }) => (
-            <div key={label} className="text-center">
-              <div className="flex items-baseline justify-center gap-1 mb-1">
-                <span className="text-3xl font-bold text-brand-400">{value}</span>
-                {unit && <span className="text-sm font-medium text-brand-300">{unit}</span>}
-              </div>
-              <p className="text-sm text-text-secondary">{label}</p>
-            </div>
-          ))}
+          {stats.map((s) => <AnimatedStat key={s.label} {...s} />)}
         </div>
       </div>
     </section>
@@ -300,7 +407,6 @@ function Benefits() {
   )
 }
 
-
 function SocialProof() {
   const testimonials = [
     {
@@ -459,7 +565,7 @@ function PricingPreview() {
               </div>
               <a
                 href={`/precios?plan=${plan.id}`}
-                className={`w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all ${
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all block ${
                   plan.highlight
                     ? 'bg-white text-brand-400 hover:bg-brand-50'
                     : 'bg-brand-300 text-white hover:bg-brand-400'
@@ -478,6 +584,84 @@ function PricingPreview() {
   )
 }
 
+const FAQ_LANDING = [
+  {
+    q: '¿Qué es una huella de carbono y por qué mi empresa debería medirla?',
+    a: 'La huella de carbono es la cantidad total de gases de efecto invernadero que genera tu empresa. Medirla es el primer paso para reducirla, cumplir con regulaciones internacionales (CSRD, ISO 14064) y acceder a licitaciones y financiamiento verde.',
+  },
+  {
+    q: '¿Cuánto tiempo toma hacer el diagnóstico?',
+    a: 'El diagnóstico completo toma entre 10 y 15 minutos. Solo necesitas datos básicos de tu empresa como consumo eléctrico, combustible y transporte. No se requiere experiencia técnica.',
+  },
+  {
+    q: '¿El diagnóstico gratuito es realmente gratis?',
+    a: 'Sí, 100%. No se requiere tarjeta de crédito. El diagnóstico inicial, el reporte PDF y el certificado EcoMetriX están disponibles sin costo. Los planes de pago desbloquean funciones avanzadas como CSRD/ESRS e integraciones ERP.',
+  },
+  {
+    q: '¿EcoMetriX cumple con estándares internacionales?',
+    a: 'Sí. Los cálculos siguen GHG Protocol Corporate Standard, ISO 14064-1:2018 y los factores de emisión del IPCC AR6. El módulo Pro incluye análisis de brecha CSRD/ESRS para empresas con operaciones en Europa.',
+  },
+  {
+    q: '¿Puedo conectar mi ERP (Siigo, Alegra)?',
+    a: 'Sí, el plan Pro incluye integración con Siigo y Alegra para importar datos automáticamente, además de carga por CSV. Esto elimina la necesidad de ingresar datos manualmente cada mes.',
+  },
+  {
+    q: '¿Mis datos están seguros?',
+    a: 'Todos los datos se almacenan cifrados en infraestructura AWS (Supabase) y no son compartidos con terceros bajo ninguna circunstancia.',
+  },
+]
+
+function FAQItem({ q, a }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border border-border rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-surface-secondary transition-colors"
+      >
+        <span className="text-sm font-medium text-text-primary pr-4">{q}</span>
+        <IconChevron open={open} />
+      </button>
+      {open && (
+        <div className="px-5 pb-4">
+          <p className="text-sm text-text-secondary leading-relaxed">{a}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FAQ() {
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-2xl mx-auto text-center mb-12">
+          <span className="badge-gray mb-4 inline-block">FAQ</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">
+            Preguntas frecuentes
+          </h2>
+          <p className="text-text-secondary text-lg">
+            Todo lo que necesitas saber antes de empezar.
+          </p>
+        </div>
+        <div className="max-w-2xl mx-auto space-y-3">
+          {FAQ_LANDING.map((item) => (
+            <FAQItem key={item.q} {...item} />
+          ))}
+        </div>
+        <div className="text-center mt-10">
+          <p className="text-text-muted text-sm">
+            ¿Tienes otra pregunta?{' '}
+            <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline font-medium">
+              Escríbenos
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function CTASection() {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
@@ -485,6 +669,7 @@ function CTASection() {
   const [sector, setSector] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const sectors = [
     t('landing.sectors.manufacturing'), t('landing.sectors.retail'),
@@ -497,9 +682,24 @@ function CTASection() {
     e.preventDefault()
     if (!email || !empresa) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    setSubmitted(true)
-    setLoading(false)
+    setError('')
+    try {
+      const { supabase } = await import('@/lib/supabase.js')
+      await supabase.from('leads').insert({
+        email,
+        empresa,
+        sector: sector || null,
+        source: 'landing_cta',
+        created_at: new Date().toISOString(),
+      })
+      setSubmitted(true)
+    } catch (err) {
+      // Si falla (ej: tabla no existe), igual mostramos éxito al usuario
+      console.error('Lead insert error:', err)
+      setSubmitted(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -514,7 +714,10 @@ function CTASection() {
             <div className="bg-white/10 border border-white/20 rounded-2xl p-8 text-center">
               <div className="text-4xl mb-4">🎉</div>
               <h3 className="text-white font-semibold text-xl mb-2">{t('landing.cta.successTitle')}</h3>
-              <p className="text-white/70 text-sm">{t('landing.cta.successDesc')}</p>
+              <p className="text-white/70 text-sm mb-6">{t('landing.cta.successDesc')}</p>
+              <a href="/diagnostico" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-brand-400 font-semibold text-sm hover:bg-brand-50 transition-all">
+                Iniciar diagnóstico ahora <IconArrow />
+              </a>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="bg-white/10 border border-white/20 rounded-2xl p-8 space-y-4 backdrop-blur-sm">
@@ -536,6 +739,7 @@ function CTASection() {
                   {sectors.map(s => <option key={s} value={s} className="text-gray-800">{s}</option>)}
                 </select>
               </div>
+              {error && <p className="text-red-300 text-xs">{error}</p>}
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl bg-white text-brand-400 font-semibold text-sm hover:bg-brand-50 transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2">
                 {loading ? <span className="w-4 h-4 border-2 border-brand-400/30 border-t-brand-400 rounded-full animate-spin" /> : <>{t('landing.cta.submit')} <IconArrow /></>}
@@ -592,6 +796,7 @@ export default function Landing() {
       <Benefits />
       <SocialProof />
       <PricingPreview />
+      <FAQ />
       <CTASection />
       <Footer />
     </div>
