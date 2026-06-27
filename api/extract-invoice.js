@@ -1,36 +1,26 @@
 // api/extract-invoice.js
-// Extrae datos de facturas PDF con AWS Textract + Claude
-// y los clasifica según GHG Protocol (Alcance 1, 2, 3)
+const Anthropic = require('@anthropic-ai/sdk')
+const { TextractClient, DetectDocumentTextCommand } = require('@aws-sdk/client-textract')
 
-import Anthropic from '@anthropic-ai/sdk'
-import {
-  TextractClient,
-  DetectDocumentTextCommand,
-} from '@aws-sdk/client-textract'
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
-const textract = new TextractClient({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   try {
-    const { base64, mimeType } = req.body
+    const { base64 } = req.body
     if (!base64) return res.status(400).json({ error: 'No file provided' })
 
     // 1. Extraer texto con Textract
+    const textract = new TextractClient({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+
     const buffer = Buffer.from(base64, 'base64')
     const textractRes = await textract.send(
-      new DetectDocumentTextCommand({
-        Document: { Bytes: buffer },
-      })
+      new DetectDocumentTextCommand({ Document: { Bytes: buffer } })
     )
 
     const textoExtraido = textractRes.Blocks
@@ -43,6 +33,8 @@ export default async function handler(req, res) {
     }
 
     // 2. Clasificar con Claude
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
     const prompt = `Eres un experto en huella de carbono corporativa y GHG Protocol. 
 Analiza el siguiente texto extraído de una factura o documento empresarial y extrae los datos relevantes para calcular emisiones de CO2.
 
@@ -57,15 +49,15 @@ Responde SOLO con un JSON válido (sin markdown, sin texto adicional) con esta e
   "items": [
     {
       "descripcion": "descripción del item",
-      "cantidad": número o null,
-      "unidad": "kWh | m3 | galones | litros | km | ton | kg | null",
-      "valor_cop": número o null,
-      "alcance_ghg": 1 | 2 | 3,
+      "cantidad": 0,
+      "unidad": "kWh | m3 | galones | litros | km | ton | kg",
+      "valor_cop": 0,
+      "alcance_ghg": 1,
       "categoria": "electricidad | gas_natural | gasolina | diesel | acpm | gas_propano | agua | transporte_carga | transporte_empleados | residuos | otro",
       "campo_cuestionario": "consumo_electricidad | consumo_gas_natural | consumo_gasolina | consumo_diesel | consumo_acpm | consumo_gas_propano | km_carga | km_empleados | null"
     }
   ],
-  "resumen": "descripción breve en español de qué contiene la factura y qué emisiones genera",
+  "resumen": "descripción breve en español de qué contiene la factura",
   "confianza": "alta | media | baja"
 }`
 
@@ -80,19 +72,15 @@ Responde SOLO con un JSON válido (sin markdown, sin texto adicional) con esta e
     try {
       clasificacion = JSON.parse(rawText)
     } catch {
-      // Intentar extraer JSON si Claude agregó texto extra
       const match = rawText.match(/\{[\s\S]*\}/)
       if (match) clasificacion = JSON.parse(match[0])
-      else throw new Error('Respuesta de Claude no es JSON válido')
+      else throw new Error('Respuesta no es JSON válido')
     }
 
-    return res.status(200).json({
-      ok: true,
-      texto_extraido: textoExtraido.substring(0, 500), // preview
-      clasificacion,
-    })
+    return res.status(200).json({ ok: true, clasificacion })
+
   } catch (err) {
-    console.error('extract-invoice error:', err)
+    console.error('extract-invoice error:', err.message)
     return res.status(500).json({ ok: false, error: err.message })
   }
 }
