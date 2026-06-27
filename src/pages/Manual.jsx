@@ -1,6 +1,6 @@
 // src/pages/Manual.jsx
 // Manual de usuario EcoMetriX — diseño editorial fresco
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -127,7 +127,7 @@ async function generarManualPDF() {
   doc.text('Guia completa para medir y gestionar', M, 142)
   doc.text('la huella de carbono de tu empresa', M, 152)
   doc.setFontSize(9)
-  doc.text(`Version 1.0  |  ${new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}`, M, 270)
+  doc.text(`Version 3.0  |  ${new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}`, M, 270)
   doc.text('ecometrix-app-one.vercel.app', M, 278)
 
   // Índice
@@ -174,6 +174,241 @@ async function generarManualPDF() {
     }
   }
 
+
+  // ── Sección helper ──────────────────────────────────────────────────────
+  const addSection = (titulo, num, icon) => {
+    checkPage(20)
+    doc.setFillColor(...verdeClaro)
+    doc.roundedRect(M, y, W - M * 2, 10, 2, 2, 'F')
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...verde)
+    doc.text(num, M + 3, y + 7)
+    doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    doc.text(titulo, M + 14, y + 7)
+    y += 14
+  }
+
+  const addParagraph = (text, indent = 0) => {
+    checkPage(14)
+    const lines = doc.splitTextToSize(text, W - M * 2 - indent)
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+    doc.text(lines, M + indent, y)
+    y += lines.length * 5 + 3
+  }
+
+  const addBullet = (items) => {
+    items.forEach(item => {
+      checkPage(8)
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...verde)
+      doc.text('→', M + 3, y)
+      doc.setTextColor(...gris)
+      const lines = doc.splitTextToSize(item, W - M * 2 - 12)
+      doc.text(lines, M + 10, y)
+      y += lines.length * 5 + 1
+    })
+    y += 2
+  }
+
+  const addSubtitle = (text) => {
+    checkPage(12)
+    y += 3
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    doc.text(text, M, y)
+    y += 7
+  }
+
+  const addInfoBox = (text, bg = verdeClaro, tc = verde) => {
+    checkPage(18)
+    const lines = doc.splitTextToSize(text, W - M * 2 - 10)
+    const h = lines.length * 5 + 8
+    doc.setFillColor(...bg)
+    doc.roundedRect(M, y, W - M * 2, h, 2, 2, 'F')
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...tc)
+    doc.text(lines, M + 5, y + 6)
+    y += h + 4
+  }
+
+  // ── 03 Diagnóstico ──────────────────────────────────────────────────────
+  addPage()
+  addSection('El diagnóstico paso a paso', '03', '📋')
+  addParagraph('El cuestionario tiene 5 etapas. Puedes navegar entre ellas — tus respuestas se guardan automáticamente en el navegador.')
+  y += 2
+
+  const pasos = [
+    { titulo: 'Paso 1 — Tu empresa', items: ['Nombre y correo corporativo (recibirás el reporte aquí)', 'NIT / RUT (opcional)', 'Sector económico y tamaño de empresa', 'País de operación'] },
+    { titulo: 'Paso 2 — Alcance 1 (Emisiones directas)', items: ['Gas natural o GLP (m³ o galones/mes)', 'Flota de vehículos propios', 'Refrigerantes en equipos de climatización', 'Generadores eléctricos'] },
+    { titulo: 'Paso 3 — Alcance 2 (Energía indirecta)', items: ['Consumo mensual de electricidad (kWh)', 'Energía solar generada (si aplica)', 'Otras fuentes de energía comprada'] },
+    { titulo: 'Paso 4 — Alcance 3 (Cadena de valor)', items: ['Compras a proveedores', 'Logística y transporte', 'Viajes de negocio', 'Desplazamiento de empleados', 'Gestión de residuos'] },
+    { titulo: 'Paso 5 — Resumen y envío', items: ['Revisión de datos ingresados', 'Cálculo automático en segundos', 'Redirección al reporte completo'] },
+  ]
+
+  pasos.forEach(({ titulo, items }) => {
+    checkPage(30)
+    doc.setFillColor(240, 253, 244)
+    doc.roundedRect(M, y, W - M * 2, 8, 2, 2, 'F')
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...verde)
+    doc.text(titulo, M + 4, y + 5.5)
+    y += 11
+    addBullet(items)
+    y += 2
+  })
+
+  addInfoBox('Nuevo en v3.0: Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el botón "Importar factura" en la barra superior. Sube una imagen JPG/PNG de tu factura de electricidad, gas o combustible y EcoMetriX extrae automáticamente los datos usando inteligencia artificial.', [239,246,255], [29,78,216])
+
+  // ── 04 Reporte ──────────────────────────────────────────────────────────
+  addPage()
+  addSection('Tu reporte de resultados', '04', '📊')
+  addParagraph('El reporte incluye 7 módulos. Aquí explicamos qué significa cada uno:')
+  y += 2
+
+  const modulos = [
+    ['1. Resumen ejecutivo', 'Texto generado por IA con la situación de tu empresa, nivel de impacto (Bajo / Moderado / Alto) y comparación con el promedio del sector.'],
+    ['2. Métricas principales', 'Huella total en toneladas CO2e/año, desglose por los 3 alcances en kg CO2e/mes, y valor económico equivalente al mercado de carbono europeo (EU ETS).'],
+    ['3. Distribución por alcance', 'Gráfica que muestra qué porcentaje de tus emisiones viene de cada alcance.'],
+    ['4. Fuentes de emisión', 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (trazable al IPCC AR6).'],
+    ['5. Plan de reducción', '5 acciones priorizadas por impacto potencial y facilidad. Cada acción incluye % de reducción estimado, dificultad y plazo.'],
+    ['6. Metodología aplicada', 'Badges con cobertura de cada estándar: GHG Protocol, ISO 14064-1, IPCC AR6, CSRD/ESRS E1, SBTi Baseline y GRI 305.'],
+    ['7. Certificación EcoMetriX', 'Score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros desbloqueados.'],
+  ]
+
+  modulos.forEach(([titulo, desc]) => {
+    checkPage(16)
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    doc.text(titulo, M, y)
+    y += 5
+    addParagraph(desc, 4)
+  })
+
+  addInfoBox('El reporte tiene una URL única permanente. Puedes compartirla con socios, clientes o inversionistas sin necesidad de crear cuenta.', verdeClaro, verde)
+
+  // ── 05 Certificado ──────────────────────────────────────────────────────
+  addPage()
+  addSection('Certificado y credibilidad', '05', '🏅')
+  addParagraph('Al completar el diagnóstico, EcoMetriX genera automáticamente un Certificado de Diagnóstico de Huella de Carbono. Este certificado tiene una puntuación calculada matemáticamente y un código de verificación único.')
+  y += 4
+
+  const niveles = [
+    ['Iniciado Verde', '0–39 pts'],
+    ['Comprometido', '40–64 pts'],
+    ['Avanzado', '65–84 pts'],
+    ['Líder Sostenible', '85–100 pts'],
+  ]
+
+  const nw = (W - M * 2) / 4
+  niveles.forEach(([nivel, pts], i) => {
+    doc.setFillColor(...verdeClaro)
+    doc.roundedRect(M + i * nw, y, nw - 2, 18, 2, 2, 'F')
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...verde)
+    doc.text(nivel, M + i * nw + (nw - 2) / 2, y + 8, { align: 'center' })
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+    doc.text(pts, M + i * nw + (nw - 2) / 2, y + 14, { align: 'center' })
+  })
+  y += 22
+
+  addInfoBox('Verificacion: Cualquier persona puede verificar un certificado en ecometrix-app-one.vercel.app/verificar/[CODIGO]. El sistema consulta la base de datos en tiempo real.', verdeClaro, verde)
+
+  // ── 06 Estándares ───────────────────────────────────────────────────────
+  addPage()
+  addSection('Estándares aplicados', '06', '📐')
+  addParagraph('La credibilidad de EcoMetriX se basa en los estándares internacionales más reconocidos globalmente.')
+  y += 3
+
+  const estandares = [
+    ['GHG Protocol Corporate Standard', 'El estándar global más usado para medir emisiones GHG en organizaciones. Desarrollado por WRI y WBCSD. EcoMetriX lo usa como metodología central para definir los 3 alcances de emisión.'],
+    ['ISO 14064-1:2018', 'Norma internacional certificable para cuantificación y reporte de inventarios GHG. Los reportes de EcoMetriX siguen una metodología compatible con certificación formal.'],
+    ['IPCC AR6 — Sexto Informe (2021)', 'Los factores de emisión más actualizados científicamente. EcoMetriX los usa para convertir consumos (kWh, litros, m3) en kg CO2 equivalente.'],
+    ['CSRD / ESRS E1 — Directiva UE 2022/2464', 'La Corporate Sustainability Reporting Directive. EcoMetriX incluye módulo de gap analysis CSRD para empresas que exportan a Europa.'],
+    ['Science Based Targets (SBTi)', 'Iniciativa que valida objetivos alineados con el límite de 1.5 grados del Acuerdo de París. EcoMetriX genera el baseline necesario para aplicar a SBTi.'],
+  ]
+
+  estandares.forEach(([nombre, desc]) => {
+    checkPage(20)
+    doc.setFillColor(...verdeClaro)
+    doc.roundedRect(M, y, W - M * 2, 7, 2, 2, 'F')
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...verde)
+    doc.text(nombre, M + 4, y + 5)
+    y += 9
+    addParagraph(desc, 4)
+    y += 1
+  })
+
+  // ── 07 Integraciones ────────────────────────────────────────────────────
+  addPage()
+  addSection('Integraciones ERP', '07', '🔗')
+  addParagraph('Conecta tu sistema contable para importar automáticamente facturas y gastos, eliminando el ingreso manual de datos.')
+  y += 3
+
+  const integraciones = [
+    ['Siigo — API directa', 'Conexión por API key. Importa facturas de compra y gastos de los últimos 90 días automáticamente.'],
+    ['Alegra — API directa', 'Conexión por email + token. Importa gastos y compras a proveedores clasificados por categoría.'],
+    ['SIESA Enterprise — CSV/Excel', 'Exporta el reporte de compras desde SIESA en Excel y cárgalo. Compatible con SIESA 8.5 y Enterprise.'],
+    ['CSV / Excel genérico — Archivo', 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.'],
+    ['Foto de factura — IA (NUEVO v3.0)', 'Sube una foto de cualquier factura (JPG/PNG). La IA extrae consumos y los mapea automáticamente al alcance GHG correcto. Sin necesidad de ERP.'],
+  ]
+
+  integraciones.forEach(([nombre, desc]) => {
+    checkPage(20)
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    doc.text(nombre, M, y)
+    y += 5
+    addParagraph(desc, 4)
+  })
+
+  // ── 08 Planes ───────────────────────────────────────────────────────────
+  addPage()
+  addSection('Planes y precios', '08', '💡')
+  y += 2
+
+  const planes = [
+    { nombre: 'Básico', precio: '$79.000 COP/mes', anual: '$758.400/año (20% off)',
+      features: ['Diagnósticos ilimitados', 'Reporte PDF', 'Certificación EcoMetriX', 'Dashboard 360', 'Soporte por email'] },
+    { nombre: 'Pro — Más popular', precio: '$199.000 COP/mes', anual: '$1.910.400/año (20% off)',
+      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Integraciones ERP', 'Acceso API', 'Soporte prioritario'] },
+    { nombre: 'Enterprise', precio: '$499.000 COP/mes', anual: '$4.790.400/año (20% off)',
+      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'] },
+  ]
+
+  planes.forEach(({ nombre, precio, anual, features }) => {
+    checkPage(40)
+    doc.setFillColor(...verdeClaro)
+    doc.roundedRect(M, y, W - M * 2, 9, 2, 2, 'F')
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...verde)
+    doc.text(nombre, M + 4, y + 6)
+    y += 11
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    doc.text(precio, M + 4, y)
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+    doc.text(anual, M + 4, y + 6)
+    y += 10
+    addBullet(features)
+    y += 3
+  })
+
+  // ── 09 FAQ ──────────────────────────────────────────────────────────────
+  addPage()
+  addSection('Preguntas frecuentes', '09', '❓')
+  y += 2
+
+  const faqs = [
+    ['¿El diagnóstico es gratis?', 'Sí. El diagnóstico inicial, el reporte PDF y el certificado EcoMetriX son 100% gratuitos. No se requiere tarjeta de crédito. Los planes de pago desbloquean funciones avanzadas como CSRD/ESRS e integraciones ERP.'],
+    ['¿Cuánto tiempo toma?', 'Entre 10 y 15 minutos para el cuestionario completo. No se necesita experiencia técnica.'],
+    ['¿Puedo subir una foto de mi factura?', 'Sí. Durante el cuestionario encontrarás el botón Importar factura en la barra superior. Sube una imagen JPG o PNG de tu factura de electricidad, gas o combustible y la IA extrae automáticamente el consumo.'],
+    ['¿Los precios tienen descuento anual?', 'Sí. Al seleccionar facturación anual obtienes un 20% de descuento. El cambio aplica desde el primer pago y se cobra en un solo cobro anual.'],
+    ['¿Puedo conectar mi ERP?', 'Sí. El plan Pro incluye integración con Siigo y Alegra por API directa, además de importación por CSV/Excel o foto de factura con IA.'],
+    ['¿Puedo cancelar en cualquier momento?', 'Sí. No hay contratos ni permanencia mínima. Puedes cancelar desde tu perfil y tu plan seguirá activo hasta el fin del período pagado.'],
+    ['¿Cómo se verifica el certificado?', 'Cualquier persona puede visitar ecometrix-app-one.vercel.app/verificar/[CODIGO] para confirmar la autenticidad del certificado en tiempo real.'],
+    ['¿Los datos de mi empresa están seguros?', 'Sí. Todos los datos se almacenan cifrados en infraestructura AWS (Supabase) y no son compartidos con terceros bajo ninguna circunstancia.'],
+  ]
+
+  faqs.forEach(([q, a]) => {
+    checkPage(22)
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+    const qlines = doc.splitTextToSize(q, W - M * 2)
+    doc.text(qlines, M, y)
+    y += qlines.length * 5 + 1
+    addParagraph(a, 4)
+    y += 2
+  })
+
   addFooters()
   doc.save('EcoMetriX_Manual_de_Usuario.pdf')
 }
@@ -196,6 +431,22 @@ export default function Manual() {
       setPdfLoading(false)
     }
   }
+
+  // Scroll spy — actualiza la seccion activa al hacer scroll
+  useEffect(() => {
+    const observers = []
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (!el) return
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id) },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
+      )
+      observer.observe(el)
+      observers.push(observer)
+    })
+    return () => observers.forEach(o => o.disconnect())
+  }, [])
 
   function scrollTo(id) {
     setActiveSection(id)
@@ -264,7 +515,7 @@ export default function Manual() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
             <div className="relative">
-              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">{t('manual.badge')} v1.0</span>
+              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">{t('manual.badge')} v3.0</span>
               <h1 className="text-3xl font-bold mb-3">{t('manual.heroTitle')}</h1>
               <p className="text-white/80 text-sm max-w-lg leading-relaxed">{t('manual.subtitle')}</p>
               <div className="flex flex-wrap gap-3 mt-6">
