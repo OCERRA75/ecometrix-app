@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth.jsx'
 import { useNavigate } from 'react-router-dom'
 import { useQuestionnaire } from '@/store/questionnaire.js'
+import InvoiceImporter from '@/components/InvoiceImporter.jsx'
 import {
   SECTORES, TAMANOS,
   preguntasAlcance1, preguntasAlcance2,
@@ -267,6 +268,29 @@ export default function Questionnaire() {
   const { empresa, respuestas, step, currentQ, setRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
   const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
+  const [showImporter, setShowImporter] = useState(false)
+  const [importNotice, setImportNotice] = useState('')
+
+  const handleImport = (campos, resumen) => {
+    // campos = { electricidad_kwh: 450, gas_natural_m3: 12, ... }
+    // Mapear campos importados a IDs de preguntas del cuestionario
+    const CAMPO_A_PREGUNTA = {
+      electricidad_kwh:       'electricidad_kwh',
+      gas_natural_m3:         'gas_natural_m3',
+      gasolina_galones:       'gasolina_galones',
+      diesel_galones:         'diesel_galones',
+      acpm_galones:           'acpm_galones',
+      gas_propano_kg:         'gas_propano_kg',
+      transporte_carga_km:    'transporte_carga_km',
+      transporte_empleados_km:'transporte_empleados_km',
+    }
+    Object.entries(campos).forEach(([campo, valor]) => {
+      const preguntaId = CAMPO_A_PREGUNTA[campo]
+      if (preguntaId && valor) setRespuesta(preguntaId, String(valor))
+    })
+    setImportNotice(`✓ Datos importados desde factura: ${resumen}`)
+    setTimeout(() => setImportNotice(''), 6000)
+  }
 
   const preguntasMap = {
     alcance1: getPreguntasFiltradas(preguntasAlcance1, empresa.sector, respuestas),
@@ -338,11 +362,27 @@ export default function Questionnaire() {
             <span className={alcanceBadgeColor[step]}>Alcance {alcanceLabel[step]}</span>
             <span className="text-xs text-text-muted">{preguntaActual.categoria}</span>
             <span className="ml-auto text-xs text-text-muted">{currentQ + 1} / {preguntas.length}</span>
+            <button
+              onClick={() => setShowImporter(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-50 text-brand-400 text-xs font-medium hover:bg-brand-100 transition-colors border border-brand-100"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Importar factura
+            </button>
           </div>
         </div>
       )}
 
       <main className="max-w-4xl mx-auto px-6 py-10">
+        {/* Notificación de importación exitosa */}
+        {importNotice && (
+          <div className="mb-6 max-w-xl mx-auto bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">
+            {importNotice}
+          </div>
+        )}
+
         {step === 'onboarding' && <OnboardingScreen onNext={() => nextStep()} />}
 
         {['alcance1','alcance2','alcance3'].includes(step) && preguntaActual && (
@@ -360,6 +400,14 @@ export default function Questionnaire() {
 
         {step === 'resumen' && <ResumenScreen onSubmit={handleSubmit} loading={submitting} />}
       </main>
+
+      {/* Modal importador de facturas */}
+      {showImporter && (
+        <InvoiceImporter
+          onImport={handleImport}
+          onClose={() => setShowImporter(false)}
+        />
+      )}
     </div>
   )
 }
