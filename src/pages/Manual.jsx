@@ -368,6 +368,32 @@ export default function Manual() {
                 </div>
               ))}
             </div>
+            {/* Nueva feature: Importar factura */}
+            <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">📄</span>
+                <p className="font-bold text-blue-800 text-sm">Nuevo: Importar desde factura</p>
+                <span className="text-xs bg-blue-200 text-blue-700 font-bold px-2 py-0.5 rounded-full">IA</span>
+              </div>
+              <p className="text-sm text-blue-700 leading-relaxed mb-3">
+                Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el botón <strong>"Importar factura"</strong> en la barra superior. Sube una imagen de tu factura de electricidad, gas o combustible y EcoMetriX extrae automáticamente los datos usando inteligencia artificial.
+              </p>
+              <ul className="space-y-1.5">
+                {[
+                  'Sube una foto o captura de pantalla de tu factura (JPG o PNG)',
+                  'La IA identifica el proveedor, tipo de consumo y cantidad',
+                  'Los datos se pre-llenan automáticamente en el cuestionario',
+                  'Revisa y confirma los datos antes de continuar',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-blue-700">
+                    <span className="text-blue-500 flex-shrink-0 mt-0.5">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-blue-500 mt-3">Disponible en planes Básico, Pro y Enterprise. Requiere conexión a internet.</p>
+            </div>
+
             <div className="mt-4 bg-[#1D9E75] rounded-2xl p-4 text-white">
               <p className="text-sm font-bold mb-1">💡 URL permanente y compartible</p>
               <p className="text-xs text-white/80">El reporte tiene una URL única que funciona sin cuenta. Puedes compartirla con socios, clientes o inversionistas.</p>
@@ -439,6 +465,7 @@ export default function Manual() {
                 { nombre: 'Alegra',             tipo: 'API directa', desc: 'Conexión por email + token. Importa gastos y compras a proveedores clasificados por categoría.', badge: 'bg-amber-100 text-amber-700' },
                 { nombre: 'SIESA Enterprise',   tipo: 'CSV / Excel', desc: 'Exporta el reporte de compras desde SIESA en Excel y cárgalo. Compatible con SIESA 8.5 y Enterprise.', badge: 'bg-green-100 text-green-700' },
                 { nombre: 'CSV / Excel genérico',tipo: 'Archivo', desc: 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.', badge: 'bg-gray-100 text-gray-700' },
+                { nombre: 'Foto de factura (IA)', tipo: 'Imagen', desc: 'Sube una foto de cualquier factura (JPG/PNG). La IA extrae consumos y los mapea automáticamente al alcance GHG correcto. Sin necesidad de ERP.', badge: 'bg-purple-100 text-purple-700' },
               ].map(({ nombre, tipo, desc, badge }) => (
                 <div key={nombre} className="bg-white rounded-2xl border border-[#E8F5F0] p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -456,13 +483,13 @@ export default function Manual() {
             <SectionTitle id="planes" icon="💡" n="08" title={t('manual.sections.planes')} />
             <div className="grid md:grid-cols-3 gap-4">
               {[
-                { nombre: 'Básico', precio: '$79.000 COP', periodo: '/mes',
+                { nombre: 'Básico', precio: '$79.000 COP', periodo: '/mes — o $758.400/año (20% off)',
                   features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Soporte por email'],
                   color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/pricing?plan=basico' },
-                { nombre: 'Pro', precio: '$199.000 COP', periodo: '/mes',
+                { nombre: 'Pro', precio: '$199.000 COP', periodo: '/mes — o $1.910.400/año (20% off)',
                   features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API', 'Soporte prioritario'],
                   color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/pricing?plan=pro', badge: t('pricing.popular') },
-                { nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes',
+                { nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes — o $4.790.400/año (20% off)',
                   features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'],
                   color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/pricing?plan=enterprise' },
               ].map(({ nombre, precio, periodo, features, color, btn, link, badge }) => (
@@ -498,6 +525,14 @@ export default function Manual() {
               <FAQItem q={t('manual.faqItems.q4')} a={t('manual.faqItems.a4')} />
               <FAQItem q={t('manual.faqItems.q5')} a={t('manual.faqItems.a5')} />
               <FAQItem q={t('manual.faqItems.q6')} a={t('manual.faqItems.a6')} />
+              <FAQItem
+                q="¿Puedo subir una foto de mi factura de servicios públicos?"
+                a="Sí. Durante el cuestionario encontrarás el botón 'Importar factura' en la barra superior de cada alcance. Sube una imagen JPG o PNG de tu factura de electricidad, gas o combustible y la IA extrae automáticamente el consumo y lo pre-llena en el formulario. Para PDFs, toma una captura de pantalla primero."
+              />
+              <FAQItem
+                q="¿Los precios tienen descuento por pago anual?"
+                a="Sí. Al seleccionar facturación anual en la página de precios obtienes un 20% de descuento sobre el total. El descuento aplica desde el primer pago y se cobra en un solo cobro anual."
+              />
             </div>
           </section>
 
