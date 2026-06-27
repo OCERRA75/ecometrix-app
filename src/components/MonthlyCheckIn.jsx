@@ -30,7 +30,7 @@ export default function MonthlyCheckIn({ registro, onClose, onGuardado }) {
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const res = await fetch('/api/save-monthly-progress', {
+      const res = await fetch('/api/internal?route=save-monthly-progress', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

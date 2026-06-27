@@ -77,7 +77,7 @@ export default function ReductionPlan() {
       setDiagnosticoId(diag.id)
 
       const res = await fetch(
-        `/api/get-reduction-plan?diagnostico_id=${diag.id}&anio=${anio}`,
+        `/api/internal?route=get-reduction-plan&diagnostico_id=${diag.id}&anio=${anio}`,
         { headers: { Authorization: `Bearer ${session.access_token}` } }
       )
       const json = await res.json()
