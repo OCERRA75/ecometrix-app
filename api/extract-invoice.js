@@ -1,6 +1,6 @@
 // api/extract-invoice.js
+// Usa Claude Vision directamente — sin AWS Textract
 import Anthropic from '@anthropic-ai/sdk'
-import { TextractClient, DetectDocumentTextCommand } from '@aws-sdk/client-textract'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,36 +8,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { base64 } = req.body
+    const { base64, mimeType } = req.body
     if (!base64) {
       return res.status(400).json({ ok: false, error: 'No file provided' })
     }
 
-    // 1. Extraer texto con AWS Textract
-    const textract = new TextractClient({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    })
+    // Validar tipo de archivo — Claude Vision acepta imágenes pero no PDF directamente
+    // Para PDF convertimos a imagen en el cliente, aquí solo aceptamos imágenes
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    const tipo = mimeType || 'image/jpeg'
 
-    const buffer = Buffer.from(base64, 'base64')
-
-    const textractRes = await textract.send(
-      new DetectDocumentTextCommand({ Document: { Bytes: buffer } })
-    )
-
-    const textoExtraido = textractRes.Blocks
-      .filter(b => b.BlockType === 'LINE')
-      .map(b => b.Text)
-      .join('\n')
-
-    if (!textoExtraido || textoExtraido.trim().length < 20) {
-      return res.status(422).json({ ok: false, error: 'No se pudo extraer texto del documento. Verifica que la imagen sea legible.' })
+    if (!tiposPermitidos.includes(tipo)) {
+      return res.status(422).json({ ok: false, error: 'Solo se aceptan imágenes (JPG, PNG). Para PDFs, toma una captura de pantalla primero.' })
     }
 
-    // 2. Clasificar con Claude
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     const claudeRes = await anthropic.messages.create({
@@ -45,20 +29,27 @@ export default async function handler(req, res) {
       max_tokens: 1000,
       messages: [{
         role: 'user',
-        content: `Eres un experto en huella de carbono corporativa y GHG Protocol.
-Analiza este texto extraído de una factura empresarial y extrae datos para calcular emisiones CO2.
+        content: [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: tipo,
+              data: base64,
+            },
+          },
+          {
+            type: 'text',
+            text: `Eres un experto en huella de carbono y GHG Protocol. Analiza esta factura o documento y extrae los datos relevantes para calcular emisiones de CO2.
 
-TEXTO:
-${textoExtraido.substring(0, 3000)}
-
-Responde SOLO JSON válido, sin markdown ni texto extra:
+Responde SOLO con JSON válido, sin markdown ni texto adicional:
 {
   "proveedor": "nombre empresa emisora",
-  "tipo_documento": "factura_gas|factura_electricidad|factura_combustible|otro",
+  "tipo_documento": "factura_gas|factura_electricidad|factura_combustible|factura_agua|ticket_transporte|otro",
   "fecha": "YYYY-MM o null",
   "items": [
     {
-      "descripcion": "descripción",
+      "descripcion": "descripción del consumo",
       "cantidad": 0,
       "unidad": "kWh|m3|galones|litros|km|kg|null",
       "valor_cop": 0,
@@ -67,9 +58,11 @@ Responde SOLO JSON válido, sin markdown ni texto extra:
       "campo_cuestionario": "consumo_electricidad|consumo_gas_natural|consumo_gasolina|consumo_diesel|consumo_acpm|consumo_gas_propano|km_carga|km_empleados|null"
     }
   ],
-  "resumen": "descripción breve en español",
+  "resumen": "descripción breve en español de qué contiene y qué emisiones genera",
   "confianza": "alta|media|baja"
 }`,
+          },
+        ],
       }],
     })
 
@@ -82,7 +75,7 @@ Responde SOLO JSON válido, sin markdown ni texto extra:
       if (match) {
         clasificacion = JSON.parse(match[0])
       } else {
-        throw new Error('Claude no devolvió JSON válido')
+        throw new Error('No se pudo interpretar la respuesta de IA')
       }
     }
 
