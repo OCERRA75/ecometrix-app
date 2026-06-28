@@ -1,4 +1,4 @@
-// src/pages/Report.jsx
+﻿// src/pages/Report.jsx
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +7,7 @@ import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard.jsx'
 import { supabase } from '@/lib/supabase.js'
 
-// ─── ICONS ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" strokeLinecap="round" strokeLinejoin="round"/>
@@ -30,7 +30,7 @@ const IconArrow = () => (
   </svg>
 )
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const nivelColor = {
   Bajo:     { bg: 'bg-brand-50',  text: 'text-brand-400',  border: 'border-brand-200',  bar: '#1D9E75' },
   Moderado: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  bar: '#BA7517' },
@@ -38,12 +38,12 @@ const nivelColor = {
 }
 
 const dificultadColor = {
-  'Fácil':  'badge-green',
+  'FÃ¡cil':  'badge-green',
   'Media':  'bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
-  'Difícil':'bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
+  'DifÃ­cil':'bg-red-50 text-red-700 border border-red-100 rounded-full px-2.5 py-0.5 text-xs font-medium',
 }
 
-// ─── LOADING SCREEN ───────────────────────────────────────────────────────────
+// â”€â”€â”€ LOADING SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function LoadingScreen() {
   const { t } = useTranslation()
   const [step, setStep] = useState(0)
@@ -51,7 +51,7 @@ function LoadingScreen() {
     'Procesando tus respuestas...',
     'Aplicando factores IPCC AR6...',
     'Calculando emisiones por alcance...',
-    'Generando análisis con IA...',
+    'Generando anÃ¡lisis con IA...',
     'Preparando tu reporte...',
   ]
   useEffect(() => {
@@ -76,7 +76,7 @@ function LoadingScreen() {
   )
 }
 
-// ─── METRIC CARD ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ METRIC CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MetricCard({ label, value, unit, sub, accent = false }) {
   return (
     <div className={`card ${accent ? 'bg-brand-400 border-brand-400' : ''}`}>
@@ -90,7 +90,7 @@ function MetricCard({ label, value, unit, sub, accent = false }) {
   )
 }
 
-// ─── ALCANCE CHART ────────────────────────────────────────────────────────────
+// â”€â”€â”€ ALCANCE CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AlcanceChart({ alcance1, alcance2, alcance3 }) {
   const { t } = useTranslation()
   const total = (alcance1 + alcance2 + (alcance3 || 0)) || 1
@@ -113,7 +113,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
               </div>
               <div className="text-right">
                 <span className="font-semibold text-text-primary">{value.toLocaleString()}</span>
-                <span className="text-text-muted text-xs ml-1">kg CO₂e/mes</span>
+                <span className="text-text-muted text-xs ml-1">kg COâ‚‚e/mes</span>
               </div>
             </div>
             <div className="w-full h-2.5 bg-surface-tertiary rounded-full overflow-hidden">
@@ -127,7 +127,7 @@ function AlcanceChart({ alcance1, alcance2, alcance3 }) {
   )
 }
 
-// ─── PLAN DE ACCIÓN ───────────────────────────────────────────────────────────
+// â”€â”€â”€ PLAN DE ACCIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PlanAccion({ acciones }) {
   const { t } = useTranslation()
   return (
@@ -155,14 +155,14 @@ function PlanAccion({ acciones }) {
   )
 }
 
-// ─── DETALLES POR FUENTE ──────────────────────────────────────────────────────
+// â”€â”€â”€ DETALLES POR FUENTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function DetallesFuentes({ detalles, total }) {
   const { t } = useTranslation()
   if (!detalles?.length) return null
   return (
     <div className="card">
       <h3 className="font-semibold text-text-primary mb-1">{t('report.sources')}</h3>
-      <p className="text-xs text-text-muted mb-4">Desglose detallado por categoría</p>
+      <p className="text-xs text-text-muted mb-4">Desglose detallado por categorÃ­a</p>
       <div className="space-y-3">
         {detalles.map((d, i) => {
           const pct = total > 0 ? Math.round(d.kgCO2e / total * 100) : 0
@@ -187,7 +187,7 @@ function DetallesFuentes({ detalles, total }) {
   )
 }
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+// â”€â”€â”€ MAIN COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function Report() {
   const { t } = useTranslation()
   const { id } = useParams()
@@ -204,7 +204,7 @@ export default function Report() {
         if (user) setUserId(user.id)
 
         if (id) {
-          // 1. Intentar desde sessionStorage primero (más rápido)
+          // 1. Intentar desde sessionStorage primero (mÃ¡s rÃ¡pido)
           const stored = sessionStorage.getItem('ecometrix_result')
           if (stored) {
             const parsed = JSON.parse(stored)
@@ -230,7 +230,7 @@ export default function Report() {
             setData(JSON.parse(stored))
           }
         } else {
-          // Sin ID en URL — cargar desde sessionStorage
+          // Sin ID en URL â€” cargar desde sessionStorage
           const stored = sessionStorage.getItem('ecometrix_result')
           if (stored) setData(JSON.parse(stored))
         }
@@ -247,7 +247,7 @@ export default function Report() {
   if (!data) return (
     <div className="min-h-screen bg-surface-secondary flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
-        <p className="text-text-muted mb-4">No hay datos de diagnóstico disponibles.</p>
+        <p className="text-text-muted mb-4">No hay datos de diagnÃ³stico disponibles.</p>
         <Link to="/questionnaire" className="btn-primary">{t('dashboard.newDiagnosis')}</Link>
       </div>
     </div>
@@ -255,8 +255,7 @@ export default function Report() {
 
   const { empresa, calculo, analisis } = data
   const nivel = nivelColor[calculo.nivelImpacto] || nivelColor.Moderado
-  const [pdfLoading, setPdfLoading] = useState(false)
-
+  
   async function generatePDF() {
     setPdfLoading(true)
     try {
@@ -278,31 +277,31 @@ export default function Report() {
       const addPage = () => { doc.addPage(); y = 16 }
       const checkPage = (needed) => { if (y + needed > 275) addPage() }
 
-      // ── PORTADA ─────────────────────────────────────────────────────────────
+      // â”€â”€ PORTADA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       doc.setFillColor(...verde)
       doc.rect(0, 0, W, 60, 'F')
       doc.setFillColor(...verdeOsc)
       doc.rect(0, 55, W, 8, 'F')
 
       doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...blanco)
-      doc.text('EcoMetriX · GHG Protocol + ISO 14064', M, 14)
+      doc.text('EcoMetriX Â· GHG Protocol + ISO 14064', M, 14)
 
       doc.setFontSize(22); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
       doc.text('Reporte de Huella de', M, 28)
       doc.text('Carbono Corporativa', M, 37)
 
       doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(200,240,220)
-      doc.text(`${empresa.nombre} · ${empresa.sector} · ${empresa.pais}`, M, 47)
+      doc.text(`${empresa.nombre} Â· ${empresa.sector} Â· ${empresa.pais}`, M, 47)
       doc.text(`Generado: ${new Date().toLocaleDateString('es-CO', { year:'numeric', month:'long', day:'2-digit' })}`, M, 53)
 
       y = 72
 
-      // ── KPIs principales ────────────────────────────────────────────────────
+      // â”€â”€ KPIs principales â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const kpis = [
-        { label: 'Total anual', val: `${calculo.totalTonAnio || 0}`, unit: 'ton CO₂e' },
-        { label: 'Total mensual', val: `${Math.round(calculo.totalKgMes || 0).toLocaleString()}`, unit: 'kg CO₂e/mes' },
+        { label: 'Total anual', val: `${calculo.totalTonAnio || 0}`, unit: 'ton COâ‚‚e' },
+        { label: 'Total mensual', val: `${Math.round(calculo.totalKgMes || 0).toLocaleString()}`, unit: 'kg COâ‚‚e/mes' },
         { label: 'Nivel de impacto', val: calculo.nivelImpacto || 'N/A', unit: '' },
-        { label: 'Valor mercado EU', val: `$${((calculo.valorETS_COP || 0)/1e6).toFixed(1)}M`, unit: 'COP/año' },
+        { label: 'Valor mercado EU', val: `$${((calculo.valorETS_COP || 0)/1e6).toFixed(1)}M`, unit: 'COP/aÃ±o' },
       ]
       const kw = CW / 4
       kpis.forEach((k, i) => {
@@ -320,18 +319,18 @@ export default function Report() {
       })
       y += 28
 
-      // ── GRÁFICA DE BARRAS — Alcances ────────────────────────────────────────
+      // â”€â”€ GRÃFICA DE BARRAS â€” Alcances â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       checkPage(60)
       doc.setFillColor(...verde)
       doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
       doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
-      doc.text('01  Distribución por Alcances GHG', M + 4, y + 5)
+      doc.text('01  DistribuciÃ³n por Alcances GHG', M + 4, y + 5)
       y += 11
 
       const alcances = [
-        { label: 'Alcance 1 — Emisiones directas', val: calculo.alcance1 || 0, color: [29,158,117] },
-        { label: 'Alcance 2 — Energía indirecta', val: calculo.alcance2 || 0, color: [16,163,127] },
-        { label: 'Alcance 3 — Cadena de valor', val: calculo.alcance3 || 0, color: [52,199,163] },
+        { label: 'Alcance 1 â€” Emisiones directas', val: calculo.alcance1 || 0, color: [29,158,117] },
+        { label: 'Alcance 2 â€” EnergÃ­a indirecta', val: calculo.alcance2 || 0, color: [16,163,127] },
+        { label: 'Alcance 3 â€” Cadena de valor', val: calculo.alcance3 || 0, color: [52,199,163] },
       ]
       const totalAlc = alcances.reduce((s, a) => s + a.val, 0) || 1
       const maxAlc = Math.max(...alcances.map(a => a.val), 1)
@@ -347,18 +346,18 @@ export default function Report() {
         doc.setFillColor(...alc.color)
         doc.roundedRect(M, y + 6, barW, 5, 1, 1, 'F')
         doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...negro)
-        doc.text(`${Math.round(alc.val).toLocaleString()} kg · ${pct}%`, W - M, y + 10, { align: 'right' })
+        doc.text(`${Math.round(alc.val).toLocaleString()} kg Â· ${pct}%`, W - M, y + 10, { align: 'right' })
         y += 14
       })
       y += 4
 
-      // ── RESUMEN EJECUTIVO IA ─────────────────────────────────────────────────
+      // â”€â”€ RESUMEN EJECUTIVO IA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (analisis?.resumen_ejecutivo) {
         checkPage(30)
         doc.setFillColor(...verde)
         doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
         doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
-        doc.text('02  Análisis IA — Resumen ejecutivo', M + 4, y + 5)
+        doc.text('02  AnÃ¡lisis IA â€” Resumen ejecutivo', M + 4, y + 5)
         y += 11
         doc.setFillColor(...verdeClaro)
         const lines = doc.splitTextToSize(analisis.resumen_ejecutivo, CW - 8)
@@ -369,33 +368,33 @@ export default function Report() {
         y += boxH + 6
       }
 
-      // ── PRINCIPALES FUENTES ──────────────────────────────────────────────────
+      // â”€â”€ PRINCIPALES FUENTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (analisis?.principales_fuentes?.length) {
         checkPage(20)
         doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...verde)
-        doc.text('Principales fuentes de emisión:', M, y)
+        doc.text('Principales fuentes de emisiÃ³n:', M, y)
         y += 6
         analisis.principales_fuentes.forEach(f => {
           checkPage(8)
           doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
-          doc.text(`→  ${f}`, M + 3, y)
+          doc.text(`â†’  ${f}`, M + 3, y)
           y += 6
         })
         y += 4
       }
 
-      // ── PLAN DE ACCIÓN ───────────────────────────────────────────────────────
+      // â”€â”€ PLAN DE ACCIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (analisis?.plan_accion?.length) {
         checkPage(20)
         doc.setFillColor(...verde)
         doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
         doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
-        doc.text('03  Plan de Acción — 5 pasos prioritarios', M + 4, y + 5)
+        doc.text('03  Plan de AcciÃ³n â€” 5 pasos prioritarios', M + 4, y + 5)
         y += 11
 
         analisis.plan_accion.forEach((accion, i) => {
           checkPage(20)
-          const difColor = accion.dificultad === 'Fácil' ? [29,158,117] : accion.dificultad === 'Media' ? [186,117,23] : [153,60,29]
+          const difColor = accion.dificultad === 'FÃ¡cil' ? [29,158,117] : accion.dificultad === 'Media' ? [186,117,23] : [153,60,29]
           doc.setFillColor(...grisClaro)
           doc.roundedRect(M, y, CW, 16, 2, 2, 'F')
           doc.setFillColor(...difColor)
@@ -404,13 +403,13 @@ export default function Report() {
           const alines = doc.splitTextToSize(`${i+1}. ${accion.accion}`, CW - 55)
           doc.text(alines, M + 9, y + 5)
           doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
-          doc.text(`↓${accion.reduccion_pct}% · ${accion.dificultad} · ${accion.plazo}`, M + 9, y + 12)
+          doc.text(`â†“${accion.reduccion_pct}% Â· ${accion.dificultad} Â· ${accion.plazo}`, M + 9, y + 12)
           y += 19
         })
         y += 4
       }
 
-      // ── BENCHMARK ───────────────────────────────────────────────────────────
+      // â”€â”€ BENCHMARK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (analisis?.benchmark) {
         checkPage(20)
         doc.setFillColor(239, 246, 255)
@@ -424,15 +423,15 @@ export default function Report() {
         y += bh + 6
       }
 
-      // ── METODOLOGÍA ──────────────────────────────────────────────────────────
+      // â”€â”€ METODOLOGÃA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       checkPage(30)
       doc.setFillColor(...verde)
       doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
       doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
-      doc.text('04  Metodología y estándares aplicados', M + 4, y + 5)
+      doc.text('04  MetodologÃ­a y estÃ¡ndares aplicados', M + 4, y + 5)
       y += 11
 
-      const estandares = ['GHG Protocol Corporate Standard', 'ISO 14064-1:2018', 'IPCC AR6 (factores de emisión)', 'CSRD/ESRS E1 compatible', 'Science Based Targets (SBTi baseline)']
+      const estandares = ['GHG Protocol Corporate Standard', 'ISO 14064-1:2018', 'IPCC AR6 (factores de emisiÃ³n)', 'CSRD/ESRS E1 compatible', 'Science Based Targets (SBTi baseline)']
       const ew = (CW - 4) / 3
       estandares.forEach((e, i) => {
         const col = i % 3; const row = Math.floor(i / 3)
@@ -445,15 +444,15 @@ export default function Report() {
       })
       y += 16
 
-      // ── FOOTER EN TODAS LAS PÁGINAS ───────────────────────────────────────
+      // â”€â”€ FOOTER EN TODAS LAS PÃGINAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const totalPages = doc.getNumberOfPages()
       for (let p = 1; p <= totalPages; p++) {
         doc.setPage(p)
         doc.setFillColor(...verde)
         doc.rect(0, 287, W, 10, 'F')
         doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...blanco)
-        doc.text('EcoMetriX · ecometrix-app-one.vercel.app · GHG Protocol + ISO 14064', M, 293)
-        doc.text(`Página ${p} de ${totalPages}`, W - M, 293, { align: 'right' })
+        doc.text('EcoMetriX Â· ecometrix-app-one.vercel.app Â· GHG Protocol + ISO 14064', M, 293)
+        doc.text(`PÃ¡gina ${p} de ${totalPages}`, W - M, 293, { align: 'right' })
       }
 
       doc.save(`EcoMetriX_Reporte_${empresa.nombre?.replace(/\s+/g,'_') || 'empresa'}_${new Date().getFullYear()}.pdf`)
@@ -474,13 +473,13 @@ export default function Report() {
             <span className="text-brand-400 font-semibold text-sm">EcoMetriX</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted hidden sm:block">{t('report.title')} — {empresa.nombre}</span>
+            <span className="text-xs text-text-muted hidden sm:block">{t('report.title')} â€” {empresa.nombre}</span>
             <button onClick={generatePDF} disabled={pdfLoading} className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-50">
               {pdfLoading ? <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <IconDownload />}
               {pdfLoading ? 'Generando...' : t('report.downloadPDF')}
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">{t('report.dashboard360')}</Link>
-            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
+            <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">ðŸ‡ªðŸ‡º CSRD</Link>
             <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('report.newDiagnosis')}</Link>
           </div>
         </div>
@@ -494,7 +493,7 @@ export default function Report() {
             <div>
               <p className="text-sm font-medium text-text-muted mb-1">{t('report.title')}</p>
               <h1 className="text-2xl font-bold text-text-primary mb-1">{empresa.nombre}</h1>
-              <p className="text-sm text-text-secondary">{empresa.sector} · {empresa.tamano} · {empresa.pais}</p>
+              <p className="text-sm text-text-secondary">{empresa.sector} Â· {empresa.tamano} Â· {empresa.pais}</p>
             </div>
             <div className={`px-5 py-3 rounded-xl border-2 ${nivel.border} bg-white text-center flex-shrink-0`}>
               <p className="text-xs text-text-muted mb-1">{t('report.impactLevel')}</p>
@@ -503,39 +502,39 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Métricas principales */}
+        {/* MÃ©tricas principales */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <MetricCard
             label={t('report.totalFootprint')}
             value={calculo.totalTonAnio.toLocaleString()}
-            unit="ton CO₂e/año"
+            unit="ton COâ‚‚e/aÃ±o"
             sub={`${calculo.totalKgMes.toLocaleString()} kg/mes`}
             accent
           />
           <MetricCard
             label={t('report.scope1')}
             value={calculo.alcance1.toLocaleString()}
-            unit="kg CO₂e/mes"
+            unit="kg COâ‚‚e/mes"
             sub={t('report.scope1desc')}
           />
           <MetricCard
             label={t('report.scope2')}
             value={calculo.alcance2.toLocaleString()}
-            unit="kg CO₂e/mes"
+            unit="kg COâ‚‚e/mes"
             sub={t('report.scope2desc')}
           />
           {calculo.alcance3 > 0 && (
             <MetricCard
               label={t('report.scope3')}
               value={calculo.alcance3.toLocaleString()}
-              unit="kg CO₂e/mes"
+              unit="kg COâ‚‚e/mes"
               sub={t('report.scope3desc')}
             />
           )}
           <MetricCard
             label={t('report.economicValue')}
             value={`$${(calculo.valorETS_COP / 1000000).toFixed(1)}M`}
-            unit="COP/año"
+            unit="COP/aÃ±o"
             sub="Equivalente EU ETS"
           />
         </div>
@@ -554,13 +553,13 @@ export default function Report() {
           </div>
         )}
 
-        {/* Gráficas + detalles */}
+        {/* GrÃ¡ficas + detalles */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <AlcanceChart alcance1={calculo.alcance1} alcance2={calculo.alcance2} alcance3={calculo.alcance3 || 0} />
           <DetallesFuentes detalles={calculo.detalles} total={calculo.totalKgMes} />
         </div>
 
-        {/* Plan de acción */}
+        {/* Plan de acciÃ³n */}
         {analisis?.plan_accion && (
           <div className="mb-6">
             <PlanAccion acciones={analisis.plan_accion} />
@@ -570,7 +569,7 @@ export default function Report() {
         {/* Siguiente paso */}
         {analisis?.siguiente_paso && (
           <div className="bg-brand-400 rounded-2xl p-6 mb-8 text-white">
-            <p className="text-sm font-medium text-white/70 mb-1">Recomendación inmediata</p>
+            <p className="text-sm font-medium text-white/70 mb-1">RecomendaciÃ³n inmediata</p>
             <p className="text-lg font-semibold mb-4">{analisis.siguiente_paso}</p>
             <Link to="/questionnaire" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-400 font-medium text-sm hover:bg-brand-50 transition-all">
               {t('report.newDiagnosis')} <IconArrow />
@@ -578,14 +577,14 @@ export default function Report() {
           </div>
         )}
 
-        {/* Metodología */}
+        {/* MetodologÃ­a */}
         <div className="card border-dashed mb-8">
           <h3 className="font-semibold text-text-primary mb-3">{t('report.methodology')}</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              ['GHG Protocol', 'Corporate Standard — Alcances 1 y 2'],
-              ['ISO 14064-1', 'Cuantificación de emisiones — Ed. 2018'],
-              ['IPCC AR6', 'Factores de emisión — 6° Informe de Evaluación'],
+              ['GHG Protocol', 'Corporate Standard â€” Alcances 1 y 2'],
+              ['ISO 14064-1', 'CuantificaciÃ³n de emisiones â€” Ed. 2018'],
+              ['IPCC AR6', 'Factores de emisiÃ³n â€” 6Â° Informe de EvaluaciÃ³n'],
             ].map(([std, desc]) => (
               <div key={std} className="flex items-start gap-2">
                 <div className="w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 mt-0.5 text-brand-400"><IconCheck /></div>
@@ -597,13 +596,13 @@ export default function Report() {
             ))}
           </div>
           <p className="text-xs text-text-muted mt-4 pt-4 border-t border-border">
-            Este diagnóstico es una estimación basada en los datos proporcionados. Para una medición certificable se recomienda una auditoría con verificador acreditado ISO 14064-3.
+            Este diagnÃ³stico es una estimaciÃ³n basada en los datos proporcionados. Para una mediciÃ³n certificable se recomienda una auditorÃ­a con verificador acreditado ISO 14064-3.
           </p>
         </div>
 
-        {/* Certificación EcoMetriX */}
+        {/* CertificaciÃ³n EcoMetriX */}
         <div className="mb-2">
-          <h2 className="text-base font-semibold text-text-primary mb-4">🏅 {t('dashboard.certLevel')}</h2>
+          <h2 className="text-base font-semibold text-text-primary mb-4">ðŸ… {t('dashboard.certLevel')}</h2>
           <CertificationCard diagnosticoData={data} userId={userId} />
         </div>
 
@@ -620,3 +619,4 @@ export default function Report() {
     </div>
   )
 }
+
