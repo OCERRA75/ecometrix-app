@@ -204,18 +204,33 @@ export default function Report() {
         if (user) setUserId(user.id)
 
         if (id) {
-          // Cargar diagnóstico por ID desde Supabase
-          const { data: diag } = await supabase
+          // 1. Intentar desde sessionStorage primero (más rápido)
+          const stored = sessionStorage.getItem('ecometrix_result')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            if (parsed.id === id) {
+              setData(parsed)
+              setLoading(false)
+              return
+            }
+          }
+          // 2. Cargar desde Supabase
+          const { data: diag, error: diagError } = await supabase
             .from('diagnosticos')
-            .select('*')
+            .select('id, empresa, calculo, analisis, respuestas')
             .eq('id', id)
-            .single()
+            .maybeSingle()
+          if (diagError) console.error('Supabase error:', diagError)
           if (diag) {
-            setData({ id: diag.id, empresa: diag.empresa, calculo: diag.calculo, analisis: diag.analisis, respuestas: diag.respuestas })
-            sessionStorage.setItem('ecometrix_result', JSON.stringify({ id: diag.id, empresa: diag.empresa, calculo: diag.calculo, analisis: diag.analisis, respuestas: diag.respuestas }))
+            const result = { id: diag.id, empresa: diag.empresa, calculo: diag.calculo, analisis: diag.analisis, respuestas: diag.respuestas }
+            setData(result)
+            sessionStorage.setItem('ecometrix_result', JSON.stringify(result))
+          } else if (stored) {
+            // Fallback a sessionStorage si Supabase no devuelve nada
+            setData(JSON.parse(stored))
           }
         } else {
-          // Cargar desde sessionStorage
+          // Sin ID en URL — cargar desde sessionStorage
           const stored = sessionStorage.getItem('ecometrix_result')
           if (stored) setData(JSON.parse(stored))
         }
