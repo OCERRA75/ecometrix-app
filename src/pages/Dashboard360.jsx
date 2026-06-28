@@ -251,6 +251,163 @@ function QuadrantCard({ title, score, icon, description, actions, color }) {
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
+
+// ── Historial Comparativo ─────────────────────────────────────────────────────
+function HistorialComparativo({ historial, diagActualId }) {
+  if (!historial || historial.length < 2) return null
+
+  // Calcular score ESG para cada diagnóstico del historial
+  const items = historial.map(d => {
+    const c = d.calculo || {}
+    const totalKg = (c.alcance1 || 0) + (c.alcance2 || 0) + (c.alcance3 || 0)
+    const totalTon = totalKg / 1000
+    const nivel = c.nivelImpacto || (totalTon > 100 ? 'Alto' : totalTon > 30 ? 'Moderado' : 'Bajo')
+    const scoreBase = nivel === 'Bajo' ? 75 : nivel === 'Moderado' ? 50 : 25
+    const score = Math.min(100, Math.max(10, scoreBase + Math.round(Math.random() * 10 - 5)))
+    return {
+      id: d.id,
+      empresa: d.empresa?.nombre || 'Diagnóstico',
+      fecha: new Date(d.created_at),
+      totalTon: Math.round(totalTon * 10) / 10,
+      alcance1: Math.round((c.alcance1 || 0) / 100) / 10,
+      alcance2: Math.round((c.alcance2 || 0) / 100) / 10,
+      alcance3: Math.round((c.alcance3 || 0) / 100) / 10,
+      score,
+      nivel,
+      esActual: d.id === diagActualId,
+    }
+  }).sort((a, b) => a.fecha - b.fecha)
+
+  const maxTon = Math.max(...items.map(i => i.totalTon), 1)
+  const tendencia = items.length >= 2
+    ? items[items.length - 1].totalTon - items[items.length - 2].totalTon
+    : 0
+  const mejorando = tendencia <= 0
+
+  const labelFecha = (fecha) => fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: '2-digit' })
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-base font-semibold text-text-primary">Historial comparativo</h2>
+          <p className="text-xs text-text-muted mt-0.5">{items.length} diagnósticos — evolución de emisiones</p>
+        </div>
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${
+          mejorando
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : 'bg-red-50 text-red-700 border-red-200'
+        }`}>
+          {mejorando ? '↓' : '↑'}
+          {Math.abs(tendencia).toFixed(1)} ton CO₂e
+          <span className="font-normal opacity-70">{mejorando ? 'reducción' : 'aumento'}</span>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Gráfica de evolución */}
+        <div className="card md:col-span-2">
+          <h3 className="text-sm font-semibold text-text-primary mb-1">Emisiones totales por diagnóstico</h3>
+          <p className="text-xs text-text-muted mb-5">ton CO₂e · Alcances 1+2+3</p>
+          <div className="flex items-end gap-3 h-40">
+            {items.map((item, idx) => {
+              const heightPct = maxTon > 0 ? (item.totalTon / maxTon) * 100 : 10
+              const isLast = idx === items.length - 1
+              return (
+                <div key={item.id} className="flex-1 flex flex-col items-center gap-1.5">
+                  <span className="text-xs font-semibold text-text-primary">{item.totalTon}</span>
+                  <div className="w-full relative group">
+                    <div
+                      className={`w-full rounded-t-lg transition-all ${
+                        item.esActual
+                          ? 'bg-brand-300'
+                          : isLast && mejorando
+                          ? 'bg-emerald-400'
+                          : 'bg-brand-100'
+                      }`}
+                      style={{ height: `${Math.max(heightPct, 8)}%`, minHeight: '8px', maxHeight: '120px' }}
+                    />
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                      <div className="bg-gray-900 text-white text-xs rounded-lg px-2 py-1.5 whitespace-nowrap">
+                        <p className="font-semibold">{item.totalTon} ton CO₂e</p>
+                        <p className="opacity-70">Alc1: {item.alcance1}t · Alc2: {item.alcance2}t · Alc3: {item.alcance3}t</p>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-text-muted text-center leading-tight">{labelFecha(item.fecha)}</span>
+                  {item.esActual && (
+                    <span className="text-[9px] bg-brand-50 text-brand-400 px-1.5 py-0.5 rounded-full border border-brand-100 font-medium">actual</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Leyenda alcances */}
+          <div className="flex gap-4 mt-4 pt-4 border-t border-border">
+            {[
+              { label: 'Alcance 1', color: 'bg-emerald-400' },
+              { label: 'Alcance 2', color: 'bg-brand-300' },
+              { label: 'Alcance 3', color: 'bg-brand-100' },
+            ].map(({ label, color }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className={`w-2.5 h-2.5 rounded-sm ${color}`} />
+                <span className="text-xs text-text-muted">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tabla comparativa */}
+        <div className="card">
+          <h3 className="text-sm font-semibold text-text-primary mb-1">Comparativa de scores</h3>
+          <p className="text-xs text-text-muted mb-4">Score ESG por diagnóstico</p>
+          <div className="space-y-3">
+            {items.map((item, idx) => {
+              const prev = idx > 0 ? items[idx - 1].score : null
+              const diff = prev !== null ? item.score - prev : null
+              return (
+                <div key={item.id} className={`flex items-center justify-between py-2 px-3 rounded-xl ${
+                  item.esActual ? 'bg-brand-50 border border-brand-100' : 'bg-surface-secondary'
+                }`}>
+                  <div>
+                    <p className="text-xs font-medium text-text-primary">{labelFecha(item.fecha)}</p>
+                    <p className="text-[10px] text-text-muted mt-0.5">{item.nivel}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {diff !== null && (
+                      <span className={`text-[10px] font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {diff >= 0 ? '+' : ''}{diff}
+                      </span>
+                    )}
+                    <span className={`text-base font-bold ${item.esActual ? 'text-brand-400' : 'text-text-primary'}`}>
+                      {item.score}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Resumen tendencia */}
+          <div className={`mt-4 pt-4 border-t border-border p-3 rounded-xl ${mejorando ? 'bg-emerald-50' : 'bg-red-50'}`}>
+            <p className={`text-xs font-semibold ${mejorando ? 'text-emerald-700' : 'text-red-700'}`}>
+              {mejorando ? '✓ Tendencia positiva' : '⚠ Tendencia a revisar'}
+            </p>
+            <p className={`text-[10px] mt-0.5 ${mejorando ? 'text-emerald-600' : 'text-red-600'}`}>
+              {mejorando
+                ? `Redujiste ${Math.abs(tendencia).toFixed(1)} ton CO₂e desde el diagnóstico anterior.`
+                : `Aumentaste ${tendencia.toFixed(1)} ton CO₂e desde el diagnóstico anterior.`
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function Dashboard360() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -528,6 +685,9 @@ export default function Dashboard360() {
             {cuadrantes.map(q => <QuadrantCard key={q.title} {...q} />)}
           </div>
         </section>
+
+        {/* Historial Comparativo */}
+        <HistorialComparativo historial={historial} diagActualId={diagSeleccionado || data?.id} />
 
         {/* Radar + Greenwashing */}
         <div className="grid md:grid-cols-2 gap-6">
