@@ -240,6 +240,214 @@ export default function Report() {
 
   const { empresa, calculo, analisis } = data
   const nivel = nivelColor[calculo.nivelImpacto] || nivelColor.Moderado
+  const [pdfLoading, setPdfLoading] = useState(false)
+
+  async function generatePDF() {
+    setPdfLoading(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const W = 210; const M = 16; const CW = W - M * 2
+      let y = 0
+
+      const verde = [29, 158, 117]
+      const verdeOsc = [21, 95, 70]
+      const verdeClaro = [240, 253, 244]
+      const negro = [28, 25, 23]
+      const gris = [87, 83, 78]
+      const grisClaro = [245, 245, 244]
+      const blanco = [255, 255, 255]
+      const nivelColores = { Bajo: [29,158,117], Moderado: [186,117,23], Alto: [153,60,29] }
+      const nc = nivelColores[calculo.nivelImpacto] || nivelColores.Moderado
+
+      const addPage = () => { doc.addPage(); y = 16 }
+      const checkPage = (needed) => { if (y + needed > 275) addPage() }
+
+      // ── PORTADA ─────────────────────────────────────────────────────────────
+      doc.setFillColor(...verde)
+      doc.rect(0, 0, W, 60, 'F')
+      doc.setFillColor(...verdeOsc)
+      doc.rect(0, 55, W, 8, 'F')
+
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...blanco)
+      doc.text('EcoMetriX · GHG Protocol + ISO 14064', M, 14)
+
+      doc.setFontSize(22); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
+      doc.text('Reporte de Huella de', M, 28)
+      doc.text('Carbono Corporativa', M, 37)
+
+      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(200,240,220)
+      doc.text(`${empresa.nombre} · ${empresa.sector} · ${empresa.pais}`, M, 47)
+      doc.text(`Generado: ${new Date().toLocaleDateString('es-CO', { year:'numeric', month:'long', day:'2-digit' })}`, M, 53)
+
+      y = 72
+
+      // ── KPIs principales ────────────────────────────────────────────────────
+      const kpis = [
+        { label: 'Total anual', val: `${calculo.totalTonAnio || 0}`, unit: 'ton CO₂e' },
+        { label: 'Total mensual', val: `${Math.round(calculo.totalKgMes || 0).toLocaleString()}`, unit: 'kg CO₂e/mes' },
+        { label: 'Nivel de impacto', val: calculo.nivelImpacto || 'N/A', unit: '' },
+        { label: 'Valor mercado EU', val: `$${((calculo.valorETS_COP || 0)/1e6).toFixed(1)}M`, unit: 'COP/año' },
+      ]
+      const kw = CW / 4
+      kpis.forEach((k, i) => {
+        const x = M + i * kw
+        doc.setFillColor(...grisClaro)
+        doc.roundedRect(x, y, kw - 2, 22, 2, 2, 'F')
+        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+        doc.text(k.label, x + (kw-2)/2, y + 6, { align: 'center' })
+        doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(...negro)
+        doc.text(k.val, x + (kw-2)/2, y + 14, { align: 'center' })
+        if (k.unit) {
+          doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+          doc.text(k.unit, x + (kw-2)/2, y + 19, { align: 'center' })
+        }
+      })
+      y += 28
+
+      // ── GRÁFICA DE BARRAS — Alcances ────────────────────────────────────────
+      checkPage(60)
+      doc.setFillColor(...verde)
+      doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
+      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
+      doc.text('01  Distribución por Alcances GHG', M + 4, y + 5)
+      y += 11
+
+      const alcances = [
+        { label: 'Alcance 1 — Emisiones directas', val: calculo.alcance1 || 0, color: [29,158,117] },
+        { label: 'Alcance 2 — Energía indirecta', val: calculo.alcance2 || 0, color: [16,163,127] },
+        { label: 'Alcance 3 — Cadena de valor', val: calculo.alcance3 || 0, color: [52,199,163] },
+      ]
+      const totalAlc = alcances.reduce((s, a) => s + a.val, 0) || 1
+      const maxAlc = Math.max(...alcances.map(a => a.val), 1)
+
+      alcances.forEach(alc => {
+        checkPage(14)
+        const pct = Math.round((alc.val / totalAlc) * 100)
+        const barW = Math.max((alc.val / maxAlc) * (CW - 60), 2)
+        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+        doc.text(alc.label, M, y + 4)
+        doc.setFillColor(...grisClaro)
+        doc.roundedRect(M, y + 6, CW - 50, 5, 1, 1, 'F')
+        doc.setFillColor(...alc.color)
+        doc.roundedRect(M, y + 6, barW, 5, 1, 1, 'F')
+        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...negro)
+        doc.text(`${Math.round(alc.val).toLocaleString()} kg · ${pct}%`, W - M, y + 10, { align: 'right' })
+        y += 14
+      })
+      y += 4
+
+      // ── RESUMEN EJECUTIVO IA ─────────────────────────────────────────────────
+      if (analisis?.resumen_ejecutivo) {
+        checkPage(30)
+        doc.setFillColor(...verde)
+        doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
+        doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
+        doc.text('02  Análisis IA — Resumen ejecutivo', M + 4, y + 5)
+        y += 11
+        doc.setFillColor(...verdeClaro)
+        const lines = doc.splitTextToSize(analisis.resumen_ejecutivo, CW - 8)
+        const boxH = lines.length * 5 + 8
+        doc.roundedRect(M, y, CW, boxH, 2, 2, 'F')
+        doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...negro)
+        doc.text(lines, M + 4, y + 6)
+        y += boxH + 6
+      }
+
+      // ── PRINCIPALES FUENTES ──────────────────────────────────────────────────
+      if (analisis?.principales_fuentes?.length) {
+        checkPage(20)
+        doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...verde)
+        doc.text('Principales fuentes de emisión:', M, y)
+        y += 6
+        analisis.principales_fuentes.forEach(f => {
+          checkPage(8)
+          doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+          doc.text(`→  ${f}`, M + 3, y)
+          y += 6
+        })
+        y += 4
+      }
+
+      // ── PLAN DE ACCIÓN ───────────────────────────────────────────────────────
+      if (analisis?.plan_accion?.length) {
+        checkPage(20)
+        doc.setFillColor(...verde)
+        doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
+        doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
+        doc.text('03  Plan de Acción — 5 pasos prioritarios', M + 4, y + 5)
+        y += 11
+
+        analisis.plan_accion.forEach((accion, i) => {
+          checkPage(20)
+          const difColor = accion.dificultad === 'Fácil' ? [29,158,117] : accion.dificultad === 'Media' ? [186,117,23] : [153,60,29]
+          doc.setFillColor(...grisClaro)
+          doc.roundedRect(M, y, CW, 16, 2, 2, 'F')
+          doc.setFillColor(...difColor)
+          doc.roundedRect(M, y, 5, 16, 2, 0, 'F')
+          doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...negro)
+          const alines = doc.splitTextToSize(`${i+1}. ${accion.accion}`, CW - 55)
+          doc.text(alines, M + 9, y + 5)
+          doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+          doc.text(`↓${accion.reduccion_pct}% · ${accion.dificultad} · ${accion.plazo}`, M + 9, y + 12)
+          y += 19
+        })
+        y += 4
+      }
+
+      // ── BENCHMARK ───────────────────────────────────────────────────────────
+      if (analisis?.benchmark) {
+        checkPage(20)
+        doc.setFillColor(239, 246, 255)
+        const blines = doc.splitTextToSize(analisis.benchmark, CW - 8)
+        const bh = blines.length * 5 + 8
+        doc.roundedRect(M, y, CW, bh, 2, 2, 'F')
+        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor([30,64,175])
+        doc.text('Benchmark sectorial:', M + 4, y + 5)
+        doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
+        doc.text(blines, M + 4, y + 11)
+        y += bh + 6
+      }
+
+      // ── METODOLOGÍA ──────────────────────────────────────────────────────────
+      checkPage(30)
+      doc.setFillColor(...verde)
+      doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
+      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
+      doc.text('04  Metodología y estándares aplicados', M + 4, y + 5)
+      y += 11
+
+      const estandares = ['GHG Protocol Corporate Standard', 'ISO 14064-1:2018', 'IPCC AR6 (factores de emisión)', 'CSRD/ESRS E1 compatible', 'Science Based Targets (SBTi baseline)']
+      const ew = (CW - 4) / 3
+      estandares.forEach((e, i) => {
+        const col = i % 3; const row = Math.floor(i / 3)
+        if (col === 0 && i > 0) y += 10
+        const x = M + col * (ew + 2)
+        doc.setFillColor(...verdeClaro)
+        doc.roundedRect(x, y, ew, 8, 1, 1, 'F')
+        doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...verde)
+        doc.text(e, x + ew/2, y + 5, { align: 'center' })
+      })
+      y += 16
+
+      // ── FOOTER EN TODAS LAS PÁGINAS ───────────────────────────────────────
+      const totalPages = doc.getNumberOfPages()
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p)
+        doc.setFillColor(...verde)
+        doc.rect(0, 287, W, 10, 'F')
+        doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...blanco)
+        doc.text('EcoMetriX · ecometrix-app-one.vercel.app · GHG Protocol + ISO 14064', M, 293)
+        doc.text(`Página ${p} de ${totalPages}`, W - M, 293, { align: 'right' })
+      }
+
+      doc.save(`EcoMetriX_Reporte_${empresa.nombre?.replace(/\s+/g,'_') || 'empresa'}_${new Date().getFullYear()}.pdf`)
+    } catch (err) {
+      console.error('PDF error:', err)
+      window.print()
+    }
+    setPdfLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-surface-secondary">
@@ -252,8 +460,9 @@ export default function Report() {
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-xs text-text-muted hidden sm:block">{t('report.title')} — {empresa.nombre}</span>
-            <button onClick={() => window.print()} className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1.5">
-              <IconDownload /> {t('report.downloadPDF')}
+            <button onClick={generatePDF} disabled={pdfLoading} className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-50">
+              {pdfLoading ? <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <IconDownload />}
+              {pdfLoading ? 'Generando...' : t('report.downloadPDF')}
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">{t('report.dashboard360')}</Link>
             <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
