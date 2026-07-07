@@ -3,6 +3,7 @@
 // Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|send-report
 
 import { createClient } from '@supabase/supabase-js'
+import { generateGenericCsv } from '../src/lib/generateGenericCsv'
 
 // ── CORS helper ────────────────────────────────────────────────────────────────
 function setCORS(res) {
@@ -280,6 +281,28 @@ async function sendReport(req, res) {
   }
 }
 
+// ── EXPORT-CSV ─────────────────────────────────────────────────────────────────
+async function exportCsv(req, res) {
+  setCORS(res)
+  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' })
+
+  try {
+    const { invoices } = req.body
+    if (!Array.isArray(invoices) || invoices.length === 0) {
+      return res.status(400).json({ ok: false, error: 'Se requiere un array "invoices" no vacio' })
+    }
+
+    const csv = generateGenericCsv(invoices)
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+    res.setHeader('Content-Disposition', 'attachment; filename="ecometrix_export_erp.csv"')
+    return res.status(200).send(csv)
+  } catch (err) {
+    console.error('[export-csv]', err.message)
+    return res.status(500).json({ ok: false, error: err.message })
+  }
+}
+
 // ── ROUTER PRINCIPAL ───────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   setCORS(res)
@@ -293,7 +316,8 @@ export default async function handler(req, res) {
     case 'process-ia-queue':     return processIaQueue(req, res)
     case 'save-monthly-progress':return saveMonthlyProgress(req, res)
     case 'send-report':          return sendReport(req, res)
+    case 'export-csv':           return exportCsv(req, res)
     default:
-      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','send-report'] })
+      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','send-report','export-csv'] })
   }
 }
