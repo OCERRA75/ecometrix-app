@@ -265,7 +265,7 @@ function ResumenScreen({ onSubmit, loading }) {
 
 export default function Questionnaire() {
   const navigate = useNavigate()
-  const { empresa, respuestas, step, currentQ, setRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
+  const { empresa, respuestas, step, currentQ, setRespuesta, acumularRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
   const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const [showImporter, setShowImporter] = useState(false)
@@ -286,7 +286,7 @@ export default function Questionnaire() {
     }
     Object.entries(campos).forEach(([campo, valor]) => {
       const preguntaId = CAMPO_A_PREGUNTA[campo]
-      if (preguntaId && valor) setRespuesta(preguntaId, String(valor))
+      if (preguntaId && valor) acumularRespuesta(preguntaId, String(valor))
     })
     setImportNotice(`✓ Datos importados desde factura: ${resumen}`)
     setTimeout(() => setImportNotice(''), 6000)

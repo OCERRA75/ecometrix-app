@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 }
 
 Reglas:
-- "relevante_ghg" = true solo si el proveedor es de electricidad, gas natural, combustibles (gasolina/diesel/acpm), o transporte con consumo de combustible medible. En ese caso, para cada item relevante llena "alcance_ghg" (1|2|3), "categoria" (electricidad|gas_natural|gasolina|diesel|acpm), y "campo_cuestionario" (consumo_electricidad|consumo_gas_natural|consumo_gasolina|consumo_diesel|consumo_acpm), con "unidad" en kWh|m3|galones|litros según corresponda.
+- "relevante_ghg" = true solo si el proveedor es de electricidad, gas natural, gas propano, combustibles (gasolina/diesel/acpm), o transporte (carga o empleados) con consumo medible en km o combustible. En ese caso, para cada item relevante llena "alcance_ghg" (1|2|3), "categoria" (electricidad|gas_natural|gas_propano|gasolina|diesel|acpm|transporte_carga|transporte_empleados), y "campo_cuestionario" (consumo_electricidad|consumo_gas_natural|consumo_gas_propano|consumo_gasolina|consumo_diesel|consumo_acpm|km_carga|km_empleados), con "unidad" en kWh|m3|kg|galones|litros|km según corresponda.
 - Si "relevante_ghg" es false, deja "alcance_ghg", "categoria" y "campo_cuestionario" en null, y usa "unidad" solo si aplica (o null).
 - "categoria_proveedor" siempre se llena, sin importar si es relevante para GHG (ej: "electricidad", "combustible", "papelería", "transporte", "servicios profesionales", "insumos de oficina", "telecomunicaciones", "mantenimiento").
 - Si un campo no aparece en el documento, usa null (nunca inventes datos).
