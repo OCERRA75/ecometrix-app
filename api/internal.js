@@ -293,10 +293,11 @@ async function exportCsv(req, res) {
     }
 
     const csv = generateGenericCsv(invoices)
+    const csvWithBom = '\uFEFF' + csv
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
     res.setHeader('Content-Disposition', 'attachment; filename="ecometrix_export_erp.csv"')
-    return res.status(200).send(csv)
+    return res.status(200).send(csvWithBom)
   } catch (err) {
     console.error('[export-csv]', err.message)
     return res.status(500).json({ ok: false, error: err.message })
