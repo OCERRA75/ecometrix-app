@@ -3,7 +3,7 @@
 // Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|send-report
 
 import { createClient } from '@supabase/supabase-js'
-import { generateGenericCsv } from '../src/lib/generateGenericCsv'
+import { generateGenericCsv } from '../src/lib/generateGenericCsv.js'
 
 // ── CORS helper ────────────────────────────────────────────────────────────────
 function setCORS(res) {
