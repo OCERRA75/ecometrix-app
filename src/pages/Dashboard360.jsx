@@ -756,11 +756,7 @@ export default function Dashboard360() {
         </div>
 
         {/* Compensación de huella residual */}
-        <ResidualOffsetPanel
-          huellaResidualTon={
-            calculo.totalTonAnio * (1 - ((analisis?.plan_accion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) || 50) / 100))
-          }
-        />
+        <ResidualOffsetPanel huellaResidualTon={calculo.totalTonAnio} />
 
         {/* CTA siguiente paso */}
         <div className="bg-brand-400 rounded-2xl p-6 text-white">

@@ -50,7 +50,7 @@ export default function ResidualOffsetPanel({ huellaResidualTon }) {
         <div>
           <h3 className="font-semibold text-text-primary">Compensación de tu huella residual</h3>
           <p className="text-sm text-text-muted mt-0.5">
-            Después de tus reducciones aplicadas, tu empresa todavía emite{' '}
+            Tu empresa emite actualmente{' '}
             <span className="font-semibold text-text-primary">{huellaResidualTon.toLocaleString('es-CO')} ton CO2e</span>{' '}
             al año. Estos son programas certificados donde puedes compensarla comprando créditos de carbono directamente.
           </p>
