@@ -252,7 +252,7 @@ async function generarManualPDF() {
     y += 2
   })
 
-  addInfoBox('Nuevo en v3.0: Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el botón "Importar factura" en la barra superior. Sube una imagen JPG/PNG de tu factura de electricidad, gas o combustible y EcoMetriX extrae automáticamente los datos usando inteligencia artificial.', [239,246,255], [29,78,216])
+  addInfoBox('Nuevo en v3.0: Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el boton "Importar factura" en la barra superior. Sube una imagen o PDF de cualquier factura de proveedor (electricidad, gas, combustible, transporte) y EcoMetriX extrae automaticamente los datos usando inteligencia artificial. Si tienes varias sedes, cada factura que importes se suma a la anterior (no la reemplaza), consolidando el consumo total de la empresa.', [239,246,255], [29,78,216])
 
   // ── 04 Reporte ──────────────────────────────────────────────────────────
   addPage()
@@ -279,6 +279,8 @@ async function generarManualPDF() {
   })
 
   addInfoBox('El reporte tiene una URL única permanente. Puedes compartirla con socios, clientes o inversionistas sin necesidad de crear cuenta.', verdeClaro, verde)
+
+  addInfoBox('Nuevo: Compensacion de tu huella residual. En tu Dashboard 360 encontraras una seccion que muestra cuanto emite tu empresa hoy y te enlaza con programas certificados de compensacion: ACORN (Rabobank, creditos de agroforesteria certificados por Plan Vivo) y Verra (VCS / VM0047, el estandar de creditos de carbono voluntario mas usado globalmente para proyectos de forestacion). Son programas de terceros, independientes de EcoMetriX.', [236,253,245], [4,120,87])
 
   // ── 05 Certificado ──────────────────────────────────────────────────────
   addPage()
@@ -391,7 +393,7 @@ async function generarManualPDF() {
   const faqs = [
     ['¿El diagnóstico es gratis?', 'Sí. El diagnóstico inicial, el reporte PDF y el certificado EcoMetriX son 100% gratuitos. No se requiere tarjeta de crédito. Los planes de pago desbloquean funciones avanzadas como CSRD/ESRS e integraciones ERP.'],
     ['¿Cuánto tiempo toma?', 'Entre 10 y 15 minutos para el cuestionario completo. No se necesita experiencia técnica.'],
-    ['¿Puedo subir una foto de mi factura?', 'Sí. Durante el cuestionario encontrarás el botón Importar factura en la barra superior. Sube una imagen JPG o PNG de tu factura de electricidad, gas o combustible y la IA extrae automáticamente el consumo.'],
+    ['¿Puedo subir una foto de mi factura?', 'Sí. Durante el cuestionario encontrarás el botón Importar factura en la barra superior. Sube una imagen o PDF de cualquier factura de proveedor y la IA extrae automáticamente el consumo. Si tienes varias sedes, las facturas se suman entre sí en vez de reemplazarse.'],
     ['¿Los precios tienen descuento anual?', 'Sí. Al seleccionar facturación anual obtienes un 20% de descuento. El cambio aplica desde el primer pago y se cobra en un solo cobro anual.'],
     ['¿Puedo conectar mi ERP?', 'Sí. El plan Pro incluye integración con Siigo y Alegra por API directa, además de importación por CSV/Excel o foto de factura con IA.'],
     ['¿Puedo cancelar en cualquier momento?', 'Sí. No hay contratos ni permanencia mínima. Puedes cancelar desde tu perfil y tu plan seguirá activo hasta el fin del período pagado.'],
