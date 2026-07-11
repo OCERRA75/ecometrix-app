@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ChatAssistant from '@/components/ChatAssistant.jsx'
 import CertificationCard from '@/components/CertificationCard'
+import ResidualOffsetPanel from '@/components/ResidualOffsetPanel'
 import { supabase } from '@/lib/supabase.js'
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
@@ -753,6 +754,13 @@ export default function Dashboard360() {
             ))}
           </div>
         </div>
+
+        {/* Compensación de huella residual */}
+        <ResidualOffsetPanel
+          huellaResidualTon={
+            calculo.totalTonAnio * (1 - ((analisis?.plan_accion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) || 50) / 100))
+          }
+        />
 
         {/* CTA siguiente paso */}
         <div className="bg-brand-400 rounded-2xl p-6 text-white">
