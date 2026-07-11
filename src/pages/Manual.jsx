@@ -627,13 +627,14 @@ export default function Manual() {
                 <span className="text-xs bg-blue-200 text-blue-700 font-bold px-2 py-0.5 rounded-full">IA</span>
               </div>
               <p className="text-sm text-blue-700 leading-relaxed mb-3">
-                Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el botón <strong>"Importar factura"</strong> en la barra superior. Sube una imagen de tu factura de electricidad, gas o combustible y EcoMetriX extrae automáticamente los datos usando inteligencia artificial.
+                Durante el cuestionario (Alcances 1, 2 y 3) encontrarás el botón <strong>"Importar factura"</strong> en la barra superior. Sube una imagen o PDF de cualquier factura de proveedor (electricidad, gas, combustible, transporte) y EcoMetriX extrae automáticamente los datos usando inteligencia artificial.
               </p>
               <ul className="space-y-1.5">
                 {[
-                  'Sube una foto o captura de pantalla de tu factura (JPG o PNG)',
+                  'Sube una foto, captura o PDF de tu factura',
                   'La IA identifica el proveedor, tipo de consumo y cantidad',
                   'Los datos se pre-llenan automáticamente en el cuestionario',
+                  'Si tienes varias sedes, cada factura que importes se suma a la anterior (no la reemplaza) — así consolidas el consumo total de toda la empresa',
                   'Revisa y confirma los datos antes de continuar',
                 ].map(item => (
                   <li key={item} className="flex items-start gap-2 text-sm text-blue-700">
@@ -643,6 +644,31 @@ export default function Manual() {
                 ))}
               </ul>
               <p className="text-xs text-blue-500 mt-3">Disponible en planes Básico, Pro y Enterprise. Requiere conexión a internet.</p>
+            </div>
+
+            {/* Nueva feature: Compensación de huella residual */}
+            <div className="mt-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">🌱</span>
+                <p className="font-bold text-emerald-800 text-sm">Nuevo: Compensación de tu huella residual</p>
+              </div>
+              <p className="text-sm text-emerald-700 leading-relaxed mb-3">
+                En tu Dashboard 360° encontrarás una sección que muestra cuánto emite tu empresa hoy y te enlaza directamente con programas certificados de compensación de carbono:
+              </p>
+              <ul className="space-y-1.5">
+                {[
+                  'ACORN (Rabobank) — créditos de agroforestería verificados con imágenes satelitales y certificados por Plan Vivo',
+                  'Verra (VCS / VM0047) — el estándar de créditos de carbono voluntario más usado globalmente, para proyectos de forestación',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-emerald-700">
+                    <span className="text-emerald-500 flex-shrink-0 mt-0.5">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-emerald-600 mt-3">
+                Estos son programas de terceros, independientes de EcoMetriX — no procesamos ni intermediamos la compra de créditos, solo te conectamos con la información oficial de cada uno.
+              </p>
             </div>
 
             <div className="mt-4 bg-[#1D9E75] rounded-2xl p-4 text-white">
