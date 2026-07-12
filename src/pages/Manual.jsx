@@ -355,6 +355,9 @@ async function generarManualPDF() {
     addParagraph(desc, 4)
   })
 
+  y += 2
+  addInfoBox('Nuevo v3.0 — Exportar a ERP: en la sección "Exportar a ERP" del dashboard (boton en la barra superior) puedes descargar en formato CSV todas las facturas de proveedores que hayas procesado con la IA, listas para importar en Odoo, Siesa, ICG, SAP Business One o cualquier ERP con carga de archivo. Es el flujo inverso: de EcoMetriX hacia tu ERP.', [239,246,255], [29,78,216])
+
   // ── 08 Planes ───────────────────────────────────────────────────────────
   addPage()
   addSection('Planes y precios', '08', '💡')
@@ -755,9 +758,18 @@ export default function Manual() {
                 </div>
               ))}
             </div>
-          </section>
 
-          {/* 08 — Planes */}
+            {/* Nueva feature: Exportar a ERP */}
+            <div className="mt-4 bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">📤</span>
+                <p className="font-bold text-blue-800 text-sm">Nuevo: Exportar a ERP</p>
+              </div>
+              <p className="text-sm text-blue-700 leading-relaxed">
+                Flujo inverso a las integraciones de arriba: en <strong>"Exportar a ERP"</strong> (botón en la barra superior del Dashboard) descargas en CSV todas las facturas de proveedores que ya procesaste con IA, listas para importar en Odoo, Siesa, ICG, SAP Business One o cualquier ERP con carga de archivo.
+              </p>
+            </div>
+          </section>
           <section>
             <SectionTitle id="planes" icon="💡" n="08" title={t('manual.sections.planes')} />
             <div className="grid md:grid-cols-3 gap-4">
