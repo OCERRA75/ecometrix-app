@@ -18,6 +18,7 @@ import Manual from '@/pages/Manual.jsx'
 import ReductionPlan from '@/pages/ReductionPlan.jsx'
 import Admin from '@/pages/Admin.jsx'
 import SBTi from '@/pages/SBTi.jsx'
+import ExportarERP from '@/pages/ExportarERP.jsx'
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/plan"                element={<PlanGuard requiereNivel={1}><ReductionPlan /></PlanGuard>} />
           <Route path="/csrd"                element={<PlanGuard requiereNivel={2}><CSRD /></PlanGuard>} />
           <Route path="/integraciones"       element={<PlanGuard requiereNivel={2}><Integrations /></PlanGuard>} />
+          <Route path="/exportar-erp"        element={<PlanGuard requiereNivel={2}><ExportarERP /></PlanGuard>} />
           <Route path="/developers"          element={<PlanGuard requiereNivel={2}><Developers /></PlanGuard>} />
           <Route path="*"                    element={<NotFound />} />
         </Routes>

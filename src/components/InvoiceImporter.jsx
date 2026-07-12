@@ -3,6 +3,7 @@
 // Usa AWS Textract + Claude para extraer y clasificar emisiones
 
 import { useState, useRef, useCallback } from 'react'
+import { supabase, getSession } from '../lib/supabase'
 
 const CAMPO_MAP = {
   consumo_electricidad:  { key: 'electricidad_kwh',    label: 'Consumo eléctrico (kWh)' },
@@ -84,6 +85,10 @@ export default function InvoiceImporter({ onImport, onClose }) {
           .map((_, idx) => idx)
         setSeleccionados(presel)
         setFase('resultado')
+
+        // Guardar la factura completa para poder exportarla luego al ERP,
+        // independiente de qué campos se importen al cuestionario de huella.
+        guardarFacturaProcesada(data.clasificacion)
       } catch (err) {
         setErrorMsg(err.message)
         setFase('error')
@@ -91,6 +96,26 @@ export default function InvoiceImporter({ onImport, onClose }) {
     }
     reader.readAsDataURL(file)
   }, [])
+
+  const guardarFacturaProcesada = async (clasificacion) => {
+    try {
+      const { user } = await getSession()
+      if (!user) return // no bloquea el flujo si por algo no hay sesión
+
+      const { error } = await supabase.from('facturas_procesadas').insert({
+        user_id: user.id,
+        proveedor: clasificacion.proveedor || null,
+        proveedor_nit: clasificacion.proveedor_nit || null,
+        numero_factura: clasificacion.numero_factura || null,
+        fecha_emision: clasificacion.fecha_emision || null,
+        total: clasificacion.totales?.total ?? null,
+        clasificacion,
+      })
+      if (error) console.error('[guardarFacturaProcesada]', error.message)
+    } catch (err) {
+      console.error('[guardarFacturaProcesada]', err.message)
+    }
+  }
 
   const onDrop = useCallback((e) => {
     e.preventDefault()
