@@ -75,7 +75,7 @@ const FAQ_PRECIOS = [
   },
   {
     q: '¿Emiten factura electrónica?',
-    a: 'Los planes Enterprise incluyen factura electrónica. Para Básico y Pro puedes solicitarla escribiéndonos a oscar@ecometrix.co.',
+    a: 'Los planes Enterprise incluyen factura electrónica. Para Básico y Pro puedes solicitarla escribiéndonos a contacto@ecometrix.app.',
   },
   {
     q: '¿Qué métodos de pago aceptan?',

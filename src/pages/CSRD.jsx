@@ -460,7 +460,7 @@ function CTAUpgrade() {
           </ul>
           <div className="flex gap-2 flex-wrap">
             <a href="/pricing" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">{t('pricing.badge')} →</a>
-            <a href="mailto:oscar@ecometrix.co" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">{t('pricing.contactSales')}</a>
+            <a href="mailto:contacto@ecometrix.app" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">{t('pricing.contactSales')}</a>
           </div>
         </div>
         <span className="text-5xl flex-shrink-0 hidden sm:block">🏆</span>
@@ -647,7 +647,7 @@ export default function CSRD() {
             <div className="card border-dashed">
               <p className="text-sm font-medium text-text-primary mb-2">{t('csrd.methodNote')}</p>
               <p className="text-xs text-text-secondary leading-relaxed">
-                {t('csrd.methodNoteBody')} <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline">oscar@ecometrix.co</a>
+                {t('csrd.methodNoteBody')} <a href="mailto:contacto@ecometrix.app" className="text-brand-400 hover:underline">contacto@ecometrix.app</a>
               </p>
             </div>
           </div>

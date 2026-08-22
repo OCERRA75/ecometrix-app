@@ -1,0 +1,2 @@
+﻿nit_proveedor,nombre_proveedor,numero_factura,fecha_emision,descripcion_item,cantidad,valor_unitario,valor_total,iva,total_factura,centro_costo
+900123456-1,Proveedor Prueba SAS,FAC-001,2026-07-01,Servicio de prueba,1,100000,100000,19000,119000,Administraci�n

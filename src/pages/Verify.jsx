@@ -260,7 +260,7 @@ export default function Verify() {
 
           <p className="text-center text-xs text-text-muted mt-6">
             ¿Dudas sobre este certificado?{' '}
-            <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline">oscar@ecometrix.co</a>
+            <a href="mailto:contacto@ecometrix.app" className="text-brand-400 hover:underline">contacto@ecometrix.app</a>
           </p>
         </div>
       </main>

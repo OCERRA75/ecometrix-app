@@ -422,7 +422,7 @@ export default function Developers() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/precios" className="btn-ghost text-sm py-1.5 px-3">Planes</Link>
-            <a href="mailto:oscar@ecometrix.co" className="btn-primary text-sm py-1.5 px-3">Solicitar API key</a>
+            <a href="mailto:contacto@ecometrix.app" className="btn-primary text-sm py-1.5 px-3">Solicitar API key</a>
           </div>
         </div>
       </header>
@@ -586,7 +586,7 @@ export default function Developers() {
               <p className="text-sm text-text-secondary mb-4">
                 Las API keys están disponibles en el plan Pro y Enterprise. Formato: <code className="bg-surface-tertiary px-1.5 py-0.5 rounded text-brand-400">ecm_xxxxxxxxxxxxxxxx</code>
               </p>
-              <a href="mailto:oscar@ecometrix.co?subject=Solicitud API key EcoMetriX" className="btn-primary text-sm">
+              <a href="mailto:contacto@ecometrix.app?subject=Solicitud API key EcoMetriX" className="btn-primary text-sm">
                 Solicitar API key →
               </a>
             </div>

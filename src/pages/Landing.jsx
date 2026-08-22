@@ -652,7 +652,7 @@ function FAQ() {
         <div className="text-center mt-10">
           <p className="text-text-muted text-sm">
             ¿Tienes otra pregunta?{' '}
-            <a href="mailto:oscar@ecometrix.co" className="text-brand-400 hover:underline font-medium">
+            <a href="mailto:contacto@ecometrix.app" className="text-brand-400 hover:underline font-medium">
               Escríbenos
             </a>
           </p>
@@ -767,7 +767,7 @@ function Footer() {
           <div className="flex items-center gap-4">
             <LanguageSelector dark={true} />
             <span className="text-white/20">·</span>
-            <a href="mailto:oscar@ecometrix.co" className="text-white/60 hover:text-white text-sm transition-colors">oscar@ecometrix.co</a>
+            <a href="mailto:contacto@ecometrix.app" className="text-white/60 hover:text-white text-sm transition-colors">contacto@ecometrix.app</a>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/10 text-center">

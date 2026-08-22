@@ -545,7 +545,7 @@ export default function Integrations() {
               <p className="text-white/80 text-sm mb-4">
                 {t('integrations.customErpDesc')}
               </p>
-              <a href="mailto:oscar@ecometrix.co?subject=Integración ERP personalizada"
+              <a href="mailto:contacto@ecometrix.app?subject=Integración ERP personalizada"
                 className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors inline-block">
                 {t('integrations.customErpCta')}
               </a>
