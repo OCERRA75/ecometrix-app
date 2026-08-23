@@ -469,6 +469,49 @@ export default function Standards() {
           </button>
         </div>
 
+        <div className="card border-blue-200 bg-white mb-10">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-blue-700">
+                <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-text-primary text-lg">Metodología y validez</h3>
+              <p className="text-sm text-text-secondary mt-1">
+                EcoMetriX calcula tu huella de carbono siguiendo el <span className="font-semibold">GHG Protocol Corporate Standard</span> y la
+                {' '}<span className="font-semibold">norma ISO 14064-1</span>, usando factores de emisión de fuentes oficiales (IPCC, DEFRA) —
+                las mismas metodologías que emplean los entes certificadores acreditados como ICONTEC, SGS o Bureau Veritas.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3 mb-4">
+            <div className="bg-surface-secondary rounded-xl p-4">
+              <p className="text-xs font-semibold text-text-primary mb-1">📐 Metodología estándar</p>
+              <p className="text-xs text-text-muted leading-relaxed">Alcances 1, 2 y 3 calculados según GHG Protocol e ISO 14064-1, sin fórmulas propias.</p>
+            </div>
+            <div className="bg-surface-secondary rounded-xl p-4">
+              <p className="text-xs font-semibold text-text-primary mb-1">📄 Reporte trazable</p>
+              <p className="text-xs text-text-muted leading-relaxed">Cada diagnóstico exporta un PDF con metodología, alcances y fuentes de los factores de emisión.</p>
+            </div>
+            <div className="bg-surface-secondary rounded-xl p-4">
+              <p className="text-xs font-semibold text-text-primary mb-1">🏛️ Listo para verificación externa</p>
+              <p className="text-xs text-text-muted leading-relaxed">El reporte sirve como insumo para una certificación formal con un ente acreditado por ONAC, si tu empresa la requiere.</p>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <p className="text-xs text-text-muted leading-relaxed">
+              <span className="font-semibold text-text-secondary">Nota importante:</span> EcoMetriX es una herramienta de autodiagnóstico y gestión —
+              no es un organismo certificador ni emite sellos oficiales. Entes como ICONTEC (acreditado por ONAC bajo ISO/IEC 17029) son quienes
+              realizan la verificación independiente que da validez legal/oficial a un inventario de GEI. EcoMetriX te deja el camino recorrido
+              hasta ese punto: datos consistentes, metodología correcta y reporte listo para auditoría.
+            </p>
+          </div>
+        </div>
+
         <div className="rounded-2xl bg-gradient-to-br from-brand-400 to-brand-300 p-6 text-white text-center">
           <h3 className="text-xl font-bold mb-2">{t('landing.steps.s1Title')} — {t('pricing.startFree')}</h3>
           <p className="text-white/80 text-sm mb-5 max-w-md mx-auto">{t('landing.subheadline')}</p>
