@@ -196,6 +196,7 @@ export default function Report() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState(null)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [auditPdfLoading, setAuditPdfLoading] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -461,6 +462,191 @@ export default function Report() {
     setPdfLoading(false)
   }
 
+  // ── EXPORTAR PARA AUDITOR ────────────────────────────────────────────────
+  // Documento técnico de soporte, pensado para un verificador acreditado
+  // (ICONTEC, SGS, Bureau Veritas, etc.). Sin lenguaje comercial: tabla
+  // completa de fuentes, alcance, factores y espacio de firma/notas.
+  async function generateAuditPDF() {
+    setAuditPdfLoading(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const W = 210; const M = 16; const CW = W - M * 2
+      let y = 0
+
+      const negro = [28, 25, 23]
+      const gris = [87, 83, 78]
+      const grisClaro = [245, 245, 244]
+      const grisLinea = [214, 211, 209]
+      const blanco = [255, 255, 255]
+      const azul = [30, 64, 175]
+
+      const addPage = () => { doc.addPage(); y = 16 }
+      const checkPage = (needed) => { if (y + needed > 275) addPage() }
+      const fechaHoy = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: '2-digit' })
+
+      // ── ENCABEZADO ───────────────────────────────────────────────────────
+      doc.setFillColor(...negro)
+      doc.rect(0, 0, W, 26, 'F')
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...blanco)
+      doc.text('EcoMetriX · Documento de soporte para verificación externa', M, 10)
+      doc.setFontSize(14); doc.setFont('helvetica', 'bold')
+      doc.text('Inventario de Emisiones GEI — Datos de Soporte', M, 19)
+      y = 34
+
+      // ── DATOS DE LA ORGANIZACIÓN ─────────────────────────────────────────
+      doc.setFillColor(...grisClaro)
+      doc.roundedRect(M, y, CW, 26, 2, 2, 'F')
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      const filaW = CW / 2
+      const campos = [
+        ['Organización', empresa.nombre || '—'],
+        ['NIT', empresa.nit || '—'],
+        ['Sector', empresa.sector || '—'],
+        ['País', empresa.pais || '—'],
+        ['Período reportado', analisis?.periodo || 'Mensual (ver detalle)'],
+        ['Fecha de generación', fechaHoy],
+      ]
+      campos.forEach(([label, val], i) => {
+        const col = i % 2; const row = Math.floor(i / 2)
+        const x = M + 4 + col * filaW
+        const yy = y + 6 + row * 7
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...gris)
+        doc.text(`${label}:`, x, yy)
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(...negro)
+        doc.text(String(val), x + 32, yy)
+      })
+      y += 32
+
+      // ── METODOLOGÍA APLICADA ─────────────────────────────────────────────
+      checkPage(24)
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      doc.text('1. Metodología y estándares aplicados', M, y)
+      y += 6
+      const estandares = [
+        'GHG Protocol Corporate Standard — Alcances 1, 2 y 3',
+        'ISO 14064-1:2018 — Cuantificación e informe de emisiones de GEI',
+        'Factores de emisión: IPCC AR6 (6° Informe de Evaluación) e IPCC/DEFRA según fuente',
+      ]
+      estandares.forEach(e => {
+        checkPage(6)
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+        doc.text(`•  ${e}`, M + 2, y)
+        y += 5.5
+      })
+      y += 4
+
+      // ── RESUMEN CUANTITATIVO POR ALCANCE ─────────────────────────────────
+      checkPage(30)
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      doc.text('2. Resumen cuantitativo por alcance (GHG Protocol)', M, y)
+      y += 7
+      const resumenAlc = [
+        ['Alcance 1 — Emisiones directas', calculo.alcance1 || 0],
+        ['Alcance 2 — Energía indirecta', calculo.alcance2 || 0],
+        ['Alcance 3 — Cadena de valor', calculo.alcance3 || 0],
+      ]
+      doc.setFillColor(...negro)
+      doc.rect(M, y, CW, 6, 'F')
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...blanco)
+      doc.text('Alcance', M + 3, y + 4)
+      doc.text('kg CO₂e / mes', W - M - 30, y + 4)
+      y += 6
+      resumenAlc.forEach(([label, val], i) => {
+        checkPage(7)
+        doc.setFillColor(...(i % 2 === 0 ? [255,255,255] : grisClaro))
+        doc.rect(M, y, CW, 6.5, 'F')
+        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...negro)
+        doc.text(label, M + 3, y + 4.5)
+        doc.text(Math.round(val).toLocaleString() + ' kg', W - M - 3, y + 4.5, { align: 'right' })
+        y += 6.5
+      })
+      doc.setDrawColor(...grisLinea); doc.line(M, y, W - M, y)
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      doc.text('Total mensual', M + 3, y + 5)
+      doc.text(Math.round(calculo.totalKgMes || 0).toLocaleString() + ' kg CO₂e', W - M - 3, y + 5, { align: 'right' })
+      y += 6
+      doc.text('Total anualizado', M + 3, y + 5)
+      doc.text((calculo.totalTonAnio || 0).toLocaleString() + ' ton CO₂e/año', W - M - 3, y + 5, { align: 'right' })
+      y += 12
+
+      // ── DETALLE POR FUENTE (trazabilidad) ────────────────────────────────
+      if (calculo.detalles?.length) {
+        checkPage(20)
+        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+        doc.text('3. Detalle por fuente de emisión', M, y)
+        y += 7
+        doc.setFillColor(...negro)
+        doc.rect(M, y, CW, 6, 'F')
+        doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(...blanco)
+        doc.text('Alcance', M + 3, y + 4)
+        doc.text('Categoría / Fuente', M + 22, y + 4)
+        doc.text('kg CO₂e', W - M - 28, y + 4)
+        doc.text('% del total', W - M - 3, y + 4, { align: 'right' })
+        y += 6
+        const totalDet = calculo.detalles.reduce((s, d) => s + (d.kgCO2e || 0), 0) || 1
+        calculo.detalles.forEach((d, i) => {
+          checkPage(7)
+          const pct = Math.round((d.kgCO2e || 0) / totalDet * 100)
+          doc.setFillColor(...(i % 2 === 0 ? [255,255,255] : grisClaro))
+          doc.rect(M, y, CW, 6.5, 'F')
+          doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...negro)
+          doc.text(String(d.alcance ?? '—'), M + 3, y + 4.5)
+          const nombre = doc.splitTextToSize(d.categoria || '—', 90)
+          doc.text(nombre[0], M + 22, y + 4.5)
+          doc.text(Math.round(d.kgCO2e || 0).toLocaleString(), W - M - 28, y + 4.5)
+          doc.text(`${pct}%`, W - M - 3, y + 4.5, { align: 'right' })
+          y += 6.5
+        })
+        y += 8
+      }
+
+      // ── DECLARACIÓN DE ALCANCE Y LIMITACIONES ────────────────────────────
+      checkPage(30)
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      doc.text('4. Declaración de alcance y limitaciones', M, y)
+      y += 7
+      doc.setFillColor(239, 246, 255)
+      const declaracion = 'Este documento consolida los datos de actividad reportados por la organización y los resultados del cálculo aplicando los factores de emisión de las fuentes citadas en la sección 1. No constituye una verificación de tercera parte. Se recomienda contrastar los datos de actividad aquí presentados (consumos, cantidades, período) contra los soportes documentales originales (facturas, recibos) durante el proceso de verificación, conforme a ISO 14064-3.'
+      const dLines = doc.splitTextToSize(declaracion, CW - 8)
+      const dh = dLines.length * 4.6 + 8
+      doc.roundedRect(M, y, CW, dh, 2, 2, 'F')
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...azul)
+      doc.text(dLines, M + 4, y + 6)
+      y += dh + 10
+
+      // ── ESPACIO PARA VERIFICADOR ──────────────────────────────────────────
+      checkPage(40)
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...negro)
+      doc.text('5. Espacio para el verificador', M, y)
+      y += 8
+      doc.setDrawColor(...grisLinea)
+      doc.roundedRect(M, y, CW, 30, 2, 2)
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+      doc.text('Entidad verificadora:', M + 4, y + 7)
+      doc.text('Norma de verificación aplicada:', M + 4, y + 15)
+      doc.text('Fecha de verificación:', M + 4, y + 23)
+      doc.text('Firma / sello:', M + 100, y + 23)
+      y += 38
+
+      // ── FOOTER ────────────────────────────────────────────────────────────
+      const totalPages = doc.getNumberOfPages()
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p)
+        doc.setDrawColor(...grisLinea)
+        doc.line(M, 287, W - M, 287)
+        doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gris)
+        doc.text('EcoMetriX · Documento de soporte técnico · No constituye certificación oficial', M, 292)
+        doc.text(`Página ${p} de ${totalPages}`, W - M, 292, { align: 'right' })
+      }
+
+      doc.save(`EcoMetriX_Soporte_Auditor_${empresa.nombre?.replace(/\s+/g,'_') || 'empresa'}_${new Date().getFullYear()}.pdf`)
+    } catch (err) {
+      console.error('Audit PDF error:', err)
+    }
+    setAuditPdfLoading(false)
+  }
+
   return (
     <div className="min-h-screen bg-surface-secondary">
       {/* Header */}
@@ -475,6 +661,10 @@ export default function Report() {
             <button onClick={generatePDF} disabled={pdfLoading} className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-50">
               {pdfLoading ? <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <IconDownload />}
               {pdfLoading ? 'Generando...' : t('report.downloadPDF')}
+            </button>
+            <button onClick={generateAuditPDF} disabled={auditPdfLoading} className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-50" title="Documento técnico para verificador externo (ICONTEC, SGS, etc.)">
+              {auditPdfLoading ? <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <IconDownload />}
+              {auditPdfLoading ? 'Generando...' : 'Exportar para auditor'}
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">{t('report.dashboard360')}</Link>
             <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
