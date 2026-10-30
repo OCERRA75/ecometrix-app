@@ -481,8 +481,8 @@ export default function Standards() {
               <h3 className="font-bold text-text-primary text-lg">Metodología y validez</h3>
               <p className="text-sm text-text-secondary mt-1">
                 EcoMetriX calcula tu huella de carbono siguiendo el <span className="font-semibold">GHG Protocol Corporate Standard</span> y la
-                {' '}<span className="font-semibold">norma ISO 14064-1</span>, usando factores de emisión de fuentes oficiales (IPCC, DEFRA) —
-                las mismas metodologías que emplean los entes certificadores acreditados como ICONTEC, SGS o Bureau Veritas.
+                {' '}<span className="font-semibold">norma ISO 14064-1</span>, usando factores de emisión de fuentes de referencia (IPCC, DEFRA, UPME) —
+                los mismos marcos metodológicos que utilizan los verificadores acreditados como ICONTEC, SGS o Bureau Veritas.
               </p>
             </div>
           </div>
@@ -490,7 +490,7 @@ export default function Standards() {
           <div className="grid sm:grid-cols-3 gap-3 mb-4">
             <div className="bg-surface-secondary rounded-xl p-4">
               <p className="text-xs font-semibold text-text-primary mb-1">📐 Metodología estándar</p>
-              <p className="text-xs text-text-muted leading-relaxed">Alcances 1, 2 y 3 calculados según GHG Protocol e ISO 14064-1, sin fórmulas propias.</p>
+              <p className="text-xs text-text-muted leading-relaxed">Alcances 1, 2 y 3 calculados con el enfoque de GHG Protocol e ISO 14064-1. Cuando no hay dato medido, algunas categorías se estiman y se identifican como tales en el reporte.</p>
             </div>
             <div className="bg-surface-secondary rounded-xl p-4">
               <p className="text-xs font-semibold text-text-primary mb-1">📄 Reporte trazable</p>

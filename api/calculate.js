@@ -1,5 +1,13 @@
-// api/calculate.js — con rate limiting (reemplaza el existente)
-import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
+// api/calculate.js — cálculo de huella en servidor, con auth, rate limiting y CORS multi-dominio
+import { checkRateLimit } from '../src/lib/rateLimit.js'
+
+// Orígenes permitidos: dominio nuevo + antiguo de Vercel + los de ALLOWED_ORIGIN (separados por coma)
+const ORIGENES_PERMITIDOS = new Set([
+  'https://www.ecometrix.app',
+  'https://ecometrix.app',
+  'https://ecometrix-app-one.vercel.app',
+  ...(process.env.ALLOWED_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean),
+])
 
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
@@ -20,7 +28,15 @@ const FACTORES = {
   },
 }
 
-const COP_TO_USD = 4000
+// TRM aprox. oct-2026 ≈ 3.150 COP/USD. Se puede ajustar sin tocar código con la variable COP_USD_RATE.
+const COP_TO_USD = Number(process.env.COP_USD_RATE) || 3150
+
+// Si el cliente envía empresa.moneda ('USD' | 'COP') se respeta; si no, se adivina por magnitud (legado).
+function gastoAUSD(valor, moneda) {
+  if (moneda === 'USD') return valor
+  if (moneda === 'COP') return valor / COP_TO_USD
+  return valor > 10000 ? valor / COP_TO_USD : valor
+}
 
 function calcularEmisiones(empresa, respuestas) {
   let alcance1 = 0, alcance2 = 0, alcance3 = 0
@@ -35,7 +51,7 @@ function calcularEmisiones(empresa, respuestas) {
     else if (tipoComb === 'Carbón') factor = FACTORES.carbon
     const emision = cantComb * factor
     alcance1 += emision
-    detalles.push({ categoria: 'Combustibles estacionarios', kgCO2e: emision, fuente: tipoComb, cantidad: `${cantComb} unidades/mes` })
+    detalles.push({ alcance: 1, metodo: 'medicion', categoria: 'Combustibles estacionarios', kgCO2e: emision, fuente: tipoComb, cantidad: `${cantComb} unidades/mes` })
   }
 
   const flota = respuestas['a1_flota_cantidad']
@@ -48,7 +64,7 @@ function calcularEmisiones(empresa, respuestas) {
     }
     const emision = galEstimado * FACTORES.diesel
     alcance1 += emision
-    detalles.push({ categoria: 'Flota vehicular', kgCO2e: emision, fuente: 'ACPM/Diésel', cantidad: `${galEstimado} gal/mes` })
+    detalles.push({ alcance: 1, metodo: galFlota ? 'medicion' : 'estimacion', categoria: 'Flota vehicular', kgCO2e: emision, fuente: 'ACPM/Diésel', cantidad: `${galEstimado} gal/mes${galFlota ? '' : ' (estimado)'}` })
   }
 
   const generador = respuestas['a1_generador']
@@ -56,7 +72,7 @@ function calcularEmisiones(empresa, respuestas) {
     let galGen = generador.includes('frecuente') ? 150 : generador.includes('principal') ? 600 : 30
     const emision = galGen * FACTORES.diesel
     alcance1 += emision
-    detalles.push({ categoria: 'Generador eléctrico', kgCO2e: emision, fuente: 'Diésel', cantidad: `~${galGen} gal/mes estimado` })
+    detalles.push({ alcance: 1, metodo: 'estimacion', categoria: 'Generador eléctrico', kgCO2e: emision, fuente: 'Diésel', cantidad: `~${galGen} gal/mes estimado` })
   }
 
   const refrig = respuestas['a1_refrigerantes']
@@ -64,7 +80,7 @@ function calcularEmisiones(empresa, respuestas) {
     const mapR = { '1 – 5 equipos': 50, '6 – 20 equipos': 150, 'Más de 20 equipos': 400, 'Sistema industrial de refrigeración': 1200 }
     const emision = mapR[refrig] || 50
     alcance1 += emision
-    detalles.push({ categoria: 'Gases refrigerantes (HFCs)', kgCO2e: emision, fuente: 'Estimación por equipos', cantidad: refrig })
+    detalles.push({ alcance: 1, metodo: 'estimacion', categoria: 'Gases refrigerantes (HFCs)', kgCO2e: emision, fuente: 'Estimación por equipos', cantidad: refrig })
   }
 
   const factorElec = FACTORES.electricidad[empresa.pais] || FACTORES.electricidad.default
@@ -83,25 +99,25 @@ function calcularEmisiones(empresa, respuestas) {
   if (kwh > 0) {
     const emision = kwh * factorElec * (1 - descuentoRenovable)
     alcance2 += emision
-    detalles.push({ categoria: 'Consumo eléctrico', kgCO2e: emision, fuente: `Red eléctrica ${empresa.pais}`, cantidad: `${Math.round(kwh)} kWh/mes`, factorUsado: `${factorElec} kg CO2e/kWh` })
+    detalles.push({ alcance: 2, metodo: (tieneKwh?.op === 'Sí, lo tengo' && tieneKwh?.num) ? 'medicion' : 'estimacion', categoria: 'Consumo eléctrico', kgCO2e: emision, fuente: `Red eléctrica ${empresa.pais}`, cantidad: `${Math.round(kwh)} kWh/mes`, factorUsado: `${factorElec} kg CO2e/kWh` })
   }
 
   const gastoProveedores = parseFloat(respuestas['a3_compras_proveedores']) || 0
   const tipoCompra = respuestas['a3_compras_tipo'] || 'Mixto'
   if (gastoProveedores > 0) {
-    const gastoUSD = gastoProveedores > 10000 ? gastoProveedores / COP_TO_USD : gastoProveedores
+    const gastoUSD = gastoAUSD(gastoProveedores, empresa.moneda)
     const factor = FACTORES.alcance3[tipoCompra] || FACTORES.alcance3.default
     const emision = gastoUSD * factor
     alcance3 += emision
-    detallesA3.push({ categoria: 'Bienes y servicios comprados', kgCO2e: emision, fuente: tipoCompra, cantidad: `$${gastoUSD.toFixed(0)} USD/mes` })
+    detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Bienes y servicios comprados', kgCO2e: emision, fuente: tipoCompra, cantidad: `$${gastoUSD.toFixed(0)} USD/mes` })
   }
 
   const transporteUp = respuestas['a3_transporte_proveedores']
   if (transporteUp && gastoProveedores > 0) {
     const factor = FACTORES.transporte_upstream[transporteUp] || 0.15
-    const emision = (gastoProveedores / COP_TO_USD) * factor * 0.5
+    const emision = gastoAUSD(gastoProveedores, empresa.moneda) * factor * 0.5
     alcance3 += emision
-    detallesA3.push({ categoria: 'Transporte upstream (proveedores)', kgCO2e: emision, fuente: transporteUp })
+    detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Transporte upstream (proveedores)', kgCO2e: emision, fuente: transporteUp })
   }
 
   const transporteDown = respuestas['a3_distribucion_clientes']
@@ -109,14 +125,14 @@ function calcularEmisiones(empresa, respuestas) {
     const factorDown = { 'Clientes vienen a nuestras instalaciones': 0, 'Entrega local (< 100 km)': 80, 'Distribución nacional': 250, 'Distribución internacional': 800, 'Mixto': 150 }
     const emision = factorDown[transporteDown] || 100
     alcance3 += emision
-    detallesA3.push({ categoria: 'Distribución a clientes', kgCO2e: emision, fuente: transporteDown })
+    detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Distribución a clientes', kgCO2e: emision, fuente: transporteDown })
   }
 
   const viajes = respuestas['a3_viajes_negocio']
   if (viajes) {
     const emisionMes = (FACTORES.viajes[viajes] || 0) / 12
     alcance3 += emisionMes
-    if (emisionMes > 0) detallesA3.push({ categoria: 'Viajes de negocios', kgCO2e: emisionMes, fuente: viajes })
+    if (emisionMes > 0) detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Viajes de negocios', kgCO2e: emisionMes, fuente: viajes })
   }
 
   const empleados = parseFloat(respuestas['a2_numero_empleados']) || 10
@@ -125,7 +141,7 @@ function calcularEmisiones(empresa, respuestas) {
     const factorComm = { 'Transporte público (metro, bus)': 2.5, 'Vehículo particular': 8.5, 'Mixto transporte público y particular': 5.0, 'Transporte empresarial': 4.0 }
     const emision = empleados * (factorComm[commuting] || 5.0) * 22
     alcance3 += emision
-    detallesA3.push({ categoria: 'Desplazamiento empleados', kgCO2e: emision, fuente: commuting, cantidad: `${empleados} empleados × 22 días` })
+    detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Desplazamiento empleados', kgCO2e: emision, fuente: commuting, cantidad: `${empleados} empleados × 22 días` })
   }
 
   const residuos = respuestas['a3_residuos_cantidad']
@@ -133,7 +149,7 @@ function calcularEmisiones(empresa, respuestas) {
     const factorRes = { 'Reciclaje y compostaje (> 70%)': 20, 'Reciclaje parcial (30 – 70%)': 60, 'Mayoría a relleno sanitario': 150, 'Residuos peligrosos (requiere gestor especializado)': 200, 'No tenemos gestión formal de residuos': 120 }
     const emision = (factorRes[residuos] || 80) * (empleados / 10)
     alcance3 += emision
-    detallesA3.push({ categoria: 'Residuos generados', kgCO2e: emision, fuente: residuos })
+    detallesA3.push({ alcance: 3, metodo: 'estimacion', categoria: 'Residuos generados', kgCO2e: emision, fuente: residuos })
   }
 
   const totalKgMes = alcance1 + alcance2 + alcance3
@@ -153,48 +169,72 @@ function calcularEmisiones(empresa, respuestas) {
 }
 
 async function encolarAnalisisIA(supabaseUrl, supabaseKey, payload) {
-  await fetch(`${supabaseUrl}/rest/v1/jobs_queue`, {
+  const r = await fetch(`${supabaseUrl}/rest/v1/jobs_queue`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Prefer': 'return=minimal' },
     body: JSON.stringify({ id: payload.diagnostico_id, type: 'analisis_ia', status: 'pending', payload: JSON.stringify(payload), attempts: 0, created_at: new Date().toISOString() }),
   })
+  return r.ok
 }
 
 async function guardarDiagnostico(supabaseUrl, supabaseKey, resultado) {
-  if (!supabaseKey || !resultado.user_id) return
+  if (!supabaseUrl || !supabaseKey || !resultado.user_id) return false
+  const r = await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ id: resultado.id, user_id: resultado.user_id, empresa: resultado.empresa, calculo: resultado.calculo, analisis: resultado.analisis, respuestas: resultado.respuestas, analisis_status: 'pending', created_at: resultado.timestamp }),
+  })
+  if (!r.ok) console.error('Supabase insert error:', r.status)
+  return r.ok
+}
+
+// Verifica el JWT de Supabase del header Authorization y devuelve el user_id real (o null).
+async function usuarioDesdeToken(req, supabaseUrl, supabaseKey) {
+  const auth = req.headers?.authorization || ''
+  if (!auth.startsWith('Bearer ') || !supabaseUrl || !supabaseKey) return null
   try {
-    await fetch(`${supabaseUrl}/rest/v1/diagnosticos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ id: resultado.id, user_id: resultado.user_id, empresa: resultado.empresa, calculo: resultado.calculo, analisis: resultado.analisis, respuestas: resultado.respuestas, analisis_status: 'pending', created_at: resultado.timestamp }),
-    })
-  } catch (e) { console.error('Supabase insert error:', e) }
+    const r = await fetch(`${supabaseUrl}/auth/v1/user`, { headers: { apikey: supabaseKey, Authorization: auth } })
+    if (!r.ok) return null
+    const u = await r.json()
+    return u?.id || null
+  } catch { return null }
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://ecometrix-app-one.vercel.app')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  const origin = req.headers?.origin
+  const origenOk = origin && ORIGENES_PERMITIDOS.has(origin)
+  if (origenOk) res.setHeader('Access-Control-Allow-Origin', origin)
+  res.setHeader('Vary', 'Origin')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // ── Seguridad ─────────────────────────────────────────────────────────────
-  if (!checkOrigin(req, res)) return
+  if (!origenOk) return res.status(403).json({ error: 'Origen no permitido' })
   const allowed = await checkRateLimit(req, res, '/api/calculate')
   if (!allowed) return
 
   try {
-    const { empresa, respuestas, user_id } = req.body
+    const { empresa, respuestas, user_id: userIdBody } = req.body || {}
 
     // Validación básica anti-bot
-    if (!empresa?.nombre || !empresa?.sector || !respuestas) {
+    if (!empresa?.nombre || !empresa?.sector || !respuestas || typeof respuestas !== 'object') {
       return res.status(400).json({ error: 'Datos incompletos' })
+    }
+    if (JSON.stringify(req.body).length > 100_000) {
+      return res.status(413).json({ error: 'Solicitud demasiado grande' })
     }
 
     const supabaseUrl = process.env.SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    const diagnosticoId = `ecm_${Date.now()}`
+    const diagnosticoId = `ecm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+
+    // El user_id sale del token verificado, nunca del body (evita suplantación).
+    // Transición: LEGACY_TRUST_USER_ID=true acepta el del body hasta que el frontend envíe el token.
+    let userId = await usuarioDesdeToken(req, supabaseUrl, supabaseKey)
+    if (!userId && process.env.LEGACY_TRUST_USER_ID === 'true' && typeof userIdBody === 'string') userId = userIdBody
 
     const calculo = calcularEmisiones(empresa, respuestas)
 
@@ -212,17 +252,21 @@ export default async function handler(req, res) {
       siguiente_paso: 'Iniciar auditoría energética para identificar las mayores oportunidades de reducción.',
     }
 
-    const resultado = { id: diagnosticoId, user_id: user_id || null, empresa, calculo, respuestas, analisis: analisisFallback, analisis_status: 'pending', timestamp: new Date().toISOString() }
+    const resultado = { id: diagnosticoId, user_id: userId || null, empresa, calculo, respuestas, analisis: analisisFallback, analisis_status: 'pending', timestamp: new Date().toISOString() }
 
-    guardarDiagnostico(supabaseUrl, supabaseKey, resultado).catch(e => console.error('Background save failed:', e))
-
-    if (process.env.ANTHROPIC_API_KEY && supabaseKey) {
-      encolarAnalisisIA(supabaseUrl, supabaseKey, { diagnostico_id: diagnosticoId, empresa, calculo, respuestas, user_id: user_id || null }).catch(e => console.error('Enqueue failed:', e))
+    // Guardar y encolar IA solo para usuarios autenticados; con await para que Vercel no corte el proceso.
+    if (userId) {
+      let guardado = false
+      try { guardado = await guardarDiagnostico(supabaseUrl, supabaseKey, resultado) } catch (e) { console.error('Save failed:', e) }
+      if (guardado && process.env.ANTHROPIC_API_KEY) {
+        try { await encolarAnalisisIA(supabaseUrl, supabaseKey, { diagnostico_id: diagnosticoId, empresa, calculo, respuestas, user_id: userId }) } catch (e) { console.error('Enqueue failed:', e) }
+      }
+      resultado.guardado = guardado
     }
 
     return res.status(200).json(resultado)
   } catch (err) {
     console.error('Calculate error:', err)
-    return res.status(500).json({ error: err.message })
+    return res.status(500).json({ error: 'server_error' })
   }
 }

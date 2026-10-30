@@ -526,7 +526,8 @@ export default function Report() {
       const estandares = [
         'GHG Protocol Corporate Standard — Alcances 1, 2 y 3',
         'ISO 14064-1:2018 — Cuantificación e informe de emisiones de GEI',
-        'Factores de emisión: IPCC AR6 (6° Informe de Evaluación) e IPCC/DEFRA según fuente',
+        'Factores de emisión: IPCC AR6 (6° Informe de Evaluación), IPCC/DEFRA y UPME (factor de red eléctrica de Colombia) según fuente',
+        'Método: datos de actividad reportados por la organización; las líneas marcadas "(est.)" son estimaciones por categoría, no mediciones',
       ]
       estandares.forEach(e => {
         checkPage(6)
@@ -592,7 +593,7 @@ export default function Report() {
           doc.rect(M, y, CW, 6.5, 'F')
           doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...negro)
           doc.text(String(d.alcance ?? '—'), M + 3, y + 4.5)
-          const nombre = doc.splitTextToSize(d.categoria || '—', 90)
+          const nombre = doc.splitTextToSize(`${d.categoria || '—'}${d.metodo === 'estimacion' ? ' (est.)' : ''}`, 90)
           doc.text(nombre[0], M + 22, y + 4.5)
           doc.text(Math.round(d.kgCO2e || 0).toLocaleString(), W - M - 28, y + 4.5)
           doc.text(`${pct}%`, W - M - 3, y + 4.5, { align: 'right' })
@@ -607,7 +608,7 @@ export default function Report() {
       doc.text('4. Declaración de alcance y limitaciones', M, y)
       y += 7
       doc.setFillColor(239, 246, 255)
-      const declaracion = 'Este documento consolida los datos de actividad reportados por la organización y los resultados del cálculo aplicando los factores de emisión de las fuentes citadas en la sección 1. No constituye una verificación de tercera parte. Se recomienda contrastar los datos de actividad aquí presentados (consumos, cantidades, período) contra los soportes documentales originales (facturas, recibos) durante el proceso de verificación, conforme a ISO 14064-3.'
+      const declaracion = 'Este documento consolida los datos de actividad reportados por la organización y los resultados del cálculo aplicando los factores de emisión de las fuentes citadas en la sección 1. Las fuentes marcadas "(est.)" se calculan con valores estimados por categoría (p. ej. refrigerantes, generador, distribución, desplazamiento y residuos) y deben sustituirse por datos medidos antes de una verificación formal. No constituye una verificación de tercera parte. Se recomienda contrastar los datos de actividad aquí presentados (consumos, cantidades, período) contra los soportes documentales originales (facturas, recibos) durante el proceso de verificación, conforme a ISO 14064-3.'
       const dLines = doc.splitTextToSize(declaracion, CW - 8)
       const dh = dLines.length * 4.6 + 8
       doc.roundedRect(M, y, CW, dh, 2, 2, 'F')
