@@ -5,11 +5,13 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+// Se usa return/exitCode (no process.exit) para evitar el crash "UV_HANDLE_CLOSING" de Node en Windows.
+async function main() {
 const url = (process.env.SUPABASE_URL || '').replace(/\/$/, '')
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 if (!url || !key) {
   console.error('Faltan SUPABASE_URL y/o SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+  return 1
 }
 const outRoot = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(process.cwd(), '..', 'backups')
 
@@ -39,7 +41,7 @@ try {
   spec = await getJson(`${url}/rest/v1/`)
 } catch (e) {
   console.error('No se pudo leer el esquema de la API:', e.message)
-  process.exit(2)
+  return 2
 }
 await writeFile(path.join(dir, '_openapi_schema.json'), JSON.stringify(spec, null, 2))
 const tables = Object.keys(spec.paths || {})
@@ -86,4 +88,7 @@ await writeFile(path.join(dir, '_manifest.json'), JSON.stringify(manifest, null,
 const total = Object.values(manifest.tables).reduce((a, b) => a + b, 0)
 console.log(`\nBackup en: ${dir}`)
 console.log(`${Object.keys(manifest.tables).length} tablas, ${total} filas, ${manifest.errors.length} errores`)
-process.exit(manifest.errors.length ? 3 : 0)
+return manifest.errors.length ? 3 : 0
+}
+
+process.exitCode = await main()
