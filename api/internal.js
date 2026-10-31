@@ -160,6 +160,7 @@ Genera JSON exacto sin markdown: {"resumen_ejecutivo":"2-3 oraciones","principal
           body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }),
         })
         const aiData = await aiRes.json()
+        if (!aiRes.ok) throw new Error(`Anthropic ${aiRes.status}: ${aiData?.error?.message || 'error'}`)
         const text = aiData.content?.[0]?.text || ''
         const jsonMatch = text.match(/\{[\s\S]*\}/)
         if (!jsonMatch) throw new Error('Claude no devolvio JSON valido')
