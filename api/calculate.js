@@ -83,7 +83,8 @@ function calcularEmisiones(empresa, respuestas) {
     detalles.push({ alcance: 1, metodo: 'estimacion', categoria: 'Gases refrigerantes (HFCs)', kgCO2e: emision, fuente: 'Estimación por equipos', cantidad: refrig })
   }
 
-  const factorElec = FACTORES.electricidad[empresa.pais] || FACTORES.electricidad.default
+  const paisKey = String(empresa.pais || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // México→Mexico, Perú→Peru, España→Espana
+  const factorElec = FACTORES.electricidad[paisKey] || FACTORES.electricidad.default
   const tieneKwh = respuestas['a2_electricidad_proveedor']
   let kwh = 0
   if (tieneKwh?.op === 'Sí, lo tengo' && tieneKwh?.num) kwh = parseFloat(tieneKwh.num)

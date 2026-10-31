@@ -216,7 +216,7 @@ function QuestionCard({ pregunta, value, onChange }) {
   return null
 }
 
-function ResumenScreen({ onSubmit, loading }) {
+function ResumenScreen({ onSubmit, loading, error }) {
   const { empresa, respuestas } = useQuestionnaire()
   const a1 = getPreguntasFiltradas(preguntasAlcance1, empresa.sector, respuestas)
   const a2 = getPreguntasFiltradas(preguntasAlcance2, empresa.sector, respuestas)
@@ -254,6 +254,7 @@ function ResumenScreen({ onSubmit, loading }) {
         <p className="text-sm text-brand-400 font-medium mb-1">¿Qué pasa ahora?</p>
         <p className="text-sm text-text-secondary">La IA calculará tus emisiones de los 3 alcances y generará tu reporte PDF con plan de reducción en <strong>{empresa.email}</strong>.</p>
       </div>
+      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">{error}</div>}
       <button onClick={onSubmit} disabled={loading} className="btn-primary w-full justify-center py-3.5 text-base">
         {loading ? (
           <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Calculando huella (3 alcances)...</span>
@@ -268,6 +269,7 @@ export default function Questionnaire() {
   const { empresa, respuestas, step, currentQ, setRespuesta, acumularRespuesta, nextStep, prevStep, setCurrentQ } = useQuestionnaire()
   const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [showImporter, setShowImporter] = useState(false)
   const [importNotice, setImportNotice] = useState('')
 
@@ -324,21 +326,32 @@ export default function Questionnaire() {
 
   const handleSubmit = async () => {
     setSubmitting(true)
+    setSubmitError('')
     try {
       const payload = { empresa, respuestas, user_id: user?.id || null }
-      const res = await fetch('/.netlify/functions/calculate', {
+      // Token de sesión (si hay) para que el servidor identifique al usuario de forma segura
+      const headers = { 'Content-Type': 'application/json' }
+      try {
+        const mod = await import('@/lib/supabase.js')
+        const sb = mod.supabase || mod.default
+        const { data: { session } } = await sb.auth.getSession()
+        if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`
+      } catch { /* sin sesión: diagnóstico anónimo */ }
+      const res = await fetch('/api/calculate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload),
       })
+      if (!res.ok) throw new Error(`calculate respondió ${res.status}`)
       const data = await res.json()
+      if (!data?.id) throw new Error('Respuesta inválida del servidor')
       sessionStorage.setItem('ecometrix_result', JSON.stringify(data))
       sessionStorage.removeItem('ecometrix_email_sent')
       navigate(`/reporte/${data.id}`)
     } catch (err) {
       console.error(err)
       sessionStorage.setItem('ecometrix_draft', JSON.stringify({ empresa, respuestas }))
-      navigate('/reporte/preview')
+      setSubmitError('No pudimos calcular tu huella en este momento. Tus respuestas están guardadas; intenta de nuevo en unos segundos.')
     } finally {
       setSubmitting(false)
     }
@@ -398,7 +411,7 @@ export default function Questionnaire() {
           </div>
         )}
 
-        {step === 'resumen' && <ResumenScreen onSubmit={handleSubmit} loading={submitting} />}
+        {step === 'resumen' && <ResumenScreen onSubmit={handleSubmit} loading={submitting} error={submitError} />}
       </main>
 
       {/* Modal importador de facturas */}
