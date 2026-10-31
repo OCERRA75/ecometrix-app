@@ -299,7 +299,7 @@ export default function ReductionPlan() {
                         )}
                         {(esMesActual || (esPasado && sinReporte)) && (
                           <button
-                            onClick={() => setCheckInMes(registro)}
+                            onClick={() => setCheckInMes({ ...registro, diagnostico_id: diagnosticoId, anio })}
                             className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
                               esMesActual
                                 ? 'bg-emerald-500 text-white hover:bg-emerald-400'
