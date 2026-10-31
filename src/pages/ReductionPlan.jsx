@@ -46,24 +46,19 @@ export default function ReductionPlan() {
   const [checkInMes, setCheckInMes] = useState(null)
   const mesActual = new Date().getMonth() + 1
   const [planUsuario, setPlanUsuario] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => { loadPlan() }, [])
 
-  async function loadPlan() {
+  async function loadPlan(reintento = false) {
     setLoading(true)
+    setError(null)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setLoading(false); return }
 
-      const { data: perfil } = await supabase
-        .from('perfiles')
-        .select('plan')
-        .eq('user_id', session.user.id)
-        .single()
-
-      const plan = perfil?.plan || 'free'
-      setPlanUsuario(plan)
-      if (plan === 'free') { setLoading(false); return }
+      // El acceso por plan (superadmin / trial / nivel) lo controla PlanGuard en App.jsx.
+      setPlanUsuario('ok')
 
       const { data: diag } = await supabase
         .from('diagnosticos')
@@ -86,12 +81,14 @@ export default function ReductionPlan() {
         setPlan(json.plan)
         setResumen(json.resumen)
       } else {
+        if (reintento) throw new Error('No se pudo generar el plan de reducción')
         await generarPlanInicial(session, diag.id)
-        await loadPlan()
+        await loadPlan(true)
         return
       }
     } catch (err) {
       console.error(err)
+      setError(err.message || 'Error cargando el plan')
     }
     setLoading(false)
   }
@@ -100,7 +97,8 @@ export default function ReductionPlan() {
     const { data: diag } = await supabase
       .from('diagnosticos').select('calculo').eq('id', diagId).single()
 
-    const totalKg = diag?.calculo?.total_kg_mes || 5000
+    const c = diag?.calculo || {}
+    const totalKg = c.totalKgMes || c.total_kg_mes || ((c.alcance1 || 0) + (c.alcance2 || 0) + (c.alcance3 || 0)) || 5000
     const registros = Array.from({ length: 12 }, (_, i) => ({
       user_id: session.user.id,
       diagnostico_id: diagId,
@@ -110,7 +108,8 @@ export default function ReductionPlan() {
       estado: 'pendiente',
       acciones: accionesPorMes(i + 1),
     }))
-    await supabase.from('planes_de_reduccion').insert(registros)
+    const { error: insErr } = await supabase.from('planes_de_reduccion').insert(registros)
+    if (insErr) throw insErr
   }
 
   function accionesPorMes(mes) {
@@ -171,6 +170,14 @@ export default function ReductionPlan() {
           <div className="flex items-center justify-center py-20 text-zinc-500 text-sm">
             {t('common.loading')}
           </div>
+        ) : error ? (
+          <div className="text-center py-20 text-red-400 text-sm">
+            {error}
+            <div className="mt-4">
+              <button onClick={() => loadPlan()} className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700">Reintentar</button>
+            </div>
+          </div>
+
         ) : planUsuario === 'free' || planUsuario === null ? (
           /* ── PAYWALL ── */
           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
