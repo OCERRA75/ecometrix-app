@@ -7,6 +7,7 @@ import Report from '@/pages/Report.jsx'
 import Dashboard360 from '@/pages/Dashboard360.jsx'
 import CSRD from '@/pages/CSRD.jsx'
 import Login from '@/pages/Login.jsx'
+import AuthCallback from '@/pages/AuthCallback.jsx'
 import Pricing from '@/pages/Pricing.jsx'
 import Developers from '@/pages/Developers.jsx'
 import NotFound from '@/pages/NotFound.jsx'
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/reporte/preview"     element={<Report />} />
           <Route path="/dashboard"           element={<Dashboard360 />} />
           <Route path="/login"               element={<Login />} />
+          <Route path="/auth/callback"       element={<AuthCallback />} />
           <Route path="/precios"             element={<Pricing />} />
           <Route path="/ruta"                element={<Ruta />} />
           <Route path="/estandares"          element={<Standards />} />
