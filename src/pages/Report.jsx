@@ -248,7 +248,7 @@ export default function Report() {
     <div className="min-h-screen bg-surface-secondary flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <p className="text-text-muted mb-4">No hay datos de diagnóstico disponibles.</p>
-        <Link to="/questionnaire" className="btn-primary">{t('dashboard.newDiagnosis')}</Link>
+        <Link to="/diagnostico" className="btn-primary">{t('dashboard.newDiagnosis')}</Link>
       </div>
     </div>
   )
@@ -669,7 +669,7 @@ export default function Report() {
             </button>
             <Link to="/dashboard" className="btn-secondary text-sm py-1.5 px-3">{t('report.dashboard360')}</Link>
             <Link to="/csrd" className="btn-secondary text-sm py-1.5 px-3">🇪🇺 CSRD</Link>
-            <Link to="/questionnaire" className="btn-primary text-sm py-1.5 px-3">{t('report.newDiagnosis')}</Link>
+            <Link to="/diagnostico" className="btn-primary text-sm py-1.5 px-3">{t('report.newDiagnosis')}</Link>
           </div>
         </div>
       </header>
@@ -760,7 +760,7 @@ export default function Report() {
           <div className="bg-brand-400 rounded-2xl p-6 mb-8 text-white">
             <p className="text-sm font-medium text-white/70 mb-1">Recomendación inmediata</p>
             <p className="text-lg font-semibold mb-4">{analisis.siguiente_paso}</p>
-            <Link to="/questionnaire" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-400 font-medium text-sm hover:bg-brand-50 transition-all">
+            <Link to="/diagnostico" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-400 font-medium text-sm hover:bg-brand-50 transition-all">
               {t('report.newDiagnosis')} <IconArrow />
             </Link>
           </div>
