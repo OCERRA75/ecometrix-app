@@ -365,7 +365,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p>Meta del mes: <span class="meta">${planUsuario.meta_kgco2?.toLocaleString()} kg CO₂</span></p>
     </div>
     <p style="color:#6b7280;font-size:14px;line-height:1.6;">Registrar tu progreso mensual te permite:<br>✓ Comparar tus emisiones reales vs la meta<br>✓ Ver tu reducción acumulada<br>✓ Mantener tu certificación activa</p>
-    <a href="https://ecometrix.app/plan" class="cta">Reportar mis emisiones de ${MESES[mesActual - 1]} →</a>
+    <a href="https://www.ecometrix.app/plan" class="cta" style="display:block;background:#10b981;color:#ffffff !important;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-align:center;margin:24px 0;">Reportar mis emisiones de ${MESES[mesActual - 1]} →</a>
   </div>
   <div class="footer">
     <p>EcoMetriX · Sostenibilidad empresarial para PyMEs colombianas</p>
