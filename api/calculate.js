@@ -38,6 +38,9 @@ function gastoAUSD(valor, moneda) {
   return valor > 10000 ? valor / COP_TO_USD : valor
 }
 
+// kg enteros: evita que es-CO muestre 96.923 kg como "96,923" (parece 96 mil)
+const redondear = d => ({ ...d, kgCO2e: Math.round(d.kgCO2e) })
+
 function calcularEmisiones(empresa, respuestas) {
   let alcance1 = 0, alcance2 = 0, alcance3 = 0
   const detalles = [], detallesA3 = []
@@ -164,8 +167,8 @@ function calcularEmisiones(empresa, respuestas) {
     alcance1: Math.round(alcance1), alcance2: Math.round(alcance2), alcance3: Math.round(alcance3),
     totalKgMes: Math.round(totalKgMes), totalTonAnio: Math.round(totalTonAnio * 10) / 10,
     nivelImpacto, valorETS_COP,
-    detalles: [...detalles, ...detallesA3],
-    detallesA1: detalles, detallesA3,
+    detalles: [...detalles, ...detallesA3].map(redondear),
+    detallesA1: detalles.map(redondear), detallesA3: detallesA3.map(redondear),
   }
 }
 

@@ -172,7 +172,7 @@ function DetallesFuentes({ detalles, total }) {
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-medium text-text-primary truncate">{d.categoria}</span>
-                  <span className="text-text-muted ml-2 flex-shrink-0">{d.kgCO2e.toLocaleString()} kg</span>
+                  <span className="text-text-muted ml-2 flex-shrink-0">{Math.round(d.kgCO2e || 0).toLocaleString()} kg</span>
                 </div>
                 <div className="w-full h-1.5 bg-surface-tertiary rounded-full overflow-hidden">
                   <div className="h-full bg-brand-200 rounded-full" style={{ width: `${pct}%` }} />
@@ -771,7 +771,7 @@ export default function Report() {
           <h3 className="font-semibold text-text-primary mb-3">{t('report.methodology')}</h3>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              ['GHG Protocol', 'Corporate Standard — Alcances 1 y 2'],
+              ['GHG Protocol', 'Corporate Standard — Alcances 1, 2 y 3'],
               ['ISO 14064-1', 'Cuantificación de emisiones — Ed. 2018'],
               ['IPCC AR6', 'Factores de emisión — 6° Informe de Evaluación'],
             ].map(([std, desc]) => (
