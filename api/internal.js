@@ -396,6 +396,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   }
 }
 
+// ── KEEP-ALIVE ─────────────────────────────────────────────────────────────────
+// Cron diario: hace una consulta mínima a Supabase para que el plan gratis no pause el proyecto por inactividad.
+async function keepAlive(req, res) {
+  const authHeader = req.headers.authorization
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: 'No autorizado' })
+
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  try {
+    const r = await fetch(`${supabaseUrl}/rest/v1/diagnosticos?select=id&limit=1`, {
+      headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    })
+    if (!r.ok) {
+      console.error('keep-alive: Supabase respondió', r.status)
+      return res.status(503).json({ ok: false, status: r.status })
+    }
+    return res.status(200).json({ ok: true, ts: new Date().toISOString() })
+  } catch (err) {
+    console.error('keep-alive error:', err)
+    return res.status(503).json({ ok: false })
+  }
+}
+
 // ── ROUTER PRINCIPAL ───────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   setCORS(res)
@@ -411,7 +434,8 @@ export default async function handler(req, res) {
     case 'send-report':          return sendReport(req, res)
     case 'export-csv':           return exportCsv(req, res)
     case 'send-monthly-reminder':return sendMonthlyReminder(req, res)
+    case 'keep-alive':           return keepAlive(req, res)
     default:
-      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','send-report','export-csv','send-monthly-reminder'] })
+      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','send-report','export-csv','send-monthly-reminder','keep-alive'] })
   }
 }

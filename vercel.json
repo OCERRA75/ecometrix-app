@@ -9,6 +9,10 @@
     {
       "path": "/api/internal?route=send-monthly-reminder",
       "schedule": "0 14 1 * *"
+    },
+    {
+      "path": "/api/internal?route=keep-alive",
+      "schedule": "0 12 * * *"
     }
   ]
 }
