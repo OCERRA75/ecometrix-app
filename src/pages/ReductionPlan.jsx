@@ -73,9 +73,10 @@ export default function ReductionPlan() {
 
       const res = await fetch(
         `/api/internal?route=get-reduction-plan&diagnostico_id=${diag.id}&anio=${anio}`,
-        { headers: { Authorization: `Bearer ${session.access_token}` } }
+        { headers: { Authorization: `Bearer ${session.access_token}` }, cache: 'no-store' }
       )
       const json = await res.json()
+      if (!res.ok) throw new Error(`API ${res.status}: ${json?.error || ''} ${json?.message || ''}`.trim())
 
       if (json.plan && json.plan.length > 0) {
         setPlan(json.plan)
