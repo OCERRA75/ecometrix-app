@@ -1,10 +1,24 @@
+// api/extract-invoice.js — con verificación de origen, rate limiting y validación de entrada
+import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
+
+const MIMES_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MAX_BASE64_CHARS = 6_000_000 // ~4.5 MB de archivo (límite de Vercel para el cuerpo)
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' })
+  if (!checkOrigin(req, res)) return
+  const permitido = await checkRateLimit(req, res, '/api/extract-invoice')
+  if (!permitido) return
+
   try {
-    const { base64, mimeType } = req.body
-    if (!base64) return res.status(400).json({ ok: false, error: 'No file provided' })
+    const { base64, mimeType } = req.body || {}
+    if (!base64 || typeof base64 !== 'string') return res.status(400).json({ ok: false, error: 'No file provided' })
+    if (base64.length > MAX_BASE64_CHARS) return res.status(413).json({ ok: false, error: 'Archivo demasiado grande' })
     const tipo = mimeType || 'image/jpeg'
+    if (!MIMES_PERMITIDOS.includes(tipo)) return res.status(415).json({ ok: false, error: 'Formato no soportado (usa JPG, PNG, WEBP o GIF)' })
+
     const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAVE_API_ANTROPICA
+    if (!apiKey) return res.status(503).json({ ok: false, error: 'Servicio de IA no disponible temporalmente' })
 
     const prompt = `Analiza esta factura o documento financiero. Puede ser de cualquier proveedor y cualquier rubro (servicios públicos, combustible, insumos, transporte, papelería, servicios profesionales, etc.). Responde SOLO JSON sin markdown, sin texto adicional, con esta forma exacta:
 
@@ -47,11 +61,7 @@ Reglas:
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1500,
@@ -59,21 +69,21 @@ Reglas:
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: tipo, data: base64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
+            { type: 'text', text: prompt },
+          ],
+        }],
+      }),
     })
     const data = await response.json()
     if (data.error) throw new Error(data.error.message)
     const rawText = data.content[0].text.trim()
     let clasificacion
     try { clasificacion = JSON.parse(rawText) }
-    catch(e) { const m = rawText.match(/\{[\s\S]*\}/); clasificacion = m ? JSON.parse(m[0]) : null }
+    catch (e) { const m = rawText.match(/\{[\s\S]*\}/); clasificacion = m ? JSON.parse(m[0]) : null }
     if (!clasificacion) throw new Error('No se pudo interpretar respuesta')
     return res.status(200).json({ ok: true, clasificacion })
   } catch (err) {
     console.error('[extract-invoice]', err.message)
-    return res.status(500).json({ ok: false, error: err.message })
+    return res.status(500).json({ ok: false, error: 'No se pudo procesar la factura' })
   }
 }
