@@ -101,3 +101,24 @@ export function checkOrigin(req, res) {
   }
   return true
 }
+
+// Verifica el JWT de Supabase (Authorization: Bearer <token>). Devuelve el usuario o responde 401.
+export async function requireUser(req, res) {
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, '')
+  if (!token) {
+    res.status(401).json({ error: 'unauthorized', message: 'Inicia sesión para usar esta función.' })
+    return null
+  }
+  try {
+    const r = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` },
+    })
+    if (!r.ok) throw new Error('invalid')
+    const user = await r.json()
+    if (!user?.id) throw new Error('invalid')
+    return user
+  } catch {
+    res.status(401).json({ error: 'unauthorized', message: 'Sesión inválida o expirada.' })
+    return null
+  }
+}

@@ -1,5 +1,5 @@
 // api/chat.js — con rate limiting y verificación de origen
-import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
+import { checkRateLimit, checkOrigin, requireUser } from '../src/lib/rateLimit.js'
 
 const SYSTEM_BASE = 'Eres el asistente de EcoMetriX, experto en huella de carbono, GHG Protocol, ISO 14064 y CSRD. Responde en español, de forma clara y concisa. Máximo 3 párrafos. No uses markdown. Solo atiendes temas de sostenibilidad, huella de carbono, ESG y el uso de EcoMetriX; si te piden otra cosa, redirige amablemente a esos temas.'
 
@@ -14,6 +14,7 @@ export default async function handler(req, res) {
   if (!checkOrigin(req, res)) return
   const allowed = await checkRateLimit(req, res, '/api/chat')
   if (!allowed) return
+  if (!(await requireUser(req, res))) return
 
   const { messages, system } = req.body || {}
   if (!messages || !Array.isArray(messages)) {

@@ -1,5 +1,5 @@
 // api/extract-invoice.js — con verificación de origen, rate limiting y validación de entrada
-import { checkRateLimit, checkOrigin } from '../src/lib/rateLimit.js'
+import { checkRateLimit, checkOrigin, requireUser } from '../src/lib/rateLimit.js'
 
 const MIMES_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_BASE64_CHARS = 6_000_000 // ~4.5 MB de archivo (límite de Vercel para el cuerpo)
@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   if (!checkOrigin(req, res)) return
   const permitido = await checkRateLimit(req, res, '/api/extract-invoice')
   if (!permitido) return
+  if (!(await requireUser(req, res))) return
 
   try {
     const { base64, mimeType } = req.body || {}

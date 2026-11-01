@@ -1,3 +1,4 @@
+import { authFetch } from '../lib/authFetch'
 // src/components/InvoiceImporter.jsx
 // Modal para importar datos desde facturas PDF/imagen
 // Usa AWS Textract + Claude para extraer y clasificar emisiones
@@ -70,7 +71,7 @@ export default function InvoiceImporter({ onImport, onClose }) {
     reader.onload = async (e) => {
       const base64 = e.target.result.split(',')[1]
       try {
-        const res = await fetch('/api/extract-invoice', {
+        const res = await authFetch('/api/extract-invoice', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64, mimeType: file.type }),
