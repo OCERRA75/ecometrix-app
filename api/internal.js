@@ -1,4 +1,4 @@
-// api/internal.js
+﻿// api/internal.js
 // Consolida 5 funciones desactivadas en una sola para respetar limite Hobby de Vercel
 // Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|send-report
 
@@ -257,7 +257,7 @@ async function sendReport(req, res) {
     </div>
     ${analisis?.resumen_ejecutivo ? `<div style="background:#F0FDF4;border-left:4px solid #1D9E75;border-radius:0 8px 8px 0;padding:16px;margin:0 0 24px;"><p style="color:#374151;font-size:14px;line-height:1.6;margin:0;">${analisis.resumen_ejecutivo}</p></div>` : ''}
     <div style="text-align:center;margin:32px 0 24px;">
-      <a href="https://ecometrix-app-one.vercel.app/reporte/${reporteId}" style="background:#1D9E75;color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;display:inline-block;">Ver reporte completo</a>
+      <a href="https://www.ecometrix.app/reporte/${reporteId}" style="background:#1D9E75;color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;display:inline-block;">Ver reporte completo</a>
     </div>
     <p style="color:#9CA3AF;font-size:12px;text-align:center;">EcoMetriX - GHG Protocol + ISO 14064</p>
   </div>
