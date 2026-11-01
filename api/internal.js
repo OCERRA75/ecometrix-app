@@ -314,14 +314,17 @@ async function sendMonthlyReminder(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   const RESEND_API_KEY = process.env.RESEND_API_KEY
   const FROM_EMAIL = 'EcoMetriX <notificaciones@ecometrix.app>'
-  const mesActual = new Date().getMonth() + 1
-  const anioActual = new Date().getFullYear()
+  // El correo sale el día 1: se pide reportar el MES ANTERIOR.
+  const hoy = new Date()
+  const mesEnvio = hoy.getMonth()                                   // 0-11 (índice del mes actual)
+  const mesReporte = mesEnvio === 0 ? 12 : mesEnvio                 // 1-12 (mes anterior)
+  const anioReporte = mesEnvio === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear()
 
   try {
     const { data: planes } = await supabase
       .from('planes_de_reduccion')
       .select('user_id, mes, anio, real_kgco2, meta_kgco2, diagnostico_id')
-      .eq('mes', mesActual).eq('anio', anioActual)
+      .eq('mes', mesReporte).eq('anio', anioReporte)
       .is('real_kgco2', null)
 
     if (!planes || planes.length === 0) {
@@ -331,14 +334,21 @@ async function sendMonthlyReminder(req, res) {
     const userIds = [...new Set(planes.map(p => p.user_id))]
     const emailsEnviados = []
     const errores = []
-    const { data: { users } } = await supabase.auth.admin.listUsers()
+    // Diagnóstico más reciente de cada usuario: es el plan vigente
+    const { data: diags } = await supabase
+      .from('diagnosticos').select('id, user_id, created_at')
+      .in('user_id', userIds).order('created_at', { ascending: false })
+    const ultimoDiag = {}
+    for (const d of diags || []) if (!ultimoDiag[d.user_id]) ultimoDiag[d.user_id] = d.id
     const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
     for (const userId of userIds) {
       try {
-        const user = users?.find(u => u.id === userId)
+        const { data: ud } = await supabase.auth.admin.getUserById(userId)
+        const user = ud?.user
         if (!user?.email) continue
-        const planUsuario = planes.find(p => p.user_id === userId)
+        const planUsuario = planes.find(p => p.user_id === userId && p.diagnostico_id === ultimoDiag[userId])
+        if (!planUsuario) continue
 
         const emailHtml = `
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
@@ -360,13 +370,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="header"><h1>🌿 EcoMetriX</h1><p>Plan de Reducción de Emisiones</p></div>
   <div class="body">
     <p style="color:#374151;font-size:15px;">Hola,</p>
-    <p style="color:#6b7280;font-size:14px;line-height:1.6;">Es el comienzo de <strong>${MESES[mesActual - 1]}</strong> y es momento de reportar tus emisiones del mes anterior en tu Plan de Reducción EcoMetriX.</p>
+    <p style="color:#6b7280;font-size:14px;line-height:1.6;">Es el comienzo de <strong>${MESES[mesEnvio]}</strong> y es momento de reportar tus emisiones del mes anterior en tu Plan de Reducción EcoMetriX.</p>
     <div class="mes-card">
-      <h3>📊 Reporte pendiente: ${MESES[mesActual - 1]} ${anioActual}</h3>
+      <h3>📊 Reporte pendiente: ${MESES[mesReporte - 1]} ${anioReporte}</h3>
       <p>Meta del mes: <span class="meta">${planUsuario.meta_kgco2?.toLocaleString()} kg CO₂</span></p>
     </div>
     <p style="color:#6b7280;font-size:14px;line-height:1.6;">Registrar tu progreso mensual te permite:<br>✓ Comparar tus emisiones reales vs la meta<br>✓ Ver tu reducción acumulada<br>✓ Mantener tu certificación activa</p>
-    <a href="https://www.ecometrix.app/plan" class="cta" style="display:block;background:#10b981;color:#ffffff !important;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-align:center;margin:24px 0;">Reportar mis emisiones de ${MESES[mesActual - 1]} →</a>
+    <a href="https://www.ecometrix.app/plan" class="cta" style="display:block;background:#10b981;color:#ffffff !important;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;text-align:center;margin:24px 0;">Reportar mis emisiones de ${MESES[mesReporte - 1]} →</a>
   </div>
   <div class="footer">
     <p>EcoMetriX · Sostenibilidad empresarial para PyMEs colombianas</p>
@@ -380,7 +390,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
           body: JSON.stringify({
             from: FROM_EMAIL, to: user.email,
-            subject: `📊 Reporta tus emisiones de ${MESES[mesActual - 1]} — EcoMetriX`,
+            subject: `📊 Reporta tus emisiones de ${MESES[mesReporte - 1]} — EcoMetriX`,
             html: emailHtml,
           }),
         })
