@@ -40,7 +40,7 @@ export const preguntasAlcance1 = [
     categoria: 'Combustibles estacionarios',
     pregunta: '¿Cuánto combustible estacionario consume tu empresa al mes?',
     tipo: 'numero',
-    unidad: 'm³ o galones/mes',
+    unidad: 'm³ (gas natural) / galones (ACPM, gasolina) / kg (carbón) por mes',
     placeholder: 'Ej: 500',
     ayuda: 'Revisa tus facturas de gas o combustible. Si tienes varios, suma el total estimado.',
     condicion: (r) => r['a1_combustible_tipo'] && r['a1_combustible_tipo'] !== 'No usamos combustibles',

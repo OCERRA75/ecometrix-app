@@ -10,7 +10,7 @@ const ORIGENES_PERMITIDOS = new Set([
 ])
 
 const FACTORES = {
-  gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 5.49, carbon: 2.42,
+  gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 1.90, carbon: 2.42,
   electricidad: { Colombia: 0.126, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
   precio_kwh_cop: 650,
   alcance3: {
@@ -53,8 +53,9 @@ function calcularEmisiones(empresa, respuestas) {
     else if (tipoComb === 'Gasolina') factor = FACTORES.gasolina
     else if (tipoComb === 'Carbón') factor = FACTORES.carbon
     const emision = cantComb * factor
+    const unidadComb = tipoComb === 'Gas natural' ? 'm³' : tipoComb === 'Carb' + [char]0xF3 + 'n' ? 'kg' : 'gal'
     alcance1 += emision
-    detalles.push({ alcance: 1, metodo: 'medicion', categoria: 'Combustibles estacionarios', kgCO2e: emision, fuente: tipoComb, cantidad: `${cantComb} unidades/mes` })
+    detalles.push({ alcance: 1, metodo: 'medicion', categoria: 'Combustibles estacionarios', kgCO2e: emision, fuente: tipoComb, cantidad: `${cantComb} ${unidadComb}/mes` })
   }
 
   const flota = respuestas['a1_flota_cantidad']
