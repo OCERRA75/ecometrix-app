@@ -53,7 +53,7 @@ function calcularEmisiones(empresa, respuestas) {
     else if (tipoComb === 'Gasolina') factor = FACTORES.gasolina
     else if (tipoComb === 'Carbón') factor = FACTORES.carbon
     const emision = cantComb * factor
-    const unidadComb = tipoComb === 'Gas natural' ? 'm³' : tipoComb === 'Carb' + [char]0xF3 + 'n' ? 'kg' : 'gal'
+    const unidadComb = tipoComb === 'Gas natural' ? 'm³' : tipoComb.startsWith('Carb') ? 'kg' : 'gal'
     alcance1 += emision
     detalles.push({ alcance: 1, metodo: 'medicion', categoria: 'Combustibles estacionarios', kgCO2e: emision, fuente: tipoComb, cantidad: `${cantComb} ${unidadComb}/mes` })
   }
