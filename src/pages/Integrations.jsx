@@ -15,8 +15,8 @@ const IconLeaf = () => (
 // ─── CONNECTOR CONFIG ─────────────────────────────────────────────────────────
 const CONNECTORS = [
   {
-    id: 'siigo', name: 'Siigo', logo: '🟦', type: 'api', color: 'blue',
-    desc: 'Importa facturas de compra, gastos por categoría y consumos directamente desde tu cuenta Siigo.',
+    id: 'siigo', comingSoon: true, name: 'Siigo', logo: '🟦', type: 'api', color: 'blue',
+    desc: 'PRÓXIMAMENTE · Importa facturas de compra, gastos por categoría y consumos directamente desde tu cuenta Siigo.',
     alcances: ['Alcance 1', 'Alcance 2', 'Alcance 3'],
     fields: [
       { key: 'username', label: 'Usuario (email)', type: 'email', placeholder: 'tu@empresa.com' },
@@ -194,7 +194,7 @@ function APIConnectorCard({ connector, onSuccess }) {
       <div className="flex items-center gap-2">
         <button
           onClick={handleConnect}
-          disabled={status === 'connecting' || connector.fields.some(f => !credentials[f.key])}
+          disabled={status === 'connecting' || connector.comingSoon || connector.fields.some(f => !credentials[f.key])}
           className={`flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${c.btn}`}
         >
           {status === 'connecting' ? (
