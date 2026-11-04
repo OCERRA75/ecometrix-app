@@ -1,84 +1,55 @@
-// api/csv-import.js
-// M16 — Procesamiento CSV/Excel → categorías GHG Protocol
+// api/csv-import.js — CSV → categorías GHG (origen estricto, rate limit, sesión obligatoria, entradas acotadas)
+import { checkRateLimit, checkOrigin, requireUser } from '../src/lib/rateLimit.js'
+import { CATEGORIAS, calcularCO2e } from '../src/lib/factoresEmision.js'
+import { clasificarGasto } from '../src/lib/clasificadorGastos.js'
 
-const COP_TO_USD = 4000
+const MAX_CHARS = 2_000_000
+const MAX_FILAS = 5000
 
-const CATEGORY_FACTORS = {
-  electricidad:         { alcance: 2, factor: 0.126, unit: 'kWh' },
-  gas_natural:          { alcance: 1, factor: 5.49,  unit: 'm3'  },
-  combustible_diesel:   { alcance: 1, factor: 10.15, unit: 'gal' },
-  combustible_gasolina: { alcance: 1, factor: 8.78,  unit: 'gal' },
-  refrigerantes:        { alcance: 1, factor: 1430,  unit: 'kg'  },
-  transporte_aereo:     { alcance: 3, factor: 0.255, unit: 'USD' },
-  transporte_terrestre: { alcance: 3, factor: 0.12,  unit: 'USD' },
-  compras_bienes:       { alcance: 3, factor: 0.45,  unit: 'USD' },
-  compras_servicios:    { alcance: 3, factor: 0.15,  unit: 'USD' },
-  residuos:             { alcance: 3, factor: 0.50,  unit: 'USD' },
-  agua:                 { alcance: 3, factor: 0.344, unit: 'USD' },
-  nomina:               { alcance: 3, factor: 0.005, unit: 'USD' },
-}
-
-const KEYWORD_MAP = {
-  electricidad: ['electricidad','energia electrica','luz','kWh','codensa','enel','epsa','chec','essa'],
-  gas_natural:  ['gas natural','gas domiciliario','vanti','surtigas','gases del caribe','m3'],
-  combustible_diesel:   ['diesel','diésel','acpm','gasoil'],
-  combustible_gasolina: ['gasolina','corriente','extra','biomax','terpel','primax'],
-  refrigerantes:        ['refrigerante','hfc','freón','freon','r-22','r-410'],
-  transporte_aereo:     ['aereo','aéreo','vuelo','avianca','latam','wingo','tiquete'],
-  transporte_terrestre: ['transporte','flete','envio','envío','mensajeria','servientrega','envia','deprisa'],
-  compras_bienes:       ['compra','materia prima','insumo','mercancia','mercancía','producto'],
-  residuos:             ['residuo','basura','desecho','reciclaje','aseo'],
-  agua:                 ['agua','acueducto','eaab','aguas','alcantarillado'],
-  nomina:               ['nomina','nómina','salario','empleado','prestacion','prestación'],
-}
-
-function detectarCategoria(descripcion = '', categoria_columna = '') {
-  const texto = `${descripcion} ${categoria_columna}`.toLowerCase()
-  for (const [cat, keywords] of Object.entries(KEYWORD_MAP)) {
-    if (keywords.some(kw => texto.includes(kw))) return cat
+// Divide una línea respetando comillas
+function splitLinea(linea, delim) {
+  const out = []; let cur = ''; let q = false
+  for (let i = 0; i < linea.length; i++) {
+    const ch = linea[i]
+    if (ch === '"') { if (q && linea[i + 1] === '"') { cur += '"'; i++ } else q = !q }
+    else if (ch === delim && !q) { out.push(cur.trim()); cur = '' }
+    else cur += ch
   }
-  return 'compras_servicios'
-}
-
-function calcularCO2e(valorCOP, cantidad, unidad, categoria) {
-  const cfg = CATEGORY_FACTORS[categoria]
-  if (!cfg) return 0
-
-  // Si hay cantidad física (kWh, m3, gal, kg) → cálculo directo
-  if (cantidad && cantidad > 0 && unidad) {
-    const u = unidad.toLowerCase()
-    if (['kwh', 'kw/h'].includes(u) && categoria === 'electricidad')  return Math.round(cantidad * cfg.factor * 100) / 100
-    if (['m3', 'm³'].includes(u) && categoria === 'gas_natural')       return Math.round(cantidad * cfg.factor * 100) / 100
-    if (['gal', 'galon', 'galón'].includes(u))                         return Math.round(cantidad * cfg.factor * 100) / 100
-    if (['kg', 'kilogramo'].includes(u) && categoria === 'refrigerantes') return Math.round(cantidad * cfg.factor * 100) / 100
-  }
-
-  // Fallback: spend-based (valor COP → USD → CO2e)
-  const valorUSD = valorCOP / COP_TO_USD
-  return Math.round(valorUSD * cfg.factor * 100) / 100
+  out.push(cur.trim())
+  return out
 }
 
 function parsearCSV(csvText) {
-  const lines = csvText.trim().split('\n').map(l => l.trim()).filter(Boolean)
+  const lines = csvText.replace(/^﻿/, '').trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean)
   if (lines.length < 2) return { headers: [], rows: [] }
-
-  // Detectar delimitador: coma o punto y coma
-  const firstLine = lines[0]
-  const delimiter = firstLine.includes(';') ? ';' : ','
-
-  const headers = firstLine.split(delimiter).map(h => h.trim().replace(/^["']|["']$/g, '').toLowerCase())
-  const rows = lines.slice(1).map(line => {
-    const values = line.split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ''))
+  const first = lines[0]
+  const delimiter = [';', '\t', ','].map(d => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0]
+  const headers = splitLinea(first, delimiter).map(h => h.replace(/^["']|["']$/g, '').toLowerCase())
+  const rows = lines.slice(1, MAX_FILAS + 1).map(line => {
+    const values = splitLinea(line, delimiter)
     const obj = {}
     headers.forEach((h, i) => { obj[h] = values[i] || '' })
     return obj
   })
-
   return { headers, rows, delimiter }
 }
 
+// Acepta 1.500,50 / 1,500.50 / 1.500 / 1500,5 / 0.126
+function parseNumero(v) {
+  let s = String(v ?? '').trim().replace(/[^\d.,-]/g, '')
+  if (!s) return 0
+  const d = s.lastIndexOf('.'), c = s.lastIndexOf(',')
+  if (d > -1 && c > -1) s = c > d ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '')
+  else if (c > -1) s = (s.length - c - 1) <= 2 ? s.replace(',', '.') : s.replace(/,/g, '')
+  else if (d > -1) {
+    const dec = s.length - d - 1
+    if ((s.match(/\./g) || []).length > 1 || (dec === 3 && !s.startsWith('0.'))) s = s.replace(/\./g, '')
+  }
+  const n = parseFloat(s)
+  return Number.isFinite(n) ? n : 0
+}
+
 function mapearColumnas(headers) {
-  // Auto-mapeo inteligente de columnas
   const map = {}
   const patterns = {
     fecha:       ['fecha', 'date', 'f_emision', 'fec'],
@@ -89,118 +60,77 @@ function mapearColumnas(headers) {
     unidad:      ['unidad', 'unit', 'ud', 'medida'],
     proveedor:   ['proveedor', 'vendor', 'empresa', 'tercero', 'beneficiario'],
   }
-
-  for (const [field, keywords] of Object.entries(patterns)) {
-    const match = headers.find(h => keywords.some(kw => h.includes(kw)))
-    if (match) map[field] = match
+  for (const [field, kws] of Object.entries(patterns)) {
+    const m = headers.find(h => kws.some(k => h.includes(k)))
+    if (m) map[field] = m
   }
-
   return map
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://www.ecometrix.app')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  try {
-    const { csv_text, column_mapping, connector_id } = req.body
+  if (!checkOrigin(req, res)) return
+  if (!(await checkRateLimit(req, res, '/api/csv-import'))) return
+  if (!(await requireUser(req, res))) return
 
-    if (!csv_text) {
-      return res.status(400).json({ error: 'csv_text es requerido' })
-    }
+  try {
+    const { csv_text, column_mapping, connector_id } = req.body || {}
+    if (typeof csv_text !== 'string' || !csv_text) return res.status(400).json({ error: 'csv_text es requerido' })
+    if (csv_text.length > MAX_CHARS) return res.status(413).json({ error: 'Archivo demasiado grande (máx. 2 MB)' })
 
     const { headers, rows } = parsearCSV(csv_text)
+    if (rows.length === 0) return res.status(400).json({ error: 'El archivo no contiene filas válidas' })
 
-    if (rows.length === 0) {
-      return res.status(400).json({ error: 'El archivo no contiene filas válidas' })
-    }
-
-    // Usar mapping provisto o auto-detectar
-    const colMap = column_mapping || mapearColumnas(headers)
-
-    // Procesar filas
+    const colMap = (column_mapping && typeof column_mapping === 'object') ? column_mapping : mapearColumnas(headers)
     const gastos = []
     let errores = 0
 
     rows.forEach((row, i) => {
       try {
-        const descripcion  = colMap.descripcion  ? row[colMap.descripcion]  || '' : ''
-        const categoria_col= colMap.categoria    ? row[colMap.categoria]    || '' : ''
-        const valor_str    = colMap.valor_cop    ? row[colMap.valor_cop]    || '0' : '0'
-        const cantidad_str = colMap.cantidad     ? row[colMap.cantidad]     || '0' : '0'
-        const unidad       = colMap.unidad       ? row[colMap.unidad]       || '' : ''
-        const proveedor    = colMap.proveedor    ? row[colMap.proveedor]    || '' : ''
-        const fecha        = colMap.fecha        ? row[colMap.fecha]        || '' : ''
+        const g = (campo) => (colMap[campo] ? String(row[colMap[campo]] ?? '') : '')
+        const valor_cop = parseNumero(g('valor_cop'))
+        const cantidad  = parseNumero(g('cantidad'))
+        if (valor_cop <= 0 && cantidad <= 0) return
 
-        // Limpiar valor: quitar puntos de miles, convertir comas decimales
-        const valor_cop = parseFloat(valor_str.replace(/\./g, '').replace(',', '.')) || 0
-        const cantidad  = parseFloat(cantidad_str.replace(',', '.')) || 0
-
-        if (valor_cop <= 0 && cantidad <= 0) return // saltar filas vacías
-
-        const categoria = detectarCategoria(descripcion, categoria_col)
-        const kg_co2e   = calcularCO2e(valor_cop, cantidad, unidad, categoria)
-        const cfg       = CATEGORY_FACTORS[categoria]
-
+        const categoria = clasificarGasto(g('descripcion'), g('categoria'))
+        const unidad = g('unidad')
+        const { kg, metodo, requiereCantidad } = calcularCO2e({ valorCOP: valor_cop, cantidad, unidad, categoria })
         gastos.push({
-          fila: i + 2,
-          fecha,
-          descripcion,
-          proveedor,
-          valor_cop,
-          cantidad: cantidad || null,
-          unidad:   unidad || null,
-          categoria_ghg: categoria,
-          alcance: cfg?.alcance || 3,
-          kg_co2e,
+          fila: i + 2, fecha: g('fecha'), descripcion: g('descripcion'), proveedor: g('proveedor'),
+          valor_cop, cantidad: cantidad || null, unidad: unidad || null,
+          categoria_ghg: categoria, alcance: CATEGORIAS[categoria]?.alcance || 3,
+          kg_co2e: kg, metodo, requiere_cantidad: requiereCantidad,
         })
-      } catch {
-        errores++
-      }
+      } catch { errores++ }
     })
 
-    // Agrupar por categoría
     const categorias = {}
     gastos.forEach(g => {
-      if (!categorias[g.categoria_ghg]) {
-        categorias[g.categoria_ghg] = {
-          categoria: g.categoria_ghg,
-          alcance: g.alcance,
-          kg_co2e: 0,
-          valor_cop: 0,
-          count: 0,
-        }
-      }
-      categorias[g.categoria_ghg].kg_co2e   += g.kg_co2e
-      categorias[g.categoria_ghg].valor_cop += g.valor_cop
-      categorias[g.categoria_ghg].count++
+      const c = (categorias[g.categoria_ghg] ||= { categoria: g.categoria_ghg, alcance: g.alcance, kg_co2e: 0, valor_cop: 0, count: 0, requiere_cantidad: false })
+      c.kg_co2e += g.kg_co2e; c.valor_cop += g.valor_cop; c.count++
+      if (g.requiere_cantidad) c.requiere_cantidad = true
     })
 
-    const total_kg_co2e = gastos.reduce((a, g) => a + g.kg_co2e, 0)
-    const total_cop     = gastos.reduce((a, g) => a + g.valor_cop, 0)
-
     return res.status(200).json({
-      connector_id: connector_id || 'csv',
+      connector_id: typeof connector_id === 'string' ? connector_id.slice(0, 40) : 'csv',
       headers_detectados: headers,
       column_mapping: colMap,
       total_filas: rows.length,
       total_registros: gastos.length,
       filas_con_error: errores,
-      total_cop: Math.round(total_cop),
-      total_kg_co2e: Math.round(total_kg_co2e * 100) / 100,
-      categorias: Object.values(categorias).map(c => ({
-        ...c,
-        kg_co2e: Math.round(c.kg_co2e * 100) / 100,
-      })),
+      total_cop: Math.round(gastos.reduce((a, g) => a + g.valor_cop, 0)),
+      total_kg_co2e: Math.round(gastos.reduce((a, g) => a + g.kg_co2e, 0) * 100) / 100,
+      categorias: Object.values(categorias).map(c => ({ ...c, kg_co2e: Math.round(c.kg_co2e * 100) / 100 })),
       gastos: gastos.slice(0, 100),
-      source: connector_id || 'csv',
+      source: typeof connector_id === 'string' ? connector_id.slice(0, 40) : 'csv',
     })
-
   } catch (err) {
-    console.error('CSV import error:', err)
-    return res.status(500).json({ error: `Error procesando CSV: ${err.message}` })
+    console.error('CSV import error:', err.message)
+    return res.status(500).json({ error: 'No se pudo procesar el archivo' })
   }
 }

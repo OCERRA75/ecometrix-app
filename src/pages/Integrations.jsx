@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/authFetch'
 // src/pages/Integrations.jsx
 // M16 — Integraciones ERP: Siigo, Alegra, SIESA, CSV genérico
 import { useState, useRef } from 'react'
@@ -96,7 +97,7 @@ function APIConnectorCard({ connector, onSuccess }) {
     setStatus('connecting')
     setError(null)
     try {
-      const res = await fetch(`/api/${connector.id}-connect`, {
+      const res = await authFetch(`/api/${connector.id}-connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -281,7 +282,7 @@ function CSVImporterCard({ connector, onSuccess }) {
     setError(null)
     try {
       // Enviar csv_text + column_mapping como JSON (lo que espera el backend)
-      const res = await fetch('/api/csv-import', {
+      const res = await authFetch('/api/csv-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
