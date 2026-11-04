@@ -439,7 +439,7 @@ function CSVImporterCard({ connector, onSuccess }) {
               {result.categorias.map((cat, i) => (
                 <div key={i} className="flex justify-between text-xs">
                   <span className="text-text-secondary">{cat.categoria} · Alcance {cat.alcance}</span>
-                  <span className="font-medium">{cat.kg_co2e?.toFixed(1)} kg CO₂e</span>
+                  <span className="font-medium">{cat.kg_co2e?.toFixed(1)} kg CO₂e{cat.requiere_cantidad ? ' - requiere cantidad (gal, m3 o kg)' : ''}</span>
                 </div>
               ))}
             </div>
