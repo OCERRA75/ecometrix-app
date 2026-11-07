@@ -560,7 +560,7 @@ export default function Manual() {
               <StepCard n="1" title={t('manual.comoFunciona.step1')} desc={t('manual.comoFunciona.step1Desc')}
                 detail="El cuestionario se adapta según el sector de tu empresa para hacer preguntas relevantes. Una empresa de tecnología no necesita responder sobre maquinaria industrial; una empresa de logística tiene preguntas específicas sobre flota vehicular." />
               <StepCard n="2" title={t('manual.comoFunciona.step2')} desc={t('manual.comoFunciona.step2Desc')}
-                detail="Los factores del IPCC AR6 (2021) son el referente científico más actualizado. Por ejemplo: 1 kWh en Colombia = 0.126 kg CO₂e según el factor de la red eléctrica nacional (UPME 2023)." />
+                detail="Los factores del IPCC AR6 (2021) son el referente científico más actualizado. Por ejemplo: 1 kWh en Colombia = 0.220 kg CO₂e según el factor de la red eléctrica nacional (UPME 2024)." />
               <StepCard n="3" title={t('manual.comoFunciona.step3ai')} desc={t('manual.comoFunciona.step3aiDesc')}
                 detail="La IA analiza tus resultados y genera recomendaciones priorizadas por impacto y facilidad. El plan de reducción incluye 5 acciones concretas con estimación del porcentaje de reducción potencial." />
               <StepCard n="4" title={t('manual.comoFunciona.step3')} desc={t('manual.comoFunciona.step3Desc')}

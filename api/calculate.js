@@ -11,7 +11,7 @@ const ORIGENES_PERMITIDOS = new Set([
 
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 1.90, carbon: 2.42,
-  electricidad: { Colombia: 0.126, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
+  electricidad: { Colombia: 0.220, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
   precio_kwh_cop: 650,
   alcance3: {
     'Materias primas / insumos físicos': 0.85, 'Servicios profesionales / digitales': 0.15,

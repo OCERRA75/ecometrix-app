@@ -45,12 +45,12 @@ const ENDPOINTS = [
     "gas_natural": { "factor": 1.90,  "unidad": "kg CO2/m³" }
   },
   "electricidad": {
-    "Colombia": { "factor": 0.126, "unidad": "kg CO2e/kWh" },
+    "Colombia": { "factor": 0.220, "unidad": "kg CO2e/kWh" },
     "Mexico":   { "factor": 0.454, "unidad": "kg CO2e/kWh" }
   },
   "refrigerantes": {
-    "R410A": { "gwp": 2088, "unidad": "kg CO2e/kg" },
-    "R22":   { "gwp": 1810, "unidad": "kg CO2e/kg" }
+    "R410A": { "gwp": 2256, "unidad": "kg CO2e/kg" },
+    "R22":   { "gwp": 1960, "unidad": "kg CO2e/kg" }
   }
 }`,
   },
