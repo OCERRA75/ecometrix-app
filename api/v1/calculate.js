@@ -1,6 +1,6 @@
 // api/v1/calculate.js
 import { FACTORES, num } from '../../src/lib/factoresEmision.js'
-import { checkRateLimit } from '../../src/lib/rateLimit.js'
+import { autenticarApiKey } from '../../src/lib/apiKeys.js'
 
 function calcularEmisiones(datos) {
   let alcance1 = 0, alcance2 = 0
@@ -54,12 +54,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  if (!(await checkRateLimit(req, res, '/api/v1/calculate'))) return
-
-  const key = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '')
-  if (!key || (!key.startsWith('ecm_') && !key.startsWith('sk-ecm-'))) {
-    return res.status(401).json({ error: 'unauthorized', message: 'API key requerida. Incluir header: X-API-Key: ecm_...', docs: 'https://www.ecometrix.app/developers' })
-  }
+  if (!(await autenticarApiKey(req, res, '/api/v1/calculate'))) return
 
   try {
     const { empresa, datos } = req.body || {}

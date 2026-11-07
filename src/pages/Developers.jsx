@@ -13,7 +13,7 @@ const IconCopy = () => (
   </svg>
 )
 
-const BASE_URL = 'https://ecometrix-app-one.vercel.app'
+const BASE_URL = 'https://www.ecometrix.app'
 
 const ENDPOINTS = [
   {
@@ -23,7 +23,7 @@ const ENDPOINTS = [
     auth: false,
     response: `{
   "status": "ok",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "service": "EcoMetriX API",
   "endpoints": [
     "GET  /api/v1/health",
@@ -36,13 +36,13 @@ const ENDPOINTS = [
   {
     method: 'GET',
     path: '/api/v1/factors',
-    desc: 'Factores de emisión IPCC AR6 — sin autenticación',
+    desc: 'Factores de emisión — sin autenticación',
     auth: false,
     response: `{
   "combustibles": {
     "diesel":      { "factor": 10.15, "unidad": "kg CO2e/galón" },
     "gasolina":    { "factor": 8.78,  "unidad": "kg CO2e/galón" },
-    "gas_natural": { "factor": 5.49,  "unidad": "kg CO2e/m³" }
+    "gas_natural": { "factor": 1.90,  "unidad": "kg CO2/m³" }
   },
   "electricidad": {
     "Colombia": { "factor": 0.126, "unidad": "kg CO2e/kWh" },
@@ -78,7 +78,7 @@ const ENDPOINTS = [
     "alcance2_kg_mes": 189,
     "total_kg_mes":    5294,
     "total_ton_anio":  63.5,
-    "metodologia": "GHG Protocol Corporate Standard + IPCC AR6"
+    "metodologia": "GHG Protocol Corporate Standard"
   },
   "creditos_usados": 1
 }`,
@@ -125,7 +125,7 @@ const ENDPOINTS = [
       { "alcance": 3, "categoria": "Residuos (general)",    "kgCO2e": 25   },
       { "alcance": 3, "categoria": "Viajes (aereo)",        "kgCO2e": 1275 }
     ],
-    "metodologia": "GHG Protocol Corporate Standard + IPCC AR6"
+    "metodologia": "GHG Protocol Corporate Standard"
   },
   "fuentes_procesadas": 6,
   "creditos_usados": 1
@@ -325,7 +325,7 @@ function Playground() {
     setError(null)
     setResult(null)
     try {
-      const url = `/.netlify/functions/api-v1/${endpoint}`
+      const url = `/api/v1/${endpoint}`
       const bodyCalc = {
         empresa: { nombre: 'Demo empresa', pais },
         datos: {
@@ -431,15 +431,15 @@ export default function Developers() {
       <div className="bg-brand-400 text-white py-12">
         <div className="max-w-6xl mx-auto px-6">
           <div className="max-w-2xl">
-            <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-medium mb-4">API v1.1</span>
+            <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-medium mb-4">API v1.2</span>
             <h1 className="text-3xl font-bold mb-3">EcoMetriX API</h1>
             <p className="text-white/80 text-lg leading-relaxed mb-6">
-              Integra cálculo de huella de carbono en tu ERP, BI o plataforma. REST API con factores IPCC AR6 y GHG Protocol.
+              Integra cálculo de huella de carbono en tu ERP, BI o plataforma. REST API con factores de emisión y metodología GHG Protocol.
             </p>
             <div className="flex flex-wrap gap-3">
               <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">GHG Protocol</div>
               <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">ISO 14064</div>
-              <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">IPCC AR6</div>
+              <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">EPA · UPME</div>
               <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">REST + JSON</div>
               <div className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm">Alcances 1+2+3</div>
             </div>
@@ -598,7 +598,7 @@ export default function Developers() {
           <div>
             <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
               <p className="text-sm text-amber-700">
-                <strong>Demo:</strong> Usa la key <code className="bg-amber-100 px-1.5 py-0.5 rounded">ecm_demo_key</code> para probar sin API key real.
+                <strong>Demo:</strong> Usa la key <code className="bg-amber-100 px-1.5 py-0.5 rounded">ecm_demo_key</code> para probar sin API key real (límite: 20 solicitudes por hora).
               </p>
             </div>
             <Playground />
@@ -621,8 +621,8 @@ export default function Developers() {
               <tbody>
                 {[
                   ['Free',       '—',     '—',          '—'],
-                  ['Pro',        '100',   '5.000',      '99%'],
-                  ['Enterprise', '1.000', 'Ilimitado',  '99.9%'],
+                  ['Pro',        '100',   'Sin cupo mensual', 'Mejor esfuerzo'],
+                  ['Enterprise', '1.000', 'Sin cupo mensual', 'Mejor esfuerzo'],
                 ].map(([plan, h, m, sla]) => (
                   <tr key={plan} className="border-b border-border">
                     <td className="py-2 pr-4 font-medium text-text-primary">{plan}</td>

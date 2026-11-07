@@ -15,7 +15,7 @@ const LIMITS = {
 
 const WHITELIST_IPS = ['::1', '127.0.0.1']
 
-function getClientIP(req) {
+export function getClientIP(req) {
   return (
     req.headers['x-vercel-forwarded-for']?.split(',')[0]?.trim() ||
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
@@ -30,13 +30,14 @@ function getWindowStart(windowMin) {
   return new Date(Math.floor(Date.now() / ms) * ms).toISOString()
 }
 
-export async function checkRateLimit(req, res, endpoint) {
+// opts.identity: clave de conteo alternativa (p.ej. 'key:<id>'); opts.limit: { max, windowMin } que reemplaza al de LIMITS
+export async function checkRateLimit(req, res, endpoint, opts = {}) {
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!supabaseUrl || !supabaseKey) return true // sin Supabase → no bloquear
 
   const ip = getClientIP(req)
-  const limit = LIMITS[endpoint] || LIMITS.default
+  const limit = opts.limit || LIMITS[endpoint] || LIMITS.default
   if (WHITELIST_IPS.includes(ip)) return true
 
   try {
@@ -44,7 +45,7 @@ export async function checkRateLimit(req, res, endpoint) {
     const r = await fetch(`${supabaseUrl}/rest/v1/rpc/increment_rate_limit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
-      body: JSON.stringify({ p_key: `ip:${ip}`, p_endpoint: endpoint, p_window: getWindowStart(limit.windowMin) }),
+      body: JSON.stringify({ p_key: opts.identity || `ip:${ip}`, p_endpoint: endpoint, p_window: getWindowStart(limit.windowMin) }),
     })
     if (!r.ok) {
       console.error('Rate limit RPC error:', r.status, (await r.text()).slice(0, 200))
