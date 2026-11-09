@@ -11,7 +11,7 @@ const ORIGENES_PERMITIDOS = new Set([
 
 const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 1.90, carbon: 2.42,
-  electricidad: { Colombia: 0.220, Mexico: 0.454, Argentina: 0.321, Chile: 0.287, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
+  electricidad: { Colombia: 0.220, Mexico: 0.454, Argentina: 0.321, Chile: 0.2421, Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35 },
   precio_kwh_cop: 650,
   alcance3: {
     'Materias primas / insumos físicos': 0.85, 'Servicios profesionales / digitales': 0.15,
@@ -104,7 +104,7 @@ function calcularEmisiones(empresa, respuestas) {
   if (kwh > 0) {
     const emision = kwh * factorElec * (1 - descuentoRenovable)
     alcance2 += emision
-    detalles.push({ alcance: 2, metodo: (tieneKwh?.op === 'Sí, lo tengo' && tieneKwh?.num) ? 'medicion' : 'estimacion', categoria: 'Consumo eléctrico', kgCO2e: emision, fuente: `Red eléctrica ${empresa.pais}`, cantidad: `${Math.round(kwh)} kWh/mes`, factorUsado: `${factorElec} kg CO2e/kWh` })
+    detalles.push({ alcance: 2, metodo: (tieneKwh?.op === 'Sí, lo tengo' && tieneKwh?.num) ? 'medicion' : 'estimacion', categoria: 'Consumo eléctrico', kgCO2e: emision, fuente: `Red eléctrica ${empresa.pais}${paisKey === 'Colombia' ? ' (UPME 2024)' : paisKey === 'Chile' ? ' (Energ\u00EDa Abierta 2023)' : ' (factor estimado)'}`, cantidad: `${Math.round(kwh)} kWh/mes`, factorUsado: `${factorElec} kg CO2e/kWh` })
   }
 
   const gastoProveedores = parseFloat(respuestas['a3_compras_proveedores']) || 0

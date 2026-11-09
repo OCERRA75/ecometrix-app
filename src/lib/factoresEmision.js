@@ -4,7 +4,7 @@
 export const FACTORES = {
   gasolina: 8.78, diesel: 10.15, acpm: 10.15, gas_natural: 1.90, carbon: 2.42,
   electricidad: {
-    Colombia: 0.220, Mexico: 0.454, Argentina: 0.321, Chile: 0.287,
+    Colombia: 0.220, Mexico: 0.454, Argentina: 0.321, Chile: 0.2421,
     Peru: 0.249, Ecuador: 0.272, Espana: 0.181, default: 0.35,
   },
   refrigerantes: { R410A: 2256, R22: 1960, R134a: 1530, default: 1500 },
