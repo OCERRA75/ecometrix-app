@@ -369,7 +369,7 @@ async function generarManualPDF() {
     { nombre: 'Pro — Más popular', precio: '$199.000 COP/mes', anual: '$1.910.400/año (20% off)',
       features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Integraciones ERP', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'] },
     { nombre: 'Enterprise', precio: '$499.000 COP/mes', anual: '$4.790.400/año (20% off)',
-      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'] },
+      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'Factura electrónica'] },
   ]
 
   planes.forEach(({ nombre, precio, anual, features }) => {
@@ -781,7 +781,7 @@ export default function Manual() {
                   features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'],
                   color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/precios?plan=pro', badge: t('pricing.popular') },
                 { nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes — o $4.790.400/año (20% off)',
-                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'],
+                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'Factura electrónica'],
                   color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/precios?plan=enterprise' },
               ].map(({ nombre, precio, periodo, features, color, btn, link, badge }) => (
                 <div key={nombre} className={`bg-white rounded-2xl border-2 ${color} p-5 flex flex-col`}>
