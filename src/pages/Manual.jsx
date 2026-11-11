@@ -128,7 +128,7 @@ async function generarManualPDF() {
   doc.text('la huella de carbono de tu empresa', M, 152)
   doc.setFontSize(9)
   doc.text(`Version 3.0  |  ${new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}`, M, 270)
-  doc.text('ecometrix-app-one.vercel.app', M, 278)
+  doc.text('www.ecometrix.app', M, 278)
 
   // Índice
   addPage()
@@ -169,7 +169,7 @@ async function generarManualPDF() {
       doc.setFillColor(...verde)
       doc.rect(0, 287, W, 10, 'F')
       doc.setFontSize(7); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'normal')
-      doc.text('EcoMetriX - Manual de Usuario - ecometrix-app-one.vercel.app', W / 2, 293, { align: 'center' })
+      doc.text('EcoMetriX - Manual de Usuario - www.ecometrix.app', W / 2, 293, { align: 'center' })
       doc.text(`${i} / ${pages}`, W - M, 293, { align: 'right' })
     }
   }
@@ -235,7 +235,7 @@ async function generarManualPDF() {
 
   const pasos = [
     { titulo: 'Paso 1 — Tu empresa', items: ['Nombre y correo corporativo (recibirás el reporte aquí)', 'NIT / RUT (opcional)', 'Sector económico y tamaño de empresa', 'País de operación'] },
-    { titulo: 'Paso 2 — Alcance 1 (Emisiones directas)', items: ['Gas natural o GLP (m³ o galones/mes)', 'Flota de vehículos propios', 'Refrigerantes en equipos de climatización', 'Generadores eléctricos'] },
+    { titulo: 'Paso 2 — Alcance 1 (Emisiones directas)', items: ['Combustibles: gas natural (m³), ACPM o gasolina (galones), carbón (kg), por mes', 'Flota de vehículos propios', 'Refrigerantes en equipos de climatización', 'Generadores eléctricos'] },
     { titulo: 'Paso 3 — Alcance 2 (Energía indirecta)', items: ['Consumo mensual de electricidad (kWh)', 'Energía solar generada (si aplica)', 'Otras fuentes de energía comprada'] },
     { titulo: 'Paso 4 — Alcance 3 (Cadena de valor)', items: ['Compras a proveedores', 'Logística y transporte', 'Viajes de negocio', 'Desplazamiento de empleados', 'Gestión de residuos'] },
     { titulo: 'Paso 5 — Resumen y envío', items: ['Revisión de datos ingresados', 'Cálculo automático en segundos', 'Redirección al reporte completo'] },
@@ -264,7 +264,7 @@ async function generarManualPDF() {
     ['1. Resumen ejecutivo', 'Texto generado por IA con la situación de tu empresa, nivel de impacto (Bajo / Moderado / Alto) y comparación con el promedio del sector.'],
     ['2. Métricas principales', 'Huella total en toneladas CO2e/año, desglose por los 3 alcances en kg CO2e/mes, y valor económico equivalente al mercado de carbono europeo (EU ETS).'],
     ['3. Distribución por alcance', 'Gráfica que muestra qué porcentaje de tus emisiones viene de cada alcance.'],
-    ['4. Fuentes de emisión', 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (trazable al IPCC AR6).'],
+    ['4. Fuentes de emisión', 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (con su fuente: UPME, EPA o IPCC AR6). Los factores de países sin fuente oficial verificada se marcan como "estimado".'],
     ['5. Plan de reducción', '5 acciones priorizadas por impacto potencial y facilidad. Cada acción incluye % de reducción estimado, dificultad y plazo.'],
     ['6. Metodología aplicada', 'Badges con cobertura de cada estándar: GHG Protocol, ISO 14064-1, IPCC AR6, CSRD/ESRS E1, SBTi Baseline y GRI 305.'],
     ['7. Certificación EcoMetriX', 'Score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros desbloqueados.'],
@@ -306,7 +306,7 @@ async function generarManualPDF() {
   })
   y += 22
 
-  addInfoBox('Verificacion: Cualquier persona puede verificar un certificado en ecometrix-app-one.vercel.app/verificar/[CODIGO]. El sistema consulta la base de datos en tiempo real.', verdeClaro, verde)
+  addInfoBox('Verificacion: Cualquier persona puede verificar un certificado en www.ecometrix.app/verificar/[CODIGO]. El sistema consulta la base de datos en tiempo real.', verdeClaro, verde)
 
   // ── 06 Estándares ───────────────────────────────────────────────────────
   addPage()
@@ -317,7 +317,7 @@ async function generarManualPDF() {
   const estandares = [
     ['GHG Protocol Corporate Standard', 'El estándar global más usado para medir emisiones GHG en organizaciones. Desarrollado por WRI y WBCSD. EcoMetriX lo usa como metodología central para definir los 3 alcances de emisión.'],
     ['ISO 14064-1:2018', 'Norma internacional certificable para cuantificación y reporte de inventarios GHG. Los reportes de EcoMetriX siguen una metodología compatible con certificación formal.'],
-    ['IPCC AR6 — Sexto Informe (2021)', 'Los factores de emisión más actualizados científicamente. EcoMetriX los usa para convertir consumos (kWh, litros, m3) en kg CO2 equivalente.'],
+    ['IPCC AR6 — Sexto Informe (2021)', 'Potenciales de calentamiento global (GWP) del AR6 para los gases refrigerantes. Los factores de consumo provienen de fuentes oficiales: UPME (electricidad en Colombia) y EPA/IPCC (combustibles).'],
     ['CSRD / ESRS E1 — Directiva UE 2022/2464', 'La Corporate Sustainability Reporting Directive. EcoMetriX incluye módulo de gap analysis CSRD para empresas que exportan a Europa.'],
     ['Science Based Targets (SBTi)', 'Iniciativa que valida objetivos alineados con el límite de 1.5 grados del Acuerdo de París. EcoMetriX genera el baseline necesario para aplicar a SBTi.'],
   ]
@@ -336,14 +336,14 @@ async function generarManualPDF() {
   // ── 07 Integraciones ────────────────────────────────────────────────────
   addPage()
   addSection('Integraciones ERP', '07', '🔗')
-  addParagraph('Conecta tu sistema contable para importar automáticamente facturas y gastos, eliminando el ingreso manual de datos.')
+  addParagraph('Conecta tu sistema contable para importar automáticamente facturas y gastos, eliminando el ingreso manual de datos. El archivo CSV admite hasta 2 MB y 5.000 filas; los gastos de combustible sin cantidad se marcan "requiere cantidad (gal, m3 o kg)".')
   y += 3
 
   const integraciones = [
-    ['Siigo — API directa', 'Conexión por API key. Importa facturas de compra y gastos de los últimos 90 días automáticamente.'],
+    ['Siigo — Próximamente', 'Integración en desarrollo. Mientras tanto puedes importar tus facturas de Siigo por CSV.'],
     ['Alegra — API directa', 'Conexión por email + token. Importa gastos y compras a proveedores clasificados por categoría.'],
-    ['SIESA Enterprise — CSV/Excel', 'Exporta el reporte de compras desde SIESA en Excel y cárgalo. Compatible con SIESA 8.5 y Enterprise.'],
-    ['CSV / Excel genérico — Archivo', 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.'],
+    ['SIESA Enterprise — CSV', 'Exporta el reporte de compras desde SIESA, guárdalo como CSV y cárgalo. Compatible con SIESA 8.5 y Enterprise.'],
+    ['CSV genérico — Archivo', 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.'],
     ['Foto de factura — IA (NUEVO v3.0)', 'Sube una foto de cualquier factura (JPG/PNG). La IA extrae consumos y los mapea automáticamente al alcance GHG correcto. Sin necesidad de ERP.'],
   ]
 
@@ -367,9 +367,9 @@ async function generarManualPDF() {
     { nombre: 'Básico', precio: '$79.000 COP/mes', anual: '$758.400/año (20% off)',
       features: ['Diagnósticos ilimitados', 'Reporte PDF', 'Certificación EcoMetriX', 'Dashboard 360', 'Soporte por email'] },
     { nombre: 'Pro — Más popular', precio: '$199.000 COP/mes', anual: '$1.910.400/año (20% off)',
-      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Integraciones ERP', 'Acceso API', 'Soporte prioritario'] },
+      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Integraciones ERP', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'] },
     { nombre: 'Enterprise', precio: '$499.000 COP/mes', anual: '$4.790.400/año (20% off)',
-      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'] },
+      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'] },
   ]
 
   planes.forEach(({ nombre, precio, anual, features }) => {
@@ -398,10 +398,10 @@ async function generarManualPDF() {
     ['¿Cuánto tiempo toma?', 'Entre 10 y 15 minutos para el cuestionario completo. No se necesita experiencia técnica.'],
     ['¿Puedo subir una foto de mi factura?', 'Sí. Durante el cuestionario encontrarás el botón Importar factura en la barra superior. Sube una imagen o PDF de cualquier factura de proveedor y la IA extrae automáticamente el consumo. Si tienes varias sedes, las facturas se suman entre sí en vez de reemplazarse.'],
     ['¿Los precios tienen descuento anual?', 'Sí. Al seleccionar facturación anual obtienes un 20% de descuento. El cambio aplica desde el primer pago y se cobra en un solo cobro anual.'],
-    ['¿Puedo conectar mi ERP?', 'Sí. El plan Pro incluye integración con Siigo y Alegra por API directa, además de importación por CSV/Excel o foto de factura con IA.'],
+    ['¿Puedo conectar mi ERP?', 'Sí. El plan Pro incluye integración con Alegra por API directa, además de importación por CSV o foto de factura con IA. La integración con Siigo está en desarrollo.'],
     ['¿Puedo cancelar en cualquier momento?', 'Sí. No hay contratos ni permanencia mínima. Puedes cancelar desde tu perfil y tu plan seguirá activo hasta el fin del período pagado.'],
-    ['¿Cómo se verifica el certificado?', 'Cualquier persona puede visitar ecometrix-app-one.vercel.app/verificar/[CODIGO] para confirmar la autenticidad del certificado en tiempo real.'],
-    ['¿Los datos de mi empresa están seguros?', 'Sí. Todos los datos se almacenan cifrados en infraestructura AWS (Supabase) y no son compartidos con terceros bajo ninguna circunstancia.'],
+    ['¿Cómo se verifica el certificado?', 'Cualquier persona puede visitar www.ecometrix.app/verificar/[CODIGO] para confirmar la autenticidad del certificado en tiempo real.'],
+    ['¿Los datos de mi empresa están seguros?', 'Sí. Los datos se almacenan cifrados en infraestructura AWS (Supabase) y no se venden ni se comparten con terceros. Solo los proveedores necesarios para operar el servicio (alojamiento, correo, pagos e inteligencia artificial) procesan la información que cada función requiere. El certificado público solo muestra nombre de empresa, score y nivel.'],
   ]
 
   faqs.forEach(([q, a]) => {
@@ -560,7 +560,7 @@ export default function Manual() {
               <StepCard n="1" title={t('manual.comoFunciona.step1')} desc={t('manual.comoFunciona.step1Desc')}
                 detail="El cuestionario se adapta según el sector de tu empresa para hacer preguntas relevantes. Una empresa de tecnología no necesita responder sobre maquinaria industrial; una empresa de logística tiene preguntas específicas sobre flota vehicular." />
               <StepCard n="2" title={t('manual.comoFunciona.step2')} desc={t('manual.comoFunciona.step2Desc')}
-                detail="Los factores del IPCC AR6 (2021) son el referente científico más actualizado. Por ejemplo: 1 kWh en Colombia = 0.220 kg CO₂e según el factor de la red eléctrica nacional (UPME 2024)." />
+                detail="EcoMetriX usa factores de fuentes oficiales: UPME para la electricidad en Colombia, EPA/IPCC para combustibles y los potenciales de calentamiento global (GWP) del IPCC AR6 para refrigerantes. Por ejemplo: 1 kWh en Colombia = 0.220 kg CO₂e según el factor de la red eléctrica nacional (UPME 2024)." />
               <StepCard n="3" title={t('manual.comoFunciona.step3ai')} desc={t('manual.comoFunciona.step3aiDesc')}
                 detail="La IA analiza tus resultados y genera recomendaciones priorizadas por impacto y facilidad. El plan de reducción incluye 5 acciones concretas con estimación del porcentaje de reducción potencial." />
               <StepCard n="4" title={t('manual.comoFunciona.step3')} desc={t('manual.comoFunciona.step3Desc')}
@@ -576,7 +576,7 @@ export default function Manual() {
               { paso: 'Paso 1 de 5', titulo: 'Tu empresa', color: 'bg-[#F0FDF4] border-[#BBF7D0]',
                 items: ['Nombre de la empresa y correo corporativo (recibirás el reporte aquí)', 'NIT / RUT (opcional)', 'Sector económico', 'Tamaño de la empresa', 'País de operación'] },
               { paso: 'Paso 2 de 5', titulo: 'Alcance 1 — Emisiones directas', color: 'bg-blue-50 border-blue-200',
-                items: ['Gas natural o GLP (m³ o galones/mes)', 'Flota de vehículos propios (combustible y consumo)', 'Refrigerantes en equipos de climatización', 'Generadores eléctricos', 'Procesos industriales con emisión directa'] },
+                items: ['Combustibles: gas natural (m³), ACPM o gasolina (galones), carbón (kg), por mes', 'Flota de vehículos propios (combustible y consumo)', 'Refrigerantes en equipos de climatización', 'Generadores eléctricos', 'Procesos industriales con emisión directa'] },
               { paso: 'Paso 3 de 5', titulo: 'Alcance 2 — Energía indirecta', color: 'bg-purple-50 border-purple-200',
                 items: ['Consumo mensual de electricidad de la red (kWh)', 'Energía solar generada (si aplica)', 'Otras fuentes de energía comprada'] },
               { paso: 'Paso 4 de 5', titulo: 'Alcance 3 — Cadena de valor', color: 'bg-amber-50 border-amber-200',
@@ -610,7 +610,7 @@ export default function Manual() {
                 { t: 'Resumen ejecutivo', d: 'Texto generado por IA con la situación de tu empresa, nivel de impacto (Bajo / Moderado / Alto) y comparación con el promedio del sector.' },
                 { t: 'Métricas principales', d: 'Huella total en toneladas CO₂e/año, desglose por los 3 alcances en kg CO₂e/mes, y valor económico equivalente al mercado de carbono europeo (EU ETS).' },
                 { t: 'Distribución por alcance', d: 'Gráfica que muestra qué porcentaje de tus emisiones viene de cada alcance. Te ayuda a priorizar dónde actuar primero.' },
-                { t: 'Fuentes de emisión', d: 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (trazable al IPCC AR6).' },
+                { t: 'Fuentes de emisión', d: 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (con su fuente: UPME, EPA o IPCC AR6). Los factores de países sin fuente oficial verificada se marcan como "estimado".' },
                 { t: 'Plan de reducción', d: '5 acciones priorizadas por impacto potencial y facilidad. Cada acción incluye % de reducción estimado, dificultad y plazo.' },
                 { t: 'Metodología aplicada', d: 'Badges con cobertura de cada estándar: GHG Protocol, ISO 14064-1, IPCC AR6, CSRD/ESRS E1, SBTi Baseline y GRI 305.' },
                 { t: 'Certificación EcoMetriX', d: 'Score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros desbloqueados.' },
@@ -648,7 +648,7 @@ export default function Manual() {
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-blue-500 mt-3">Disponible en planes Básico, Pro y Enterprise. Requiere conexión a internet.</p>
+              <p className="text-xs text-blue-500 mt-3">Disponible en planes Básico, Pro y Enterprise. Requiere conexión a internet y haber iniciado sesión.</p>
             </div>
 
             {/* Nueva feature: Compensación de huella residual */}
@@ -705,7 +705,7 @@ export default function Manual() {
             <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-5">
               <p className="text-sm font-bold text-[#1D9E75] mb-2">¿Cómo se verifica el certificado?</p>
               <p className="text-sm text-[#57534E] leading-relaxed">
-                Cualquier persona puede verificar un certificado en <strong>ecometrix-app-one.vercel.app/verificar/[CODIGO]</strong>. El sistema consulta la base de datos en tiempo real y muestra el nivel, score, empresa y fecha de emisión.
+                Cualquier persona puede verificar un certificado en <strong>www.ecometrix.app/verificar/[CODIGO]</strong>. El sistema consulta la base de datos en tiempo real y muestra el nivel, score, empresa y fecha de emisión.
               </p>
             </div>
           </section>
@@ -724,7 +724,7 @@ export default function Manual() {
                 desc="Norma internacional certificable para cuantificación y reporte de inventarios GHG. Los reportes de EcoMetriX siguen una metodología compatible, lo que facilita la transición a una certificación formal con un verificador acreditado ISO 14064-3."
                 color="border-blue-300 bg-blue-50 text-blue-700" />
               <StandardBadge name="📊 IPCC AR6 — Sexto Informe de Evaluación (2021)"
-                desc="Los factores de emisión del Panel Intergubernamental sobre Cambio Climático AR6 son el referente científico más actualizado. EcoMetriX los usa para convertir consumos (kWh, litros, m³) en kg CO₂ equivalente con la mayor precisión disponible."
+                desc="EcoMetriX usa los potenciales de calentamiento global (GWP) del sexto informe del Panel Intergubernamental sobre Cambio Climático (AR6), el referente científico más actualizado. Los factores de consumo provienen de fuentes oficiales: UPME para la electricidad en Colombia y EPA/IPCC para combustibles."
                 color="border-purple-300 bg-purple-50 text-purple-700" />
               <StandardBadge name="🇪🇺 CSRD / ESRS E1 — Directiva UE 2022/2464"
                 desc="La Corporate Sustainability Reporting Directive obliga a empresas europeas y sus proveedores a reportar sostenibilidad. EcoMetriX incluye un módulo de gap analysis CSRD con roadmap de cumplimiento para empresas que exportan a Europa."
@@ -739,14 +739,14 @@ export default function Manual() {
           <section>
             <SectionTitle id="integraciones" icon="🔗" n="07" title={t('manual.sections.integraciones')} />
             <p className="text-sm text-[#57534E] mb-5 leading-relaxed">
-              Conecta tu sistema contable para importar automáticamente facturas y gastos, eliminando el ingreso manual de datos.
+              Conecta tu sistema contable para importar automáticamente facturas y gastos, eliminando el ingreso manual de datos. El archivo CSV admite hasta 2 MB y 5.000 filas; los gastos de combustible sin cantidad se marcan "requiere cantidad (gal, m3 o kg)".
             </p>
             <div className="grid md:grid-cols-2 gap-4">
               {[
-                { nombre: 'Siigo',              tipo: 'API directa', desc: 'Conexión por API key. Importa facturas de compra y gastos de los últimos 90 días automáticamente.', badge: 'bg-blue-100 text-blue-700' },
+                { nombre: 'Siigo',              tipo: 'Próximamente', desc: 'Integración en desarrollo. Mientras tanto puedes importar tus facturas de Siigo por CSV.', badge: 'bg-blue-100 text-blue-700' },
                 { nombre: 'Alegra',             tipo: 'API directa', desc: 'Conexión por email + token. Importa gastos y compras a proveedores clasificados por categoría.', badge: 'bg-amber-100 text-amber-700' },
-                { nombre: 'SIESA Enterprise',   tipo: 'CSV / Excel', desc: 'Exporta el reporte de compras desde SIESA en Excel y cárgalo. Compatible con SIESA 8.5 y Enterprise.', badge: 'bg-green-100 text-green-700' },
-                { nombre: 'CSV / Excel genérico',tipo: 'Archivo', desc: 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.', badge: 'bg-gray-100 text-gray-700' },
+                { nombre: 'SIESA Enterprise',   tipo: 'CSV', desc: 'Exporta el reporte de compras desde SIESA, guárdalo como CSV y cárgalo. Compatible con SIESA 8.5 y Enterprise.', badge: 'bg-green-100 text-green-700' },
+                { nombre: 'CSV genérico',tipo: 'Archivo', desc: 'Para cualquier ERP. Descarga la plantilla y EcoMetriX mapea cada gasto a su categoría GHG.', badge: 'bg-gray-100 text-gray-700' },
                 { nombre: 'Foto de factura (IA)', tipo: 'Imagen', desc: 'Sube una foto de cualquier factura (JPG/PNG). La IA extrae consumos y los mapea automáticamente al alcance GHG correcto. Sin necesidad de ERP.', badge: 'bg-purple-100 text-purple-700' },
               ].map(({ nombre, tipo, desc, badge }) => (
                 <div key={nombre} className="bg-white rounded-2xl border border-[#E8F5F0] p-4">
@@ -776,13 +776,13 @@ export default function Manual() {
               {[
                 { nombre: 'Básico', precio: '$79.000 COP', periodo: '/mes — o $758.400/año (20% off)',
                   features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Soporte por email'],
-                  color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/pricing?plan=basico' },
+                  color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/precios?plan=basico' },
                 { nombre: 'Pro', precio: '$199.000 COP', periodo: '/mes — o $1.910.400/año (20% off)',
-                  features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API', 'Soporte prioritario'],
-                  color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/pricing?plan=pro', badge: t('pricing.popular') },
+                  features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'],
+                  color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/precios?plan=pro', badge: t('pricing.popular') },
                 { nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes — o $4.790.400/año (20% off)',
-                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'],
-                  color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/pricing?plan=enterprise' },
+                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'SLA garantizado', 'Factura electrónica'],
+                  color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/precios?plan=enterprise' },
               ].map(({ nombre, precio, periodo, features, color, btn, link, badge }) => (
                 <div key={nombre} className={`bg-white rounded-2xl border-2 ${color} p-5 flex flex-col`}>
                   {badge && <span className="text-xs bg-[#1D9E75] text-white font-bold px-2 py-0.5 rounded-full self-start mb-2">{badge}</span>}
