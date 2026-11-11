@@ -211,11 +211,11 @@ export default function ReductionPlan() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/pricing?plan=basico"
+              <a href="/precios?plan=basico"
                 className="bg-emerald-500 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-emerald-400 transition-all">
                 Activar desde $79.000/mes →
               </a>
-              <a href="/pricing"
+              <a href="/precios"
                 className="border border-zinc-700 text-zinc-400 text-sm font-medium px-6 py-3 rounded-xl hover:bg-zinc-900 transition-all">
                 {t('pricing.badge')}
               </a>

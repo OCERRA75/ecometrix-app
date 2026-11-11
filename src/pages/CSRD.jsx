@@ -459,7 +459,7 @@ function CTAUpgrade() {
             ))}
           </ul>
           <div className="flex gap-2 flex-wrap">
-            <a href="/pricing" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">{t('pricing.badge')} →</a>
+            <a href="/precios" className="bg-white text-brand-400 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-brand-50 transition-colors">{t('pricing.badge')} →</a>
             <a href="mailto:contacto@ecometrix.app" className="bg-white/20 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-white/30 transition-colors">{t('pricing.contactSales')}</a>
           </div>
         </div>
