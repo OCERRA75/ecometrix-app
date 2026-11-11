@@ -33,9 +33,9 @@ const PLANES = [
     features: [
       'Todo lo del Básico',
       'Módulo CSRD/ESRS completo',
-      'Integraciones ERP (Siigo, Alegra, CSV)',
+      'Integraciones ERP (Alegra y CSV)',
       'Calculador SBTi v2',
-      'Acceso API (1000 req/mes)',
+      'Acceso API (100 solicitudes/hora)',
       'Soporte prioritario',
     ],
     no: [],
@@ -50,11 +50,9 @@ const PLANES = [
     badge: null,
     features: [
       'Todo lo del Pro',
-      'Múltiples usuarios',
-      'API ilimitada',
-      'White-label disponible',
+      'API (1.000 solicitudes/hora)',
+      'Informe de soporte para verificación externa',
       'Onboarding personalizado',
-      'SLA garantizado',
       'Factura electrónica',
     ],
     no: [],
@@ -91,7 +89,7 @@ const FAQ_PRECIOS = [
   },
   {
     q: '¿Los datos de mi empresa están seguros?',
-    a: 'Sí. Todos los datos se almacenan cifrados en Supabase (infraestructura AWS) y nunca son compartidos con terceros.',
+    a: 'Sí. Los datos se almacenan cifrados en Supabase (infraestructura AWS) y no se venden ni se comparten con terceros. Solo los proveedores necesarios para operar el servicio (alojamiento, correo, pagos e inteligencia artificial) procesan la información que cada función requiere.',
   },
 ]
 
@@ -397,8 +395,7 @@ export default function Pricing() {
                   { label: 'Integraciones ERP',            basico: false, pro: true,  ent: true },
                   { label: 'Calculador SBTi v2',           basico: false, pro: true,  ent: true },
                   { label: 'Acceso API',                   basico: false, pro: true,  ent: true },
-                  { label: 'Multi-usuario / White-label',  basico: false, pro: false, ent: true },
-                  { label: 'SLA + Factura electrónica',    basico: false, pro: false, ent: true },
+                  { label: 'Factura electrónica',    basico: false, pro: false, ent: true },
                 ].map(row => (
                   <tr key={row.label}>
                     <td className="py-2.5 pr-4 text-zinc-300">{row.label}</td>

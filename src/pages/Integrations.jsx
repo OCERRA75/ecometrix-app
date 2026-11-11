@@ -340,7 +340,7 @@ function CSVImporterCard({ connector, onSuccess }) {
             <p className="text-2xl mb-2">📂</p>
             <p className="text-sm font-medium text-text-primary mb-1">{t('integrations.uploadFile')}</p>
             <p className="text-xs text-text-muted">{t('integrations.supportedFormats')}</p>
-            <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFile} />
+            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
           </div>
           <button onClick={downloadTemplate}
             className="w-full py-2 rounded-xl border border-border text-xs text-text-secondary hover:bg-surface-tertiary transition-colors flex items-center justify-center gap-2">
