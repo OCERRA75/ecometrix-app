@@ -69,7 +69,7 @@ const ACCESOS_PLAN = {
 const FAQ_PRECIOS = [
   {
     q: '¿Puedo cancelar en cualquier momento?',
-    a: 'Sí. No hay contratos ni permanencia mínima. Puedes cancelar desde tu perfil y tu plan seguirá activo hasta el fin del periodo pagado.',
+    a: 'Sí. No hay contratos ni permanencia mínima. Los planes no se renuevan automáticamente: tu plan seguirá activo hasta el fin del periodo pagado y puedes renovarlo desde esta página cuando quieras.',
   },
   {
     q: '¿Emiten factura electrónica?',
@@ -85,7 +85,7 @@ const FAQ_PRECIOS = [
   },
   {
     q: '¿Puedo cambiar de plan después?',
-    a: 'Claro. Puedes subir o bajar de plan en cualquier momento. El cambio aplica al siguiente ciclo de facturación.',
+    a: 'Puedes subir de plan en cualquier momento: el nuevo plan se activa de inmediato y su periodo cuenta desde el pago. Para bajar de plan, espera a que venza el actual y renueva con el plan que prefieras.',
   },
   {
     q: '¿Los datos de mi empresa están seguros?',
@@ -170,6 +170,7 @@ export default function Pricing() {
   const [loading, setLoading] = useState(null)
   const [loadingAuth, setLoadingAuth] = useState(true)
   const [anual, setAnual] = useState(false)
+  const [venceEn, setVenceEn] = useState(null)
 
   const urlParams = new URLSearchParams(window.location.search)
   const pagoExitoso = urlParams.get('pago') === 'exitoso'
@@ -179,6 +180,9 @@ export default function Pricing() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user)
+        supabase.from('profiles').select('plan_vence_en').eq('id', user.id).single()
+          .then(({ data }) => setVenceEn(data?.plan_vence_en || null))
+          .catch(() => {})
         supabase
           .from('effective_plan')
           .select('plan_efectivo, role')
@@ -221,7 +225,7 @@ export default function Pricing() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ plan_id: plan.id, monto_override: precioFinal * 100, periodo: anual ? 'anual' : 'mensual' }),
+        body: JSON.stringify({ plan_id: plan.id, periodo: anual ? 'anual' : 'mensual' }),
       })
       const json = await res.json()
       if (!json.ok) throw new Error(json.message || json.error)
@@ -295,6 +299,8 @@ export default function Pricing() {
             const esPreseleccionado = planPreseleccionado === plan.id
             const precioFinal = anual ? Math.round(plan.precioMes * 12 * 0.8) : plan.precioMes
             const precioOriginal = anual ? plan.precioMes * 12 : null
+            const diasRestantes = venceEn ? Math.ceil((new Date(venceEn).getTime() - Date.now()) / 86400000) : null
+            const porVencer = esActual && !esSuperadmin && plan.id === planActual && diasRestantes !== null && diasRestantes <= 7
 
             return (
               <div key={plan.id} id={`plan-${plan.id}`}
@@ -339,8 +345,22 @@ export default function Pricing() {
                 </div>
 
                 {esActual ? (
-                  <div className="w-full py-2.5 rounded-xl text-center text-sm bg-emerald-500/20 text-emerald-400 font-medium border border-emerald-500/30">
-                    ✓ Plan activo
+                  <div className="space-y-2">
+                    <div className="w-full py-2.5 rounded-xl text-center text-sm bg-emerald-500/20 text-emerald-400 font-medium border border-emerald-500/30">
+                      ✓ Plan activo
+                    </div>
+                    {venceEn && !esSuperadmin && plan.id === planActual && (
+                      <p className="text-xs text-zinc-500 text-center">
+                        {diasRestantes > 0 ? `Activo hasta el ${new Date(venceEn).toLocaleDateString('es-CO')}` : 'Tu plan venció — renuévalo para conservarlo'}
+                      </p>
+                    )}
+                    {porVencer && !esEnterprise && (
+                      <button onClick={() => handlePagar(plan)}
+                        disabled={loading === plan.id || loadingAuth}
+                        className="w-full py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 text-white hover:bg-emerald-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        {loading === plan.id ? 'Procesando...' : `Renovar ${plan.nombre}`}
+                      </button>
+                    )}
                   </div>
                 ) : esSuperadmin ? (
                   <div className="w-full py-2.5 rounded-xl text-center text-sm bg-zinc-800 text-zinc-500 border border-zinc-700">

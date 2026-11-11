@@ -25,10 +25,13 @@ export function verificarFirma(evento, secret, headerChecksum) {
   return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
-async function enviarEmailConfirmacion(email, plan_id) {
+async function enviarEmailConfirmacion(email, plan_id, venceEn) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return
   const nombre = PLAN_NOMBRES[plan_id] || plan_id
+  const hasta = venceEn
+    ? new Date(venceEn).toLocaleDateString('es-CO', { timeZone: 'America/Bogota', day: '2-digit', month: 'long', year: 'numeric' })
+    : null
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -45,6 +48,7 @@ async function enviarEmailConfirmacion(email, plan_id) {
           <p style="color:#555">Tu <strong>${nombre}</strong> ya está activo. Ahora tienes acceso completo a todas las funciones incluidas en tu plan.</p>
           <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:20px 0">
             <p style="margin:0;color:#166534;font-weight:600">Plan activado: ${nombre}</p>
+            ${hasta ? `<p style="margin:8px 0 0;color:#166534;font-size:14px">Vigente hasta el ${hasta}. No se renueva automáticamente: puedes renovarlo desde la página de planes.</p>` : ''}
           </div>
           <a href="https://www.ecometrix.app/dashboard"
              style="display:inline-block;background:#1d9e75;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
@@ -75,7 +79,7 @@ export default async function handler(req, res) {
 
     const { data: pago, error: pagoError } = await supabase
       .from('pagos')
-      .select('user_id, plan_id, monto_cop, estado')
+      .select('user_id, plan_id, monto_cop, estado, periodo')
       .eq('referencia', reference)
       .maybeSingle()
 
@@ -109,11 +113,21 @@ export default async function handler(req, res) {
     }
 
     if (status === 'APPROVED' && !yaAprobado) {
+      // Vigencia: 30 días (mensual) o 365 (anual). Si renueva el mismo plan aún vigente, se suma al vencimiento actual.
+      const { data: perfilActual } = await supabase
+        .from('profiles').select('plan, plan_vence_en').eq('id', pago.user_id).maybeSingle()
+      const dias = pago.periodo === 'anual' ? 365 : 30
+      const ahoraMs = Date.now()
+      const venceActual = perfilActual?.plan_vence_en ? new Date(perfilActual.plan_vence_en).getTime() : 0
+      const baseMs = (perfilActual?.plan === pago.plan_id && venceActual > ahoraMs) ? venceActual : ahoraMs
+      const venceEn = new Date(baseMs + dias * 86400000).toISOString()
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
           plan: pago.plan_id,
           plan_activado_en: new Date().toISOString(),
+          plan_vence_en: venceEn,
           trial_plan: null,
           trial_expires_at: null,
         })
@@ -126,7 +140,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'db_error' })
       }
       const { data: userData } = await supabase.auth.admin.getUserById(pago.user_id)
-      if (userData?.user?.email) await enviarEmailConfirmacion(userData.user.email, pago.plan_id)
+      if (userData?.user?.email) await enviarEmailConfirmacion(userData.user.email, pago.plan_id, venceEn)
       console.log(`Plan ${pago.plan_id} activado para user ${pago.user_id}`)
     }
 
