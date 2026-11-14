@@ -1,8 +1,9 @@
-﻿// api/internal.js
+// api/internal.js
 // Consolida 5 funciones desactivadas en una sola para respetar limite Hobby de Vercel
 // Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|send-report
 
 import { createClient } from '@supabase/supabase-js'
+import { randomBytes } from 'node:crypto'
 import { generateGenericCsv } from '../src/lib/generateGenericCsv.js'
 
 // ── CORS helper ────────────────────────────────────────────────────────────────
@@ -13,58 +14,81 @@ function setCORS(res) {
 }
 
 // ── GET-CERTIFICATION ──────────────────────────────────────────────────────────
+// Seguridad: exige sesión, lee el diagnóstico desde la base de datos (nunca del body)
+// y solo certifica diagnósticos que pertenecen al usuario autenticado.
+// El puntaje refleja el desempeño: el nivel de impacto pesa 45 de 100, así que un impacto
+// Alto no puede llegar a "Líder Sostenible".
+function codigoVerificacion(score) {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'  // 32 símbolos, sin O/0/I/1
+  const b = randomBytes(6)
+  let s = ''
+  for (let i = 0; i < 6; i++) s += A[b[i] % A.length]
+  return `ECO-${s}-${score}`
+}
+
 async function getCertification(req, res) {
-  const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' })
+  const supabase = createClient(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
 
-  const { diagnostico_id, empresa, calculo, analisis } = req.body
-  if (!calculo || !empresa) return res.status(400).json({ error: 'Missing required fields: empresa, calculo' })
+  const token = req.headers.authorization?.replace('Bearer ', '')
+  if (!token) return res.status(401).json({ error: 'Token requerido' })
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  if (authError || !user) return res.status(401).json({ error: 'Token invalido' })
 
-  if (diagnostico_id) {
-    const { data: cached } = await supabase
-      .from('certificaciones')
-      .select('score, level, level_name, breakdown, badges_earned, verification_code, issued_at, empresa_nombre')
-      .eq('diagnostico_id', diagnostico_id)
-      .single()
-    if (cached) {
-      return res.status(200).json({
-        score: cached.score, level: cached.level, level_name: cached.level_name,
-        breakdown: cached.breakdown, badges_earned: cached.badges_earned,
-        new_badges: cached.badges_earned.map(b => b.badge_key),
-        verification_code: cached.verification_code,
-        certification: { empresa_nombre: cached.empresa_nombre, issued_at: cached.issued_at },
-        _cache: 'hit',
-      })
-    }
+  const diagnostico_id = req.body?.diagnostico_id
+  if (!diagnostico_id) return res.status(400).json({ error: 'diagnostico_id requerido' })
+
+  const { data: diag } = await supabase
+    .from('diagnosticos').select('empresa, calculo, analisis')
+    .eq('id', diagnostico_id).eq('user_id', user.id).maybeSingle()
+  if (!diag?.calculo || !diag?.empresa) return res.status(404).json({ error: 'Diagnostico no encontrado' })
+  const { empresa, calculo, analisis } = diag
+
+  const { data: cached } = await supabase
+    .from('certificaciones')
+    .select('score, level, level_name, breakdown, badges_earned, verification_code, issued_at, empresa_nombre')
+    .eq('diagnostico_id', diagnostico_id)
+    .maybeSingle()
+  if (cached) {
+    return res.status(200).json({
+      score: cached.score, level: cached.level, level_name: cached.level_name,
+      breakdown: cached.breakdown, badges_earned: cached.badges_earned,
+      new_badges: [],
+      verification_code: cached.verification_code,
+      certification: { empresa_nombre: cached.empresa_nombre, issued_at: cached.issued_at },
+      _cache: 'hit',
+    })
   }
 
+  const nPlan = analisis?.plan_accion?.length || 0
   const breakdown = {
-    alcances_1_2: calculo.alcance1 > 0 && calculo.alcance2 > 0 ? 30 : calculo.alcance1 > 0 ? 20 : 0,
-    alcance_3: calculo.alcance3 > 0 ? 15 : 0,
-    plan_accion: Math.min(25, (analisis?.plan_accion?.length || 0) * 5),
-    nivel_impacto: calculo.nivelImpacto === 'Bajo' ? 20 : calculo.nivelImpacto === 'Moderado' ? 10 : 5,
+    alcances_1_2: calculo.alcance1 > 0 && calculo.alcance2 > 0 ? 20 : calculo.alcance1 > 0 ? 13 : 0,
+    alcance_3: calculo.alcance3 > 0 ? 10 : 0,
+    plan_accion: Math.min(15, nPlan * 3),
+    nivel_impacto: calculo.nivelImpacto === 'Bajo' ? 45 : calculo.nivelImpacto === 'Moderado' ? 20 : 0,
     perfil_empresa: empresa.nombre && empresa.sector && empresa.tamano && empresa.pais ? 10 : 5,
   }
   const score = Object.values(breakdown).reduce((a, b) => a + b, 0)
   const level = score >= 85 ? 4 : score >= 65 ? 3 : score >= 40 ? 2 : 1
-  const levelNames = { 1: 'Iniciado Verde', 2: 'Comprometido', 3: 'Avanzado', 4: 'Lider Sostenible' }
+  const levelNames = { 1: 'Iniciado Verde', 2: 'Comprometido', 3: 'Avanzado', 4: 'Líder Sostenible' }
   const badgesEarned = [{ badge_key: 'first_emission' }]
   if (calculo.alcance3 > 0) badgesEarned.push({ badge_key: 'full_scope' })
-  if ((analisis?.plan_accion?.length || 0) >= 3) badgesEarned.push({ badge_key: 'planner' })
+  if (nPlan >= 3) badgesEarned.push({ badge_key: 'planner' })
   if (calculo.nivelImpacto === 'Bajo') badgesEarned.push({ badge_key: 'low_impact' })
   if (score >= 90) badgesEarned.push({ badge_key: 'leader' })
-  const shortId = (diagnostico_id || 'DIAG').slice(0, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X')
-  const verification_code = `ECO-${shortId}-${score}`
-  const certId = `cert_${diagnostico_id || Date.now()}`
+  const verification_code = codigoVerificacion(score)
+  const certId = `cert_${diagnostico_id}`
   const issuedAt = new Date().toISOString()
 
-  try {
-    await supabase.from('certificaciones').upsert({
-      id: certId, diagnostico_id: diagnostico_id || null, user_id: null,
-      empresa_nombre: empresa.nombre, score, level, level_name: levelNames[level],
-      verification_code, badges_earned: badgesEarned, breakdown, issued_at: issuedAt,
-    }, { onConflict: 'diagnostico_id' })
-  } catch (err) { console.warn('Cert save error:', err) }
+  const { error: upErr } = await supabase.from('certificaciones').upsert({
+    id: certId, diagnostico_id, user_id: user.id,
+    empresa_nombre: empresa.nombre, score, level, level_name: levelNames[level],
+    verification_code, badges_earned: badgesEarned, breakdown, issued_at: issuedAt,
+  }, { onConflict: 'diagnostico_id' })
+  if (upErr) {
+    console.error('Cert save error:', upErr)
+    return res.status(500).json({ error: 'cert_save_failed' })
+  }
 
   return res.status(200).json({
     score, level, level_name: levelNames[level], breakdown, badges_earned: badgesEarned,
@@ -151,8 +175,10 @@ async function processIaQueue(req, res) {
         const { diagnostico_id, empresa, calculo } = JSON.parse(job.payload)
         const prompt = `Eres consultor experto en huella de carbono (GHG Protocol, ISO 14064).
 Empresa: ${empresa.nombre} | Sector: ${empresa.sector} | Tamano: ${empresa.tamano} | Pais: ${empresa.pais}
+Fuentes (kg CO2e/mes): ${(calculo.detalles || []).map(d => `${d.categoria} ${d.kgCO2e}`).join('; ')}
 Alcance 1: ${calculo.alcance1} kg CO2e/mes | Alcance 2: ${calculo.alcance2} kg CO2e/mes | Alcance 3: ${calculo.alcance3} kg CO2e/mes | TOTAL: ${calculo.totalTonAnio} ton CO2e/anio | Nivel: ${calculo.nivelImpacto}
-Genera JSON exacto sin markdown: {"resumen_ejecutivo":"2-3 oraciones","principales_fuentes":["f1","f2","f3"],"benchmark":"comparacion sectorial","plan_accion":[{"accion":"desc","reduccion_pct":15,"dificultad":"Facil","plazo":"1-3 meses"},{"accion":"desc","reduccion_pct":20,"dificultad":"Media","plazo":"3-6 meses"},{"accion":"desc","reduccion_pct":25,"dificultad":"Media","plazo":"6-12 meses"},{"accion":"desc","reduccion_pct":10,"dificultad":"Facil","plazo":"1-3 meses"},{"accion":"desc","reduccion_pct":30,"dificultad":"Dificil","plazo":"12-24 meses"}],"siguiente_paso":"recomendacion"}`
+Genera JSON exacto sin markdown: {"resumen_ejecutivo":"2-3 oraciones","principales_fuentes":["f1","f2","f3"],"benchmark":"comparacion sectorial","plan_accion":[{"accion":"desc","reduccion_pct":N,"dificultad":"Facil|Media|Dificil","plazo":"1-3 meses"}],"siguiente_paso":"recomendacion"}
+Reglas: 5 acciones ordenadas por impacto, enfocadas en las fuentes de mayor emision de la lista. reduccion_pct es el % de la huella TOTAL que esa accion reduciria (entero y realista); la suma de las 5 no debe superar 50. No propongas acciones sobre fuentes que no aparecen en la lista.`
 
         const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -165,6 +191,11 @@ Genera JSON exacto sin markdown: {"resumen_ejecutivo":"2-3 oraciones","principal
         const jsonMatch = text.match(/\{[\s\S]*\}/)
         if (!jsonMatch) throw new Error('Claude no devolvio JSON valido')
         const analisis = JSON.parse(jsonMatch[0])
+        // Tope de seguridad: si el modelo se pasa, se reescalan los porcentajes para que sumen 50
+        if (Array.isArray(analisis.plan_accion)) {
+          const suma = analisis.plan_accion.reduce((s, a) => s + (Number(a.reduccion_pct) || 0), 0)
+          if (suma > 60) analisis.plan_accion = analisis.plan_accion.map(a => ({ ...a, reduccion_pct: Math.max(1, Math.round((Number(a.reduccion_pct) || 0) * 50 / suma)) }))
+        }
 
         await fetch(`${supabaseUrl}/rest/v1/diagnosticos?id=eq.${diagnostico_id}`, {
           method: 'PATCH', headers: { ...headers, 'Prefer': 'return=minimal' },

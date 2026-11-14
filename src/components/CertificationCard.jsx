@@ -1,6 +1,7 @@
 // src/components/CertificationCard.jsx
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { supabase } from '@/lib/supabase.js'
 
 // ── Configuración de niveles ──────────────────────────────────────────────────
 
@@ -212,7 +213,7 @@ function DiplomaCanvas({ cert, level, earnedKeys, canvasRef }) {
     ctx.fillStyle = level.hexLight
     ctx.font = `bold 36px Georgia, serif`
     ctx.textAlign = 'center'
-    ctx.fillText(`${level.icon}  ${cert.level_name}`, W / 2, 398)
+    ctx.fillText(`${level.icon}  ${level.name}`, W / 2, 398)
 
     // Score círculo
     const cx = W / 2, cy = 460, r = 44
@@ -341,17 +342,14 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
     setLoading(true)
     setError(null)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Inicia sesión para ver tu certificación.')
       const res = await fetch('/api/internal?route=get-certification', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          diagnostico_id: diagnosticoData.id,
-          user_id: userId,
-          empresa: diagnosticoData.empresa,
-          calculo: diagnosticoData.calculo,
-          analisis: diagnosticoData.analisis,
-        }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ diagnostico_id: diagnosticoData.id }),
       })
+      if (res.status === 404) throw new Error('Este diagnóstico no está guardado en tu cuenta, por eso no se puede certificar.')
       if (!res.ok) throw new Error(`Error ${res.status}`)
       const data = await res.json()
       setCert(data)
@@ -404,7 +402,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
     nivel_impacto:  'Nivel de impacto',
     perfil_empresa: 'Perfil empresa',
   }
-  const breakdownMax = { alcances_1_2: 30, alcance_3: 15, plan_accion: 25, nivel_impacto: 20, perfil_empresa: 10 }
+  const breakdownMax = { alcances_1_2: 20, alcance_3: 10, plan_accion: 15, nivel_impacto: 45, perfil_empresa: 10 }
 
   if (loading) {
     return (
@@ -454,7 +452,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
             </span>
             <h3 className="text-xl font-bold text-white leading-tight flex items-center gap-2">
               <span>{level.icon}</span>
-              <span>{cert.level_name}</span>
+              <span>{level.name}</span>
             </h3>
             <span className="text-sm text-gray-300 truncate">
               {cert.certification?.empresa_nombre}
