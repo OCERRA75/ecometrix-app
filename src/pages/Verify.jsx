@@ -56,38 +56,17 @@ export default function Verify() {
 
     async function verificar() {
       try {
-        // Buscar en Supabase por verification_code
+        // Solo es válido un código que exista en la base de datos. No se acepta ningún código "parseado".
         const { data, error } = await supabase
           .from('certificaciones')
-          .select('*')
-          .eq('verification_code', codigo.toUpperCase())
-          .single()
+          .select('score, level, level_name, breakdown, badges_earned, verification_code, issued_at, empresa_nombre')
+          .eq('verification_code', codigo.trim().toUpperCase())
+          .maybeSingle()
 
-        if (error || !data) {
-          // Fallback: parsear del código si no está en DB
-          const parts = codigo.toUpperCase().split('-')
-          const score = parseInt(parts[parts.length - 1])
-          if (!isNaN(score) && score >= 0 && score <= 100 && codigo.startsWith('ECO-')) {
-            const level = score >= 85 ? 4 : score >= 65 ? 3 : score >= 40 ? 2 : 1
-            setCert({
-              verification_code: codigo.toUpperCase(),
-              score,
-              level,
-              level_name: LEVEL_CONFIG[level].name,
-              empresa_nombre: 'Empresa verificada',
-              issued_at: null,
-              badges_earned: [],
-              breakdown: null,
-              source: 'parsed', // indica que viene del fallback
-            })
-            setStatus('valid')
-          } else {
-            setStatus('invalid')
-          }
-          return
-        }
+        if (error) { console.error('Verify error:', error); setStatus('error'); return }
+        if (!data) { setStatus('invalid'); return }
 
-        setCert({ ...data, source: 'supabase' })
+        setCert(data)
         setStatus('valid')
       } catch (err) {
         console.error('Verify error:', err)
@@ -138,7 +117,7 @@ export default function Verify() {
                   </svg>
                 </div>
                 <span className="text-sm font-semibold text-brand-400">
-                  {cert.source === 'supabase' ? 'Certificado verificado en base de datos' : 'Certificado verificado'}
+                  Certificado registrado en EcoMetriX
                 </span>
               </div>
 
@@ -151,7 +130,7 @@ export default function Verify() {
                     <span>{level.icon}</span>
                     <span>{cert.level_name}</span>
                   </h2>
-                  {cert.empresa_nombre && cert.empresa_nombre !== 'Empresa verificada' && (
+                  {cert.empresa_nombre && (
                     <p className="text-sm text-text-secondary mt-1">{cert.empresa_nombre}</p>
                   )}
                   {cert.issued_at && (
@@ -165,7 +144,7 @@ export default function Verify() {
               </div>
 
               {/* Breakdown si viene de Supabase */}
-              {cert.source === 'supabase' && cert.breakdown && (
+              {cert.breakdown && (
                 <div className="mb-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Puntuación detallada</p>
                   <div className="space-y-1.5">
@@ -177,7 +156,7 @@ export default function Verify() {
                         nivel_impacto: 'Nivel de impacto',
                         perfil_empresa: 'Perfil empresa',
                       }
-                      const maxMap = { alcances_1_2: 30, alcance_3: 15, plan_accion: 25, nivel_impacto: 20, perfil_empresa: 10 }
+                      const maxMap = { alcances_1_2: 20, alcance_3: 10, plan_accion: 15, nivel_impacto: 45, perfil_empresa: 10 }
                       const pct = Math.round((val / (maxMap[key] || 30)) * 100)
                       return (
                         <div key={key} className="flex items-center gap-2">
@@ -221,16 +200,16 @@ export default function Verify() {
 
               {/* Estándares */}
               <div className="mb-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Estándares aplicados</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Referencias metodológicas</p>
                 <div className="flex flex-wrap gap-2">
-                  {['GHG Protocol', 'ISO 14064-1 compatible', ...(cert.score >= 65 ? ['CSRD/ESRS E1 parcial'] : [])].map(s => (
+                  {['GHG Protocol', 'ISO 14064-1', 'IPCC AR6'].map(s => (
                     <span key={s} className="text-xs bg-white/70 border border-white/80 rounded-lg px-2.5 py-1 font-medium text-text-secondary">{s}</span>
                   ))}
                 </div>
               </div>
 
               <p className="text-xs text-text-muted text-center leading-relaxed">
-                Este certificado fue emitido por EcoMetriX basándose en el diagnóstico de huella de carbono siguiendo el GHG Protocol Corporate Standard e IPCC AR6.
+                Sello de autodiagnóstico EcoMetriX, calculado a partir de los datos declarados por la organización con referencia al GHG Protocol Corporate Standard e IPCC AR6. No constituye verificación de tercera parte (ISO 14064-3).
               </p>
             </div>
           )}
