@@ -365,7 +365,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
   useEffect(() => {
     if (diagnosticoData) obtenerCertificacion()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [diagnosticoData?.id])
+  }, [diagnosticoData?.id, userId])
 
   async function descargarPDF() {
     if (!cert || !canvasRef.current) return
@@ -428,7 +428,11 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
   if (!cert) {
     return (
       <div className="rounded-2xl border border-white/10 bg-gray-900 p-8 text-center">
-        <p className="text-gray-500 text-sm">Completa tu diagnóstico para obtener tu certificación.</p>
+        <p className="text-gray-400 text-sm">
+          {userId
+            ? 'Completa tu diagnóstico para obtener tu certificación.'
+            : 'Inicia sesión con tu cuenta para obtener la certificación de este diagnóstico.'}
+        </p>
       </div>
     )
   }
