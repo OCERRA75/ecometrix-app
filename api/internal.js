@@ -1,6 +1,6 @@
 // api/internal.js
 // Consolida 5 funciones desactivadas en una sola para respetar limite Hobby de Vercel
-// Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|send-report
+// Rutas: POST/GET /api/internal?route=get-certification|get-reduction-plan|process-ia-queue|save-monthly-progress|export-csv|send-monthly-reminder|keep-alive
 
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes } from 'node:crypto'
@@ -253,66 +253,6 @@ async function saveMonthlyProgress(req, res) {
   }
 }
 
-// ── SEND-REPORT ────────────────────────────────────────────────────────────────
-async function sendReport(req, res) {
-  setCORS(res)
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-
-  try {
-    const { empresa, calculo, analisis, reporteId } = req.body
-    if (!empresa?.email) return res.status(400).json({ error: 'Email requerido' })
-
-    const resendKey = process.env.RESEND_API_KEY
-    if (!resendKey) return res.status(200).json({ sent: false, reason: 'no_api_key' })
-
-    const nivelColor = { 'Bajo': '#1D9E75', 'Moderado': '#F59E0B', 'Alto': '#EF4444' }
-    const htmlBody = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
-<body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;">
-<div style="max-width:600px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-  <div style="background:linear-gradient(135deg,#1D9E75,#16A34A);padding:32px 40px;text-align:center;">
-    <h1 style="color:white;margin:0;font-size:24px;">EcoMetriX</h1>
-    <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;">Tu diagnostico de huella de carbono esta listo</p>
-  </div>
-  <div style="padding:32px 40px;">
-    <p style="color:#374151;font-size:15px;">Hola <strong>${empresa.nombre}</strong>,</p>
-    <p style="color:#6B7280;font-size:14px;line-height:1.6;">Completaste tu diagnostico de huella de carbono. Aqui tienes un resumen:</p>
-    <div style="display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;">
-      <div style="flex:1;min-width:120px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px;text-align:center;">
-        <p style="color:#1D9E75;font-size:28px;font-weight:700;margin:0;">${calculo?.totalTonAnio || 0}</p>
-        <p style="color:#6B7280;font-size:12px;margin:4px 0 0;">ton CO2e/anio</p>
-      </div>
-      <div style="flex:1;min-width:120px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:16px;text-align:center;">
-        <p style="color:${nivelColor[calculo?.nivelImpacto] || '#6B7280'};font-size:20px;font-weight:700;margin:0;">${calculo?.nivelImpacto || 'N/A'}</p>
-        <p style="color:#6B7280;font-size:12px;margin:4px 0 0;">Nivel de impacto</p>
-      </div>
-    </div>
-    ${analisis?.resumen_ejecutivo ? `<div style="background:#F0FDF4;border-left:4px solid #1D9E75;border-radius:0 8px 8px 0;padding:16px;margin:0 0 24px;"><p style="color:#374151;font-size:14px;line-height:1.6;margin:0;">${analisis.resumen_ejecutivo}</p></div>` : ''}
-    <div style="text-align:center;margin:32px 0 24px;">
-      <a href="https://www.ecometrix.app/reporte/${reporteId}" style="background:#1D9E75;color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;display:inline-block;">Ver reporte completo</a>
-    </div>
-    <p style="color:#9CA3AF;font-size:12px;text-align:center;">EcoMetriX - GHG Protocol + ISO 14064</p>
-  </div>
-</div>
-</body></html>`
-
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
-      body: JSON.stringify({
-        from: 'EcoMetriX <onboarding@resend.dev>',
-        to: [empresa.email],
-        subject: `Tu huella de carbono: ${calculo?.totalTonAnio || 0} ton CO2e/anio - ${empresa.nombre}`,
-        html: htmlBody,
-      }),
-    })
-    const emailData = await emailRes.json()
-    if (!emailRes.ok) return res.status(200).json({ sent: false, error: emailData })
-    return res.status(200).json({ sent: true, id: emailData.id })
-  } catch (err) {
-    return res.status(500).json({ error: err.message })
-  }
-}
-
 // ── EXPORT-CSV ─────────────────────────────────────────────────────────────────
 async function exportCsv(req, res) {
   setCORS(res)
@@ -473,11 +413,10 @@ export default async function handler(req, res) {
     case 'get-reduction-plan':   return getReductionPlan(req, res)
     case 'process-ia-queue':     return processIaQueue(req, res)
     case 'save-monthly-progress':return saveMonthlyProgress(req, res)
-    case 'send-report':          return sendReport(req, res)
     case 'export-csv':           return exportCsv(req, res)
     case 'send-monthly-reminder':return sendMonthlyReminder(req, res)
     case 'keep-alive':           return keepAlive(req, res)
     default:
-      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','send-report','export-csv','send-monthly-reminder','keep-alive'] })
+      return res.status(400).json({ error: 'route requerido', routes: ['get-certification','get-reduction-plan','process-ia-queue','save-monthly-progress','export-csv','send-monthly-reminder','keep-alive'] })
   }
 }

@@ -282,7 +282,7 @@ export default function Pricing() {
         )}
 
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold mb-3">Planes EcoMetriX</h1>
+          <h1 className="text-3xl font-bold mb-3 text-white">Planes EcoMetriX</h1>
           <p className="text-zinc-400 max-w-lg mx-auto">
             Elige el plan que mejor se adapta a tu empresa. Todos incluyen diagnóstico gratuito para empezar.
           </p>
@@ -315,7 +315,7 @@ export default function Pricing() {
                 )}
 
                 <div className="mb-5">
-                  <h2 className="text-lg font-bold mb-1">{plan.nombre}</h2>
+                  <h2 className="text-lg font-bold mb-1 text-white">{plan.nombre}</h2>
                   <p className="text-zinc-500 text-xs mb-4">{plan.descripcion}</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold">{formatCOP(precioFinal)}</span>
@@ -440,7 +440,7 @@ export default function Pricing() {
         </div>
 
         <p className="text-center text-zinc-600 text-xs mt-10">
-          Pagos procesados de forma segura por Wompi · Acepta tarjetas, PSE y más · Cancela cuando quieras
+          Pagos procesados de forma segura por Wompi · Acepta tarjetas, PSE y más · Pago por periodo, sin renovación automática
         </p>
       </div>
     </div>
