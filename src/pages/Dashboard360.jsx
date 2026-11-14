@@ -107,7 +107,7 @@ function GreenwashingAlert({ score, respuestas }) {
 // ─── TIMELINE CHART ───────────────────────────────────────────────────────────
 function TimelineChart({ totalKgMes, planAccion }) {
   // Genera proyección de 12 meses basada en el plan de acción
-  const reduccionTotal = planAccion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) || 50
+  const reduccionTotal = planAccion?.reduce((acc, a) => acc + (a.reduccion_pct || 0), 0) ?? 0
   const reduccionMensual = reduccionTotal / 24 // distribuido en 2 años
 
   const data = Array.from({ length: 12 }, (_, i) => {
@@ -264,7 +264,7 @@ function HistorialComparativo({ historial, diagActualId }) {
     const totalTon = totalKg / 1000
     const nivel = c.nivelImpacto || (totalTon > 100 ? 'Alto' : totalTon > 30 ? 'Moderado' : 'Bajo')
     const scoreBase = nivel === 'Bajo' ? 75 : nivel === 'Moderado' ? 50 : 25
-    const score = Math.min(100, Math.max(10, scoreBase + Math.round(Math.random() * 10 - 5)))
+    const score = scoreBase
     return {
       id: d.id,
       empresa: d.empresa?.nombre || 'Diagnóstico',
@@ -599,7 +599,7 @@ export default function Dashboard360() {
       score: scores.carbono,
       icon: '🌍',
       color: 'green',
-      description: `Alcance 1 + 2: ${calculo.totalTonAnio} ton CO₂e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
+      description: `Alcances 1 + 2 + 3: ${calculo.totalTonAnio} ton CO₂e/año. Nivel ${calculo.nivelImpacto} para el sector ${empresa.sector}.`,
       actions: analisis?.plan_accion?.slice(0, 3).map(a => a.accion) || ['Medir emisiones regularmente', 'Reducir consumo energético'],
     },
     {
@@ -732,7 +732,7 @@ export default function Dashboard360() {
         {/* Timeline proyección */}
         <div className="card">
           <h3 className="font-semibold text-text-primary mb-1">Proyección de reducción — 12 meses</h3>
-          <p className="text-xs text-text-muted mb-4">Basada en el plan de acción recomendado (línea punteada = proyección)</p>
+          <p className="text-xs text-text-muted mb-4">Estimación orientativa basada en el plan de acción (línea punteada = proyección)</p>
           <TimelineChart totalKgMes={calculo.totalKgMes} planAccion={analisis?.plan_accion} />
         </div>
 

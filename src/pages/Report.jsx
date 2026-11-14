@@ -133,7 +133,7 @@ function PlanAccion({ acciones }) {
   return (
     <div className="card">
       <h3 className="font-semibold text-text-primary mb-1">{t('report.reductionPlan')}</h3>
-      <p className="text-xs text-text-muted mb-4">5 acciones priorizadas por impacto y facilidad</p>
+      <p className="text-xs text-text-muted mb-4">{acciones.length} acciones priorizadas por su aporte estimado a la reducción. Los porcentajes son orientativos, no compromisos.</p>
       <div className="space-y-3">
         {acciones.map((a, i) => (
           <div key={i} className="flex items-start gap-4 p-3.5 rounded-xl bg-surface-secondary hover:bg-surface-tertiary transition-colors">
@@ -143,7 +143,7 @@ function PlanAccion({ acciones }) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-text-primary mb-1.5">{a.accion}</p>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="badge-green">-{a.reduccion_pct}% emisiones</span>
+                <span className="badge-green">≈ -{a.reduccion_pct}% emisiones (est.)</span>
                 <span className={dificultadColor[a.dificultad] || 'badge-gray'}>{a.dificultad}</span>
                 <span className="badge-gray">{a.plazo}</span>
               </div>
@@ -388,7 +388,7 @@ export default function Report() {
         doc.setFillColor(...verde)
         doc.roundedRect(M, y, CW, 7, 2, 2, 'F')
         doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...blanco)
-        doc.text('03  Plan de Acción — 5 pasos prioritarios', M + 4, y + 5)
+        doc.text(`03  Plan de Acción — ${analisis.plan_accion.length} pasos prioritarios`, M + 4, y + 5)
         y += 11
 
         analisis.plan_accion.forEach((accion, i) => {
@@ -402,7 +402,7 @@ export default function Report() {
           const alines = doc.splitTextToSize(`${i+1}. ${accion.accion}`, CW - 55)
           doc.text(alines, M + 9, y + 5)
           doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
-          doc.text(`↓${accion.reduccion_pct}% · ${accion.dificultad} · ${accion.plazo}`, M + 9, y + 12)
+          doc.text(`≈ -${accion.reduccion_pct}% (est.) · ${accion.dificultad} · ${accion.plazo}`, M + 9, y + 12)
           y += 19
         })
         y += 4
@@ -415,7 +415,7 @@ export default function Report() {
         const blines = doc.splitTextToSize(analisis.benchmark, CW - 8)
         const bh = blines.length * 5 + 8
         doc.roundedRect(M, y, CW, bh, 2, 2, 'F')
-        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor([30,64,175])
+        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(30,64,175)
         doc.text('Benchmark sectorial:', M + 4, y + 5)
         doc.setFont('helvetica','normal'); doc.setTextColor(...gris)
         doc.text(blines, M + 4, y + 11)
@@ -430,7 +430,7 @@ export default function Report() {
       doc.text('04  Metodología y estándares aplicados', M + 4, y + 5)
       y += 11
 
-      const estandares = ['GHG Protocol Corporate Standard', 'ISO 14064-1:2018', 'IPCC AR6 (factores de emisión)', 'CSRD/ESRS E1 compatible', 'Science Based Targets (SBTi baseline)']
+      const estandares = ['GHG Protocol Corporate Standard', 'ISO 14064-1:2018', 'IPCC AR6 (factores de emisión)', 'Referencia: CSRD/ESRS E1', 'Referencia: SBTi (línea base)']
       const ew = (CW - 4) / 3
       estandares.forEach((e, i) => {
         const col = i % 3; const row = Math.floor(i / 3)
@@ -450,7 +450,7 @@ export default function Report() {
         doc.setFillColor(...verde)
         doc.rect(0, 287, W, 10, 'F')
         doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...blanco)
-        doc.text('EcoMetriX · ecometrix-app-one.vercel.app · GHG Protocol + ISO 14064', M, 293)
+        doc.text('EcoMetriX · www.ecometrix.app · GHG Protocol + ISO 14064', M, 293)
         doc.text(`Página ${p} de ${totalPages}`, W - M, 293, { align: 'right' })
       }
 
@@ -749,7 +749,7 @@ export default function Report() {
         </div>
 
         {/* Plan de acción */}
-        {analisis?.plan_accion && (
+        {analisis?.plan_accion?.length > 0 && (
           <div className="mb-6">
             <PlanAccion acciones={analisis.plan_accion} />
           </div>

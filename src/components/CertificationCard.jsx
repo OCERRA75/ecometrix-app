@@ -289,13 +289,19 @@ function DiplomaCanvas({ cert, level, earnedKeys, canvasRef }) {
     ctx.textAlign = 'right'
     ctx.fillText(`Emitido el ${fecha}`, W - 80, 648)
 
+    // Aviso de alcance
+    ctx.fillStyle = '#78716C'
+    ctx.font = 'italic 11px Georgia, serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('Sello de autodiagnóstico EcoMetriX basado en datos declarados por la organización. No constituye verificación de tercera parte (ISO 14064-3).', W / 2, 700)
+
     // Footer
     ctx.fillStyle = level.hexLight + 'BB'
     ctx.fillRect(18, H - 50, W - 36, 32)
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '11px Georgia, serif'
     ctx.textAlign = 'center'
-    ctx.fillText('EcoMetriX · GHG Protocol Corporate Standard · ISO 14064-1 · IPCC AR6 · ecometrix-app-one.vercel.app', W / 2, H - 29)
+    ctx.fillText('EcoMetriX · GHG Protocol Corporate Standard · ISO 14064-1 · IPCC AR6 · www.ecometrix.app', W / 2, H - 29)
 
   }, [cert, level, earnedKeys])
 
@@ -402,7 +408,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 flex flex-col items-center gap-4 animate-pulse">
+      <div className="rounded-2xl border border-white/10 bg-gray-900 p-8 flex flex-col items-center gap-4 animate-pulse">
         <div className="w-28 h-28 rounded-full bg-white/10" />
         <div className="h-4 w-40 bg-white/10 rounded-full" />
         <div className="h-3 w-56 bg-white/8 rounded-full" />
@@ -412,7 +418,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+      <div className="rounded-2xl border border-red-500/30 bg-gray-900 p-6 text-center">
         <p className="text-red-400 text-sm">{error}</p>
         <button onClick={obtenerCertificacion} className="mt-3 text-xs text-red-300 underline underline-offset-2">
           Reintentar
@@ -423,7 +429,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
 
   if (!cert) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+      <div className="rounded-2xl border border-white/10 bg-gray-900 p-8 text-center">
         <p className="text-gray-500 text-sm">Completa tu diagnóstico para obtener tu certificación.</p>
       </div>
     )
@@ -435,7 +441,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
       <DiplomaCanvas cert={cert} level={level} earnedKeys={earnedKeys} canvasRef={canvasRef} />
 
       <div className={`
-        rounded-2xl border ${level.border} bg-gradient-to-br ${level.bg}
+        rounded-2xl border ${level.border} bg-gray-900 bg-gradient-to-br ${level.bg}
         backdrop-blur-sm p-6 flex flex-col gap-6 transition-all duration-500
       `}>
 
@@ -513,6 +519,10 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
             ))}
           </div>
         </div>
+
+        <p className="text-[11px] text-gray-500 leading-snug">
+          Sello de autodiagnóstico basado en datos declarados. No constituye verificación de tercera parte.
+        </p>
 
         {/* CTA PDF */}
         <button

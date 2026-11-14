@@ -173,6 +173,43 @@ function calcularEmisiones(empresa, respuestas) {
   }
 }
 
+// Plan de respaldo (mientras la IA no responde): basado en las fuentes reales de cada diagnóstico.
+// El % de reducción = peso de la fuente en el total × potencial típico de reducción de esa categoría,
+// así nunca puede sumar más que la huella real. Son estimaciones orientativas, no compromisos.
+const ACCIONES_POR_CATEGORIA = {
+  'Combustibles estacionarios': { accion: 'Eficiencia y sustitución de combustibles en equipos estacionarios', potencial: 0.20, dificultad: 'Media', plazo: '6-12 meses' },
+  'Flota vehicular': { accion: 'Optimizar rutas, mantenimiento y conducción de la flota; evaluar vehículos híbridos o eléctricos', potencial: 0.20, dificultad: 'Media', plazo: '3-12 meses' },
+  'Generador eléctrico': { accion: 'Reducir horas de uso del generador y evaluar respaldo solar o con baterías', potencial: 0.30, dificultad: 'Media', plazo: '3-6 meses' },
+  'Gases refrigerantes (HFCs)': { accion: 'Mantenimiento preventivo de equipos de refrigeración para evitar fugas', potencial: 0.40, dificultad: 'Fácil', plazo: '1-3 meses' },
+  'Consumo eléctrico': { accion: 'Auditoría energética y contratación de energía renovable', potencial: 0.40, dificultad: 'Media', plazo: '3-6 meses' },
+  'Bienes y servicios comprados': { accion: 'Política de compras sostenibles y proveedores con menor huella', potencial: 0.15, dificultad: 'Media', plazo: '6-12 meses' },
+  'Transporte upstream (proveedores)': { accion: 'Consolidar pedidos y priorizar proveedores cercanos', potencial: 0.20, dificultad: 'Media', plazo: '3-6 meses' },
+  'Distribución a clientes': { accion: 'Optimizar la logística de distribución a clientes', potencial: 0.15, dificultad: 'Media', plazo: '6-12 meses' },
+  'Viajes de negocios': { accion: 'Política de viajes sostenibles (priorizar reuniones remotas)', potencial: 0.30, dificultad: 'Fácil', plazo: '1-3 meses' },
+  'Desplazamiento empleados': { accion: 'Programa de movilidad sostenible y teletrabajo parcial', potencial: 0.25, dificultad: 'Fácil', plazo: '1-3 meses' },
+  'Residuos generados': { accion: 'Programa de separación en la fuente y economía circular', potencial: 0.30, dificultad: 'Media', plazo: '6-12 meses' },
+}
+
+function construirAnalisisFallback(empresa, calculo) {
+  const total = calculo.detalles.reduce((s, d) => s + (d.kgCO2e || 0), 0) || 1
+  const ordenadas = [...calculo.detalles].sort((a, b) => (b.kgCO2e || 0) - (a.kgCO2e || 0))
+  const plan = ordenadas
+    .map(d => {
+      const t = ACCIONES_POR_CATEGORIA[d.categoria]
+      if (!t) return null
+      return { accion: t.accion, reduccion_pct: Math.max(1, Math.round((d.kgCO2e / total) * t.potencial * 100)), dificultad: t.dificultad, plazo: t.plazo, fuente: d.categoria }
+    })
+    .filter(Boolean)
+    .slice(0, 5)
+  return {
+    resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO₂e/año, con nivel de impacto ${calculo.nivelImpacto} para el sector ${empresa.sector}. El análisis detallado con IA se está generando.`,
+    principales_fuentes: ordenadas.slice(0, 3).map(d => d.categoria),
+    benchmark: `Las empresas del sector ${empresa.sector} de tamaño similar tienen huella promedio entre 5 y 50 ton CO₂e/año.`,
+    plan_accion: plan,
+    siguiente_paso: plan.length ? `Empezar por la mayor fuente de emisión (${plan[0].fuente}): ${plan[0].accion.charAt(0).toLowerCase()}${plan[0].accion.slice(1)}.` : 'Registrar tus consumos mensuales para identificar las mayores oportunidades de reducción.',
+  }
+}
+
 async function encolarAnalisisIA(supabaseUrl, supabaseKey, payload) {
   const r = await fetch(`${supabaseUrl}/rest/v1/jobs_queue`, {
     method: 'POST',
@@ -243,19 +280,7 @@ export default async function handler(req, res) {
 
     const calculo = calcularEmisiones(empresa, respuestas)
 
-    const analisisFallback = {
-      resumen_ejecutivo: `${empresa.nombre} tiene una huella de carbono de ${calculo.totalTonAnio} toneladas CO₂e/año, con nivel de impacto ${calculo.nivelImpacto} para el sector ${empresa.sector}. El análisis detallado con IA se está generando.`,
-      principales_fuentes: calculo.detalles.slice(0, 3).map(d => d.categoria),
-      benchmark: `Las empresas del sector ${empresa.sector} de tamaño similar tienen huella promedio entre 5 y 50 ton CO₂e/año.`,
-      plan_accion: [
-        { accion: 'Auditoría energética de instalaciones', reduccion_pct: 15, dificultad: 'Fácil', plazo: '1-3 meses' },
-        { accion: 'Migración a energías renovables', reduccion_pct: 40, dificultad: 'Media', plazo: '3-6 meses' },
-        { accion: 'Optimización de cadena de suministro', reduccion_pct: 20, dificultad: 'Media', plazo: '6-12 meses' },
-        { accion: 'Política de viajes sostenibles', reduccion_pct: 10, dificultad: 'Fácil', plazo: '1-3 meses' },
-        { accion: 'Programa de economía circular', reduccion_pct: 15, dificultad: 'Media', plazo: '6-12 meses' },
-      ],
-      siguiente_paso: 'Iniciar auditoría energética para identificar las mayores oportunidades de reducción.',
-    }
+    const analisisFallback = construirAnalisisFallback(empresa, calculo)
 
     const resultado = { id: diagnosticoId, user_id: userId || null, empresa, calculo, respuestas, analisis: analisisFallback, analisis_status: 'pending', timestamp: new Date().toISOString() }
 
