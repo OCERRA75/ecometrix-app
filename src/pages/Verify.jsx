@@ -57,16 +57,15 @@ export default function Verify() {
     async function verificar() {
       try {
         // Solo es válido un código que exista en la base de datos. No se acepta ningún código "parseado".
-        const { data, error } = await supabase
-          .from('certificaciones')
-          .select('score, level, level_name, breakdown, badges_earned, verification_code, issued_at, empresa_nombre')
-          .eq('verification_code', codigo.trim().toUpperCase())
-          .maybeSingle()
+        // La consulta va por una función de la base de datos que solo devuelve el certificado
+        // del código exacto: la tabla no es legible ni listable con la llave pública.
+        const { data, error } = await supabase.rpc('verificar_certificado', { p_codigo: codigo.trim().toUpperCase() })
 
         if (error) { console.error('Verify error:', error); setStatus('error'); return }
-        if (!data) { setStatus('invalid'); return }
+        const fila = Array.isArray(data) ? data[0] : data
+        if (!fila) { setStatus('invalid'); return }
 
-        setCert(data)
+        setCert(fila)
         setStatus('valid')
       } catch (err) {
         console.error('Verify error:', err)
