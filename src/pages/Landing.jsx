@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import LanguageSelector from '@/components/LanguageSelector.jsx'
+import { supabase } from '@/lib/supabase.js'
 
 const IconLeaf = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-white">
@@ -54,9 +55,31 @@ function useCounter(target, duration = 1500, startOnVisible = true) {
   return [count, ref]
 }
 
+// Usuario con sesión activa (null si no hay)
+function useSessionUser() {
+  const [user, setUser] = useState(null)
+  useEffect(() => {
+    let active = true
+    supabase.auth.getSession()
+      .then(({ data }) => { if (active) setUser(data?.session?.user ?? null) })
+      .catch(() => {})
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (active) setUser(session?.user ?? null)
+    })
+    return () => { active = false; sub?.subscription?.unsubscribe() }
+  }, [])
+  return user
+}
+
 function Navbar({ scrolled }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const user = useSessionUser()
+  const salir = async () => {
+    try { await supabase.auth.signOut() } catch (e) { console.error(e) }
+    setOpen(false)
+  }
+  const linkCls = scrolled ? 'text-text-secondary hover:text-brand-400' : 'text-white/80 hover:text-white'
 
   const navLinks = [
     [t('landing.nav.howItWorks'), '#como-funciona'],
@@ -79,6 +102,14 @@ function Navbar({ scrolled }) {
         </div>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSelector dark={!scrolled} />
+          {user ? (
+            <>
+              <a href="/dashboard" className={`text-sm font-medium px-2 transition-colors ${linkCls}`}>Mi cuenta</a>
+              <button onClick={salir} className={`text-sm font-medium px-2 transition-colors ${linkCls}`}>Cerrar sesión</button>
+            </>
+          ) : (
+            <a href="/login" className={`text-sm font-medium px-2 transition-colors ${linkCls}`}>Iniciar sesión</a>
+          )}
           <a href="/diagnostico" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-300 text-white text-sm font-medium hover:bg-brand-400 transition-all active:scale-95">
             {t('landing.nav.cta')} <IconArrow />
           </a>
@@ -94,6 +125,14 @@ function Navbar({ scrolled }) {
           {navLinks.map(([label, href]) => (
             <a key={href} href={href} className="text-sm font-medium text-text-secondary" onClick={() => setOpen(false)}>{label}</a>
           ))}
+          {user ? (
+            <>
+              <a href="/dashboard" className="text-sm font-medium text-text-secondary" onClick={() => setOpen(false)}>Mi cuenta</a>
+              <button onClick={salir} className="text-sm font-medium text-text-secondary text-left">Cerrar sesión</button>
+            </>
+          ) : (
+            <a href="/login" className="text-sm font-medium text-text-secondary" onClick={() => setOpen(false)}>Iniciar sesión</a>
+          )}
           <a href="/diagnostico" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-300 text-white text-sm font-medium">{t('landing.nav.cta')}</a>
         </div>
       )}
@@ -577,7 +616,7 @@ function PricingPreview() {
           ))}
         </div>
         <p className="text-center text-text-muted text-xs mt-8">
-          Diagnóstico gratuito para empezar · Sin tarjeta de crédito · Cancela cuando quieras
+          Diagnóstico gratuito para empezar · Sin tarjeta de crédito · Pago por periodo, sin renovación automática
         </p>
       </div>
     </section>
