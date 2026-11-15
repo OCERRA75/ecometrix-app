@@ -127,7 +127,7 @@ async function generarManualPDF() {
   doc.text('Guia completa para medir y gestionar', M, 142)
   doc.text('la huella de carbono de tu empresa', M, 152)
   doc.setFontSize(9)
-  doc.text(`Version 3.0  |  ${new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}`, M, 270)
+  doc.text(`Version 3.2  |  ${new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long' })}`, M, 270)
   doc.text('www.ecometrix.app', M, 278)
 
   // Índice
@@ -139,15 +139,15 @@ async function generarManualPDF() {
   y += 16
 
   const indice = [
-    ['01', 'Que es EcoMetriX', '3'],
-    ['02', 'Como funciona', '4'],
-    ['03', 'El diagnostico paso a paso', '5'],
-    ['04', 'Tu reporte de resultados', '7'],
-    ['05', 'Certificado y credibilidad', '9'],
-    ['06', 'Estandares aplicados', '10'],
-    ['07', 'Integraciones ERP', '12'],
-    ['08', 'Planes y precios', '13'],
-    ['09', 'Preguntas frecuentes', '14'],
+    ['01', 'Qué es EcoMetriX', '3'],
+    ['02', 'Cómo funciona', '3'],
+    ['03', 'El diagnóstico paso a paso', '4'],
+    ['04', 'Tu reporte de resultados', '5'],
+    ['05', 'Certificado y credibilidad', '6'],
+    ['06', 'Estándares aplicados', '7'],
+    ['07', 'Integraciones ERP', '8'],
+    ['08', 'Planes y precios', '9'],
+    ['09', 'Preguntas frecuentes', '10'],
   ]
 
   indice.forEach(([n, titulo, pg], i) => {
@@ -199,7 +199,7 @@ async function generarManualPDF() {
     items.forEach(item => {
       checkPage(8)
       doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...verde)
-      doc.text('→', M + 3, y)
+      doc.text('•', M + 3, y)
       doc.setTextColor(...gris)
       const lines = doc.splitTextToSize(item, W - M * 2 - 12)
       doc.text(lines, M + 10, y)
@@ -226,6 +226,20 @@ async function generarManualPDF() {
     doc.text(lines, M + 5, y + 6)
     y += h + 4
   }
+
+  // ── 01 y 02 ─────────────────────────────────────────────────────────────
+  addPage()
+  addSection('Qué es EcoMetriX', '01', '🌿')
+  addParagraph('EcoMetriX es la plataforma de medición de huella de carbono diseñada para PYMEs latinoamericanas. Combina inteligencia artificial con los estándares GHG Protocol e ISO 14064. Sirve a empresas de cualquier sector que necesiten medir, reportar y reducir sus emisiones de gases de efecto invernadero.')
+  addBullet(['Unos 10 minutos para el diagnóstico completo', '100% online, sin instalación', 'Diagnóstico inicial gratuito', 'Certificado verificable con código único público'])
+  y += 4
+  addSection('Cómo funciona', '02', '⚙️')
+  addBullet([
+    '1. Completa el cuestionario: responde sobre consumos energéticos, flota, compras y logística. Se adapta al sector de tu empresa.',
+    '2. Cálculo de tu huella: EcoMetriX usa factores de fuentes oficiales (UPME para electricidad en Colombia, EPA/IPCC para combustibles, GWP del IPCC AR6 para refrigerantes) y calcula los 3 alcances.',
+    '3. Análisis con IA: genera resumen ejecutivo, benchmark sectorial y un plan de reducción de 5 acciones priorizadas.',
+    '4. Reporte y certificado: URL permanente para compartir y certificado PDF con código de verificación único.',
+  ])
 
   // ── 03 Diagnóstico ──────────────────────────────────────────────────────
   addPage()
@@ -267,7 +281,7 @@ async function generarManualPDF() {
     ['4. Fuentes de emisión', 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (con su fuente: UPME, EPA o IPCC AR6). Los factores de países sin fuente oficial verificada se marcan como "estimado".'],
     ['5. Plan de reducción', '5 acciones priorizadas por impacto potencial y facilidad. Cada acción incluye % de reducción estimado, dificultad y plazo.'],
     ['6. Metodología aplicada', 'Badges con cobertura de cada estándar: GHG Protocol, ISO 14064-1, IPCC AR6, CSRD/ESRS E1, SBTi Baseline y GRI 305.'],
-    ['7. Certificación EcoMetriX', 'Score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros desbloqueados.'],
+    ['7. Certificación EcoMetriX', 'Sello de autodiagnóstico con score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros. Requiere haber iniciado sesión y se calcula con los datos que declaraste.'],
   ]
 
   modulos.forEach(([titulo, desc]) => {
@@ -285,7 +299,7 @@ async function generarManualPDF() {
   // ── 05 Certificado ──────────────────────────────────────────────────────
   addPage()
   addSection('Certificado y credibilidad', '05', '🏅')
-  addParagraph('Al completar el diagnóstico, EcoMetriX genera automáticamente un Certificado de Diagnóstico de Huella de Carbono. Este certificado tiene una puntuación calculada matemáticamente y un código de verificación único.')
+  addParagraph('Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un Certificado de Diagnóstico de Huella de Carbono: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único.')
   y += 4
 
   const niveles = [
@@ -306,7 +320,20 @@ async function generarManualPDF() {
   })
   y += 22
 
-  addInfoBox('Verificacion: Cualquier persona puede verificar un certificado en www.ecometrix.app/verificar/[CODIGO]. El sistema consulta la base de datos en tiempo real.', verdeClaro, verde)
+  addSubtitle('Cómo se calcula el score (máximo 100)')
+  addBullet([
+    'Alcances 1 y 2 declarados: hasta 20 puntos (13 si solo declaras el Alcance 1)',
+    'Alcance 3 declarado: 10 puntos',
+    'Plan de acción: 3 puntos por acción, hasta 15',
+    'Nivel de impacto: Bajo 45 · Moderado 20 · Alto 0',
+    'Perfil de la empresa completo: 10 puntos (5 si está incompleto)',
+  ])
+  addParagraph('Por esta fórmula, una empresa con impacto Alto alcanza como máximo 55 puntos (Comprometido), con impacto Moderado hasta 75 (Avanzado), y solo con impacto Bajo se puede llegar a Líder Sostenible. Reducir tus emisiones es la forma de subir de nivel.')
+  addParagraph('Badges: Primera emisión, Alcance completo (declaras Alcance 3), Planificador (3 o más acciones), Bajo impacto y Líder (score de 90 o más).')
+  y += 2
+
+  addInfoBox('Verificación: cada certificado tiene un código con el formato ECO-XXXXXX-NN, donde NN es el score. Cualquier persona puede consultarlo en www.ecometrix.app/verificar/[CODIGO]: solo existen los códigos emitidos por EcoMetriX y la página muestra empresa, score, nivel, desglose y badges. Un código inventado aparece como "Certificado no válido".', verdeClaro, verde)
+  addInfoBox('Alcance del certificado: es un sello de autodiagnóstico basado en datos declarados por la empresa. No constituye verificación de tercera parte. Para una verificación formal se requiere un verificador acreditado (ISO 14064-3).', [255,251,235], [146,64,14])
 
   // ── 06 Estándares ───────────────────────────────────────────────────────
   addPage()
@@ -365,11 +392,11 @@ async function generarManualPDF() {
 
   const planes = [
     { nombre: 'Básico', precio: '$79.000 COP/mes', anual: '$758.400/año (20% off)',
-      features: ['Diagnósticos ilimitados', 'Reporte PDF', 'Certificación EcoMetriX', 'Dashboard 360', 'Soporte por email'] },
+      features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Plan de reducción mensual', 'Soporte por email'] },
     { nombre: 'Pro — Más popular', precio: '$199.000 COP/mes', anual: '$1.910.400/año (20% off)',
-      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Integraciones ERP', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'] },
+      features: ['Todo lo del Básico', 'Módulo CSRD/ESRS completo', 'Integraciones ERP (Alegra y CSV)', 'Calculador SBTi v2', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'] },
     { nombre: 'Enterprise', precio: '$499.000 COP/mes', anual: '$4.790.400/año (20% off)',
-      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'Factura electrónica'] },
+      features: ['Todo lo del Pro', 'API (1.000 solicitudes/hora)', 'Informe de soporte para verificación externa', 'Onboarding personalizado', 'Factura electrónica'] },
   ]
 
   planes.forEach(({ nombre, precio, anual, features }) => {
@@ -388,19 +415,29 @@ async function generarManualPDF() {
     y += 3
   })
 
+  addSubtitle('Cómo funciona el pago')
+  addBullet([
+    'Pagas una sola vez por periodo: 30 días (mensual) o 365 días (anual, con 20% de descuento). No hay renovación automática.',
+    'Al vencer el periodo tienes 3 días de gracia; después la cuenta vuelve al plan Free.',
+    'Puedes renovar en los últimos 7 días de vigencia: el nuevo periodo se suma al que te queda.',
+    'Si subes de plan, el nuevo plan se activa de inmediato y su periodo cuenta desde el pago.',
+    'Los pagos los procesa Wompi (tarjetas y PSE). EcoMetriX no almacena datos de tu tarjeta.',
+  ])
+
   // ── 09 FAQ ──────────────────────────────────────────────────────────────
   addPage()
   addSection('Preguntas frecuentes', '09', '❓')
   y += 2
 
   const faqs = [
-    ['¿El diagnóstico es gratis?', 'Sí. El diagnóstico inicial, el reporte PDF y el certificado EcoMetriX son 100% gratuitos. No se requiere tarjeta de crédito. Los planes de pago desbloquean funciones avanzadas como CSRD/ESRS e integraciones ERP.'],
+    ['¿El diagnóstico es gratis?', 'Sí. El diagnóstico inicial es gratuito y no requiere tarjeta de crédito. Las funciones incluidas en cada plan (reporte PDF descargable, certificación, plan de reducción, CSRD/ESRS, integraciones) están detalladas en la sección Planes y en la página de precios.'],
     ['¿Cuánto tiempo toma?', 'Entre 10 y 15 minutos para el cuestionario completo. No se necesita experiencia técnica.'],
     ['¿Puedo subir una foto de mi factura?', 'Sí. Durante el cuestionario encontrarás el botón Importar factura en la barra superior. Sube una imagen o PDF de cualquier factura de proveedor y la IA extrae automáticamente el consumo. Si tienes varias sedes, las facturas se suman entre sí en vez de reemplazarse.'],
-    ['¿Los precios tienen descuento anual?', 'Sí. Al seleccionar facturación anual obtienes un 20% de descuento. El cambio aplica desde el primer pago y se cobra en un solo cobro anual.'],
+    ['¿Los precios tienen descuento anual?', 'Sí. Al seleccionar facturación anual (365 días) obtienes un 20% de descuento, pagado en un solo cobro.'],
     ['¿Puedo conectar mi ERP?', 'Sí. El plan Pro incluye integración con Alegra por API directa, además de importación por CSV o foto de factura con IA. La integración con Siigo está en desarrollo.'],
-    ['¿Puedo cancelar en cualquier momento?', 'Sí. No hay contratos ni permanencia mínima. Puedes cancelar desde tu perfil y tu plan seguirá activo hasta el fin del período pagado.'],
-    ['¿Cómo se verifica el certificado?', 'Cualquier persona puede visitar www.ecometrix.app/verificar/[CODIGO] para confirmar la autenticidad del certificado en tiempo real.'],
+    ['¿Los planes se renuevan automáticamente?', 'No. Cada pago cubre un periodo (30 o 365 días) y al terminar no se cobra nada más. No hay contratos ni permanencia mínima. Puedes renovar desde la página de precios en los últimos 7 días de vigencia sin perder los días que te queden; tras el vencimiento hay 3 días de gracia.'],
+    ['¿Cómo se verifica el certificado?', 'Cualquier persona puede visitar www.ecometrix.app/verificar/[CODIGO]. Solo existen los códigos emitidos por EcoMetriX; un código inventado aparece como no válido.'],
+    ['¿El certificado equivale a una verificación externa?', 'No. Es un sello de autodiagnóstico basado en los datos que declaras y no constituye verificación de tercera parte. Para una verificación formal se requiere un verificador acreditado (ISO 14064-3).'],
     ['¿Los datos de mi empresa están seguros?', 'Sí. Los datos se almacenan cifrados en infraestructura AWS (Supabase) y no se venden ni se comparten con terceros. Solo los proveedores necesarios para operar el servicio (alojamiento, correo, pagos e inteligencia artificial) procesan la información que cada función requiere. El certificado público solo muestra nombre de empresa, score y nivel.'],
   ]
 
@@ -520,7 +557,7 @@ export default function Manual() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
             <div className="relative">
-              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">{t('manual.badge')} v3.0</span>
+              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">{t('manual.badge')} v3.2</span>
               <h1 className="text-3xl font-bold mb-3">{t('manual.heroTitle')}</h1>
               <p className="text-white/80 text-sm max-w-lg leading-relaxed">{t('manual.subtitle')}</p>
               <div className="flex flex-wrap gap-3 mt-6">
@@ -613,7 +650,7 @@ export default function Manual() {
                 { t: 'Fuentes de emisión', d: 'Tabla detallada con cada categoría de emisión, su peso en el total y el factor de emisión aplicado (con su fuente: UPME, EPA o IPCC AR6). Los factores de países sin fuente oficial verificada se marcan como "estimado".' },
                 { t: 'Plan de reducción', d: '5 acciones priorizadas por impacto potencial y facilidad. Cada acción incluye % de reducción estimado, dificultad y plazo.' },
                 { t: 'Metodología aplicada', d: 'Badges con cobertura de cada estándar: GHG Protocol, ISO 14064-1, IPCC AR6, CSRD/ESRS E1, SBTi Baseline y GRI 305.' },
-                { t: 'Certificación EcoMetriX', d: 'Score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros desbloqueados.' },
+                { t: 'Certificación EcoMetriX', d: 'Sello de autodiagnóstico con score de sostenibilidad (0-100), nivel obtenido, código de verificación único y badges de logros. Requiere haber iniciado sesión y se calcula con los datos que declaraste.' },
               ].map(({ t: title, d }, i) => (
                 <div key={title} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#E8F5F0]">
                   <div className="w-7 h-7 rounded-lg bg-[#1D9E75] flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">{i + 1}</div>
@@ -686,7 +723,7 @@ export default function Manual() {
           <section>
             <SectionTitle id="certificado" icon="🏅" n="05" title={t('manual.sections.certificado')} />
             <p className="text-sm text-[#57534E] leading-relaxed mb-6">
-              Al completar el diagnóstico, EcoMetriX genera automáticamente un <strong>Certificado de Diagnóstico de Huella de Carbono</strong>. Este certificado tiene una puntuación calculada matemáticamente, un nivel asignado según criterios objetivos y un código de verificación único.
+              Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un <strong>Certificado de Diagnóstico de Huella de Carbono</strong>: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {[
@@ -702,10 +739,39 @@ export default function Manual() {
                 </div>
               ))}
             </div>
-            <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-5">
+            <div className="bg-white border border-[#E8F5F0] rounded-2xl p-5 mb-4">
+              <p className="text-sm font-bold text-[#1C1917] mb-3">¿Cómo se calcula el score? (máximo 100)</p>
+              <ul className="space-y-1.5 mb-3">
+                {[
+                  'Alcances 1 y 2 declarados: hasta 20 puntos (13 si solo declaras el Alcance 1)',
+                  'Alcance 3 declarado: 10 puntos',
+                  'Plan de acción: 3 puntos por acción, hasta 15',
+                  'Nivel de impacto: Bajo 45 · Moderado 20 · Alto 0',
+                  'Perfil de la empresa completo: 10 puntos (5 si está incompleto)',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-[#57534E]">
+                    <span className="text-[#1D9E75] flex-shrink-0 mt-0.5">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-[#78716C] leading-relaxed">
+                Por esta fórmula, una empresa con impacto Alto alcanza como máximo 55 puntos (Comprometido), con impacto Moderado hasta 75 (Avanzado), y solo con impacto Bajo se puede llegar a Líder Sostenible. Reducir tus emisiones es la forma de subir de nivel.
+              </p>
+              <p className="text-xs text-[#78716C] leading-relaxed mt-3">
+                <strong>Badges:</strong> Primera emisión, Alcance completo (declaras Alcance 3), Planificador (3 o más acciones), Bajo impacto y Líder (score de 90 o más).
+              </p>
+            </div>
+            <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-5 mb-4">
               <p className="text-sm font-bold text-[#1D9E75] mb-2">¿Cómo se verifica el certificado?</p>
               <p className="text-sm text-[#57534E] leading-relaxed">
-                Cualquier persona puede verificar un certificado en <strong>www.ecometrix.app/verificar/[CODIGO]</strong>. El sistema consulta la base de datos en tiempo real y muestra el nivel, score, empresa y fecha de emisión.
+                Cada certificado tiene un código con el formato <strong>ECO-XXXXXX-NN</strong>, donde NN es el score. Cualquier persona puede consultarlo en <strong>www.ecometrix.app/verificar/[CODIGO]</strong>: solo existen los códigos emitidos por EcoMetriX, y la página muestra empresa, score, nivel, desglose y badges. Un código inventado aparece como "Certificado no válido".
+              </p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+              <p className="text-sm font-bold text-amber-800 mb-2">Alcance del certificado</p>
+              <p className="text-sm text-amber-700 leading-relaxed">
+                Es un sello de autodiagnóstico basado en datos declarados por la empresa. No constituye verificación de tercera parte. Para una verificación formal se requiere un verificador acreditado (ISO 14064-3).
               </p>
             </div>
           </section>
@@ -775,13 +841,13 @@ export default function Manual() {
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 { nombre: 'Básico', precio: '$79.000 COP', periodo: '/mes — o $758.400/año (20% off)',
-                  features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Soporte por email'],
+                  features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Plan de reducción mensual', 'Soporte por email'],
                   color: 'border-[#E8F5F0]', btn: 'bg-[#F0FDF4] text-[#1D9E75]', link: '/precios?plan=basico' },
                 { nombre: 'Pro', precio: '$199.000 COP', periodo: '/mes — o $1.910.400/año (20% off)',
-                  features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Seguimiento mes a mes', 'Módulo CSRD/ESRS', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'],
+                  features: ['Todo lo del Básico', 'Módulo CSRD/ESRS completo', 'Integraciones ERP (Alegra y CSV)', 'Calculador SBTi v2', 'Acceso API (100 solicitudes/hora)', 'Soporte prioritario'],
                   color: 'border-[#1D9E75] ring-2 ring-[#1D9E75]/20', btn: 'bg-[#1D9E75] text-white', link: '/precios?plan=pro', badge: t('pricing.popular') },
                 { nombre: 'Enterprise', precio: '$499.000 COP', periodo: '/mes — o $4.790.400/año (20% off)',
-                  features: ['Todo lo del Pro', 'Múltiples usuarios', 'API (1.000 solicitudes/hora)', 'Onboarding personalizado', 'Factura electrónica'],
+                  features: ['Todo lo del Pro', 'API (1.000 solicitudes/hora)', 'Informe de soporte para verificación externa', 'Onboarding personalizado', 'Factura electrónica'],
                   color: 'border-amber-200', btn: 'bg-amber-50 text-amber-700', link: '/precios?plan=enterprise' },
               ].map(({ nombre, precio, periodo, features, color, btn, link, badge }) => (
                 <div key={nombre} className={`bg-white rounded-2xl border-2 ${color} p-5 flex flex-col`}>
@@ -804,6 +870,23 @@ export default function Manual() {
                 </div>
               ))}
             </div>
+            <div className="mt-6 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-5">
+              <p className="text-sm font-bold text-[#1D9E75] mb-2">Cómo funciona el pago</p>
+              <ul className="space-y-1.5">
+                {[
+                  'Pagas una sola vez por periodo: 30 días (mensual) o 365 días (anual, con 20% de descuento). No hay renovación automática ni cobros sorpresa.',
+                  'Al vencer el periodo tienes 3 días de gracia; después la cuenta vuelve al plan Free.',
+                  'Puedes renovar tu plan en los últimos 7 días de vigencia: el nuevo periodo se suma al que te queda, no pierdes días.',
+                  'Si subes de plan, el nuevo plan se activa de inmediato y su periodo cuenta desde el pago.',
+                  'Los pagos los procesa Wompi (tarjetas Visa, Mastercard, American Express y PSE). EcoMetriX no almacena datos de tu tarjeta.',
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-[#57534E]">
+                    <span className="text-[#1D9E75] flex-shrink-0 mt-0.5">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           {/* 09 — FAQ */}
@@ -819,6 +902,14 @@ export default function Manual() {
               <FAQItem
                 q="¿Puedo subir una foto de mi factura de servicios públicos?"
                 a="Sí. Durante el cuestionario encontrarás el botón 'Importar factura' en la barra superior de cada alcance. Sube una imagen JPG o PNG de tu factura de electricidad, gas o combustible y la IA extrae automáticamente el consumo y lo pre-llena en el formulario. Para PDFs, toma una captura de pantalla primero."
+              />
+              <FAQItem
+                q="¿Los planes se renuevan automáticamente?"
+                a="No. Cada pago cubre un periodo (30 o 365 días) y al terminar no se cobra nada más. Puedes renovar desde la página de precios en los últimos 7 días de vigencia sin perder los días que te queden; tras el vencimiento hay 3 días de gracia antes de volver al plan Free."
+              />
+              <FAQItem
+                q="¿El certificado EcoMetriX equivale a una verificación externa?"
+                a="No. Es un sello de autodiagnóstico basado en los datos que declaras y no constituye verificación de tercera parte. Su código se puede consultar públicamente en la página de verificación. Para una verificación formal se requiere un verificador acreditado (ISO 14064-3)."
               />
               <FAQItem
                 q="¿Los precios tienen descuento por pago anual?"
