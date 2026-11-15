@@ -440,7 +440,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
   return (
     <>
       {/* Canvas off-screen para generar el PDF */}
-      <DiplomaCanvas cert={cert} level={level} earnedKeys={earnedKeys} canvasRef={canvasRef} />
+      {!cert.locked && <DiplomaCanvas cert={cert} level={level} earnedKeys={earnedKeys} canvasRef={canvasRef} />}
 
       <div className={`
         rounded-2xl border ${level.border} bg-gray-900 bg-gradient-to-br ${level.bg}
@@ -452,7 +452,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
           <ScoreRing score={cert.score} color={level.color} />
           <div className="flex flex-col gap-1 min-w-0">
             <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-              Certificación EcoMetriX
+              {cert.locked ? 'Vista previa de tu certificación' : 'Certificación EcoMetriX'}
             </span>
             <h3 className="text-xl font-bold text-white leading-tight flex items-center gap-2">
               <span>{level.icon}</span>
@@ -461,26 +461,37 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
             <span className="text-sm text-gray-300 truncate">
               {cert.certification?.empresa_nombre}
             </span>
-            <span className="text-xs text-gray-500">
-              {new Date(cert.certification?.issued_at).toLocaleDateString('es-CO', {
-                year: 'numeric', month: 'long', day: 'numeric'
-              })}
-            </span>
+            {cert.certification?.issued_at && (
+              <span className="text-xs text-gray-500">
+                {new Date(cert.certification.issued_at).toLocaleDateString('es-CO', {
+                  year: 'numeric', month: 'long', day: 'numeric'
+                })}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Código de verificación */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-          <span className="text-xs text-gray-400">Código:</span>
-          <code className="text-xs font-mono text-emerald-400 flex-1">{cert.verification_code}</code>
-          <button
-            onClick={() => navigator.clipboard.writeText(cert.verification_code)}
-            className="text-gray-500 hover:text-white transition-colors text-xs"
-            title="Copiar código"
-          >
-            📋
-          </button>
-        </div>
+        {/* Código de verificación (solo planes de pago) */}
+        {cert.locked ? (
+          <div className="px-3 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+            <p className="text-xs font-semibold text-amber-300 mb-1">🔒 Código verificable y certificado PDF</p>
+            <p className="text-xs text-amber-200/80 leading-snug">
+              Esta es tu vista previa. Con el plan Básico se emite el código de verificación público y puedes descargar el certificado en PDF.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+            <span className="text-xs text-gray-400">Código:</span>
+            <code className="text-xs font-mono text-emerald-400 flex-1">{cert.verification_code}</code>
+            <button
+              onClick={() => navigator.clipboard.writeText(cert.verification_code)}
+              className="text-gray-500 hover:text-white transition-colors text-xs"
+              title="Copiar código"
+            >
+              📋
+            </button>
+          </div>
+        )}
 
         {/* Desglose de puntuación */}
         <div>
@@ -526,7 +537,17 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
           Sello de autodiagnóstico basado en datos declarados. No constituye verificación de tercera parte.
         </p>
 
-        {/* CTA PDF */}
+        {/* CTA PDF / activar plan */}
+        {cert.locked ? (
+          <a
+            href="/precios?plan=basico"
+            className="w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-semibold
+              flex items-center justify-center gap-2 hover:bg-emerald-500 transition-colors"
+          >
+            <span>🔓</span>
+            <span>Activar plan Básico para certificarte</span>
+          </a>
+        ) : (
         <button
           onClick={descargarPDF}
           disabled={pdfLoading}
@@ -546,6 +567,7 @@ export default function CertificationCard({ diagnosticoData, userId, onCertified
             </>
           )}
         </button>
+        )}
       </div>
     </>
   )

@@ -14,6 +14,7 @@ function setCORS(res) {
 }
 
 // ── GET-CERTIFICATION ──────────────────────────────────────────────────────────
+// Plan: Free recibe vista previa (locked: true) sin código; Básico o superior emite y guarda el certificado.
 // Seguridad: exige sesión, lee el diagnóstico desde la base de datos (nunca del body)
 // y solo certifica diagnósticos que pertenecen al usuario autenticado.
 // El puntaje refleja el desempeño: el nivel de impacto pesa 45 de 100, así que un impacto
@@ -76,6 +77,27 @@ async function getCertification(req, res) {
   if (nPlan >= 3) badgesEarned.push({ badge_key: 'planner' })
   if (calculo.nivelImpacto === 'Bajo') badgesEarned.push({ badge_key: 'low_impact' })
   if (score >= 90) badgesEarned.push({ badge_key: 'leader' })
+  // El código verificable y el certificado público requieren plan de pago (Básico o superior).
+  // Un usuario Free ve su score, nivel y desglose como vista previa, pero no se emite código ni se guarda.
+  const { data: perfil, error: perfErr } = await supabase
+    .from('profiles').select('plan, role, trial_plan, trial_expires_at').eq('id', user.id).maybeSingle()
+  if (perfErr) {
+    console.error('Cert profile error:', perfErr)
+    return res.status(500).json({ error: 'perfil_no_disponible' })
+  }
+  const trialVigente = perfil?.trial_plan && perfil?.trial_expires_at && new Date(perfil.trial_expires_at) > new Date()
+  const planEfectivo = trialVigente ? perfil.trial_plan : (perfil?.plan || 'free')
+  const puedeEmitir = perfil?.role === 'superadmin' || ['basico', 'pro', 'enterprise'].includes(planEfectivo)
+  if (!puedeEmitir) {
+    return res.status(200).json({
+      locked: true, required_plan: 'basico',
+      score, level, level_name: levelNames[level], breakdown, badges_earned: badgesEarned,
+      new_badges: [], verification_code: null,
+      certification: { empresa_nombre: empresa.nombre, issued_at: null },
+      _cache: 'locked',
+    })
+  }
+
   const verification_code = codigoVerificacion(score)
   const certId = `cert_${diagnostico_id}`
   const issuedAt = new Date().toISOString()

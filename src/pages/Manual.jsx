@@ -299,7 +299,7 @@ async function generarManualPDF() {
   // ── 05 Certificado ──────────────────────────────────────────────────────
   addPage()
   addSection('Certificado y credibilidad', '05', '🏅')
-  addParagraph('Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un Certificado de Diagnóstico de Huella de Carbono: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único.')
+  addParagraph('Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un Certificado de Diagnóstico de Huella de Carbono: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único. En el plan Free ves tu score, nivel y desglose como vista previa; el código de verificación público y el certificado PDF se emiten desde el plan Básico.')
   y += 4
 
   const niveles = [
@@ -723,7 +723,7 @@ export default function Manual() {
           <section>
             <SectionTitle id="certificado" icon="🏅" n="05" title={t('manual.sections.certificado')} />
             <p className="text-sm text-[#57534E] leading-relaxed mb-6">
-              Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un <strong>Certificado de Diagnóstico de Huella de Carbono</strong>: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único.
+              Al completar el diagnóstico con tu sesión iniciada, EcoMetriX genera un <strong>Certificado de Diagnóstico de Huella de Carbono</strong>: un sello de autodiagnóstico con una puntuación calculada a partir de los datos que declaraste, un nivel y un código de verificación único. En el plan Free ves tu score, nivel y desglose como vista previa; el código de verificación público y el certificado PDF se emiten desde el plan Básico.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {[
