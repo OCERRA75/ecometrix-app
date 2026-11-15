@@ -205,7 +205,7 @@ function Hero() {
                     <div className="w-24 h-2 rounded-full bg-white/30" />
                   </div>
                   <div className="px-3 py-1 rounded-full bg-brand-100/20 border border-brand-100/30">
-                    <span className="text-white/90 text-xs font-medium">Dashboard 360°</span>
+                    <span className="text-white/90 text-xs font-medium">Dashboard 360° · ejemplo</span>
                   </div>
                 </div>
                 {/* Score */}
@@ -235,7 +235,7 @@ function Hero() {
                 </div>
                 {/* Mini chart bars */}
                 <div className="bg-white/5 rounded-xl p-3">
-                  <p className="text-white/40 text-xs mb-2">Emisiones — últimos 6 meses</p>
+                  <p className="text-white/40 text-xs mb-2">Emisiones de ejemplo — últimos 6 meses</p>
                   <div className="flex items-end gap-1.5 h-8">
                     {[60, 45, 70, 55, 40, 35].map((h, i) => (
                       <div key={i} className="flex-1 rounded-sm bg-brand-100/40" style={{ height: `${h}%` }} />
@@ -447,69 +447,23 @@ function Benefits() {
 }
 
 function SocialProof() {
-  const testimonials = [
-    {
-      quote: 'En menos de 15 minutos tuvimos nuestro reporte de huella de carbono listo. Nunca pensé que fuera tan fácil.',
-      name: 'María González',
-      role: 'Gerente de Operaciones',
-      company: 'Textiles del Norte',
-      sector: 'Manufactura',
-      initial: 'M',
-    },
-    {
-      quote: 'El certificado EcoMetriX nos abrió puertas en licitaciones donde antes nos pedían reportes de sostenibilidad carísimos.',
-      name: 'Carlos Ramos',
-      role: 'Director General',
-      company: 'LogiCaribe S.A.S.',
-      sector: 'Logística',
-      initial: 'C',
-    },
-    {
-      quote: 'Lo usamos cada mes para rastrear nuestras emisiones. El plan de reducción nos ayudó a bajar un 18% en 6 meses.',
-      name: 'Luisa Herrera',
-      role: 'Coordinadora ESG',
-      company: 'Grupo Comercial Andino',
-      sector: 'Retail',
-      initial: 'L',
-    },
-  ]
-
   return (
     <section className="py-20 bg-surface-secondary">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="max-w-2xl mx-auto text-center mb-14">
-          <span className="badge-green mb-4 inline-block">Casos de éxito</span>
+        <div className="max-w-2xl mx-auto text-center">
+          <span className="badge-green mb-4 inline-block">Metodología</span>
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-5">
-            PyMEs colombianas ya miden su impacto
+            Cálculo basado en estándares reconocidos
           </h2>
           <p className="text-text-secondary text-lg">
-            Más de 100 empresas han generado su reporte de sostenibilidad con EcoMetriX.
+            Estamos en etapa de lanzamiento e incorporando nuestras primeras empresas piloto.
+            ¿Quieres ser una?{' '}
+            <a href="mailto:contacto@ecometrix.app?subject=Empresa%20piloto%20EcoMetriX" className="text-brand-400 font-medium hover:underline">
+              Escríbenos
+            </a>
           </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map(({ quote, name, role, company, sector, initial }) => (
-            <div key={name} className="bg-white rounded-2xl border border-border p-6 shadow-card flex flex-col">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} viewBox="0 0 24 24" fill="#10b981" className="w-4 h-4">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                ))}
-              </div>
-              <p className="text-text-secondary text-sm leading-relaxed mb-6 flex-1">"{quote}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-brand-300 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-                  {initial}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">{name}</p>
-                  <p className="text-xs text-text-muted">{role} · {company}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-50">
+        <div className="mt-10 flex flex-wrap justify-center gap-8 opacity-60">
           {['GHG Protocol', 'ISO 14064', 'CSRD/ESRS', 'IPCC AR6', 'Science Based Targets'].map(s => (
             <span key={s} className="text-sm font-semibold text-text-muted">{s}</span>
           ))}
@@ -526,7 +480,7 @@ function PricingPreview() {
       nombre: 'Básico',
       precio: '$79.000',
       desc: 'Para PyMEs que quieren medir y certificar su huella.',
-      features: ['Diagnósticos ilimitados', 'Reporte PDF', 'Certificación EcoMetriX', 'Dashboard 360°'],
+      features: ['Diagnósticos ilimitados', 'Reporte PDF descargable', 'Certificación EcoMetriX', 'Dashboard 360°', 'Plan de reducción mensual'],
       cta: 'Empezar con Básico',
       highlight: false,
     },
@@ -535,7 +489,7 @@ function PricingPreview() {
       nombre: 'Pro',
       precio: '$199.000',
       desc: 'Para empresas que quieren reducir emisiones activamente.',
-      features: ['Todo lo del Básico', 'Plan de reducción mensual', 'Módulo CSRD/ESRS', 'Acceso API'],
+      features: ['Todo lo del Básico', 'Módulo CSRD/ESRS completo', 'Integraciones ERP (Alegra y CSV)', 'Calculador SBTi v2', 'Acceso API (100 solicitudes/hora)'],
       cta: 'Empezar con Pro',
       highlight: true,
       badge: 'Más popular',
@@ -545,7 +499,7 @@ function PricingPreview() {
       nombre: 'Enterprise',
       precio: '$499.000',
       desc: 'Para grupos empresariales y grandes organizaciones.',
-      features: ['Todo lo del Pro', 'Múltiples usuarios', 'API ilimitada', 'SLA garantizado'],
+      features: ['Todo lo del Pro', 'API (1.000 solicitudes/hora)', 'Informe de soporte para verificación externa', 'Onboarding personalizado', 'Factura electrónica'],
       cta: 'Contactar ventas',
       highlight: false,
     },
@@ -634,19 +588,19 @@ const FAQ_LANDING = [
   },
   {
     q: '¿El diagnóstico gratuito es realmente gratis?',
-    a: 'Sí, 100%. No se requiere tarjeta de crédito. El diagnóstico inicial, el reporte PDF y el certificado EcoMetriX están disponibles sin costo. Los planes de pago desbloquean funciones avanzadas como CSRD/ESRS e integraciones ERP.',
+    a: 'Sí. El diagnóstico inicial es gratuito y no requiere tarjeta de crédito. Funciones como la certificación, el reporte PDF descargable, el módulo CSRD/ESRS y las integraciones dependen del plan; los detalles están en la página de precios.',
   },
   {
     q: '¿EcoMetriX cumple con estándares internacionales?',
-    a: 'Sí. Los cálculos siguen GHG Protocol Corporate Standard, ISO 14064-1:2018 y los factores de emisión del IPCC AR6. El módulo Pro incluye análisis de brecha CSRD/ESRS para empresas con operaciones en Europa.',
+    a: 'Los cálculos se basan en GHG Protocol Corporate Standard, ISO 14064-1:2018 y los factores de emisión del IPCC AR6. El certificado EcoMetriX es un sello de autodiagnóstico basado en datos declarados; no es una verificación de tercera parte (ISO 14064-3). El plan Pro incluye el módulo CSRD/ESRS.',
   },
   {
     q: '¿Puedo conectar mi ERP (Siigo, Alegra)?',
-    a: 'Sí, el plan Pro incluye integración con Siigo y Alegra para importar datos automáticamente, además de carga por CSV. Esto elimina la necesidad de ingresar datos manualmente cada mes.',
+    a: 'Sí, el plan Pro incluye integración con Alegra y carga por CSV para importar datos sin digitarlos cada mes. La integración con Siigo está en proceso.',
   },
   {
     q: '¿Mis datos están seguros?',
-    a: 'Todos los datos se almacenan cifrados en infraestructura AWS (Supabase) y no son compartidos con terceros bajo ninguna circunstancia.',
+    a: 'Tus datos se almacenan en infraestructura de Supabase y no se venden ni se comparten con fines comerciales. Para generar tu análisis se procesan con proveedores de infraestructura y de inteligencia artificial.',
   },
 ]
 
