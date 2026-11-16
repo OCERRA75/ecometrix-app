@@ -217,11 +217,9 @@ export default function Report() {
             }
           }
           // 2. Cargar desde Supabase
-          const { data: diag, error: diagError } = await supabase
-            .from('diagnosticos')
-            .select('id, empresa, calculo, analisis, respuestas')
-            .eq('id', id)
-            .maybeSingle()
+          // Lectura por función: devuelve solo el diagnóstico del id exacto (URL compartible),
+          // sin dejar la tabla legible ni listable con la llave pública.
+          const { data: diag, error: diagError } = await supabase.rpc('diagnostico_publico', { p_id: id })
           if (diagError) console.error('Supabase error:', diagError)
           if (diag) {
             const result = { id: diag.id, empresa: diag.empresa, calculo: diag.calculo, analisis: diag.analisis, respuestas: diag.respuestas }
