@@ -368,7 +368,7 @@ export default function Pricing() {
                   </div>
                 ) : esEnterprise ? (
                   <a
-                    href="https://wa.me/573001234567?text=Hola%2C%20me%20interesa%20el%20plan%20Enterprise%20de%20EcoMetriX"
+                    href="https://wa.me/573028588838?text=Hola%2C%20me%20interesa%20el%20plan%20Enterprise%20de%20EcoMetriX"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700"
