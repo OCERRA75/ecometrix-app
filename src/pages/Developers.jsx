@@ -46,7 +46,7 @@ const ENDPOINTS = [
   },
   "electricidad": {
     "Colombia": { "factor": 0.220, "unidad": "kg CO2e/kWh" },
-    "Mexico":   { "factor": 0.454, "unidad": "kg CO2e/kWh" }
+    "Mexico":   { "factor": 0.444, "unidad": "kg CO2e/kWh" }
   },
   "refrigerantes": {
     "R410A": { "gwp": 2256, "unidad": "kg CO2e/kg" },
